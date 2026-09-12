@@ -27,15 +27,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // CORS Configuration
+// Add FRONTEND_URL in Render dashboard once Vercel URL is known
 const allowedOrigins = [
-  process.env.CLIENT_URL || "http://localhost:3000",
-  "http://127.0.0.1:3000"
-];
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  process.env.FRONTEND_URL,   // e.g. https://prayaas-portal.vercel.app
+].filter(Boolean); // removes undefined if FRONTEND_URL is not set
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps, curl, Postman)
+      // Allow requests with no origin (mobile apps, curl, Postman)
       if (!origin || allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
