@@ -1,0 +1,19 @@
+# Root-level .gitignore — catches OS and editor noise from the repo root
+
+# OS-generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs at root level
+*.log
