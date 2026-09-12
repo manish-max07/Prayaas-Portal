@@ -1,11 +1,19 @@
 import React from "react";
+import Image from "next/image";
 
 export default function Footer() {
   return (
     <footer className="mt-auto border-t border-gray-200 bg-gray-50 py-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
+            <Image
+              src="/logo.png"
+              alt="Prayaas Portal Logo"
+              width={32}
+              height={32}
+              className="h-8 w-8 object-contain rounded-full"
+            />
             <span className="text-base font-bold text-gray-900">
               Prayaas<span className="text-blue-600">Portal</span>
             </span>

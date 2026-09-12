@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
+import Image from "next/image";
+
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const router = useRouter();
@@ -18,12 +20,17 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 w-full border-b border-gray-200 bg-white shadow-xs">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand / Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-lg shadow-xs">
-            P
-          </div>
+        <Link href="/" className="flex items-center gap-3 group">
+          <Image
+            src="/logo.png"
+            alt="Prayaas Portal Logo"
+            width={44}
+            height={44}
+            className="h-10 w-10 object-contain rounded-full transition-transform group-hover:scale-105"
+            priority
+          />
           <div className="flex flex-col">
-            <span className="text-xl font-bold tracking-tight text-gray-900">
+            <span className="text-xl font-bold tracking-tight text-gray-900 group-hover:text-blue-600 transition-colors">
               Prayaas<span className="text-blue-600">Portal</span>
             </span>
             <span className="text-[10px] uppercase tracking-wider text-gray-500 font-medium -mt-1">

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
@@ -99,8 +100,16 @@ export default function HomePage() {
 
         <div className="relative mx-auto max-w-7xl px-4 pt-12 pb-16 sm:px-6 sm:pt-16 sm:pb-20 lg:px-8">
           <div className="mx-auto max-w-4xl text-center">
-            {/* Live Indicator Pill */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-4 py-1.5 text-xs font-semibold text-blue-200 backdrop-blur-md shadow-xs mb-6">
+            {/* Live Indicator Pill with Brand Logo */}
+            <div className="inline-flex items-center gap-2.5 rounded-full border border-blue-400/30 bg-blue-500/10 px-4 py-1.5 text-xs font-semibold text-blue-200 backdrop-blur-md shadow-xs mb-6">
+              <Image
+                src="/logo.png"
+                alt="Prayaas Portal Emblem"
+                width={22}
+                height={22}
+                className="h-5 w-5 object-contain rounded-full shadow-xs"
+                priority
+              />
               <span className="flex h-2 w-2 relative">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>

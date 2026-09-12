@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo, use } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -343,9 +344,14 @@ function LiveExamContent({ params }) {
       {/* 1. TOP BAR: Exam Name, Timer, Candidate Info */}
       <header className="sticky top-0 z-30 border-b border-gray-300 bg-blue-900 px-4 py-2.5 text-white shadow-sm flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-700 text-white font-black text-sm">
-            P
-          </div>
+          <Image
+            src="/logo.png"
+            alt="Prayaas Portal"
+            width={34}
+            height={34}
+            className="h-8.5 w-8.5 object-contain rounded-full bg-white/10 p-0.5"
+            priority
+          />
           <div>
             <h1 className="text-sm sm:text-base font-bold tracking-tight line-clamp-1">
               {exam.title}

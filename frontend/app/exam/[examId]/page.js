@@ -3,6 +3,7 @@
 import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -102,13 +103,23 @@ function ExamInstructionsContent({ params }) {
         
         {/* Top Header Bar */}
         <div className="border-b border-gray-200 bg-blue-900 px-6 py-4 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <span className="inline-block rounded bg-blue-800 px-2 py-0.5 text-[11px] font-semibold tracking-wide uppercase text-blue-200">
-              {exam.examCategory} Exam Simulation
-            </span>
-            <h1 className="text-lg sm:text-xl font-bold tracking-tight mt-0.5">
-              {exam.title}
-            </h1>
+          <div className="flex items-center gap-3">
+            <Image
+              src="/logo.png"
+              alt="Prayaas Portal"
+              width={42}
+              height={42}
+              className="h-10 w-10 object-contain rounded-full bg-white/10 p-0.5 shrink-0"
+              priority
+            />
+            <div>
+              <span className="inline-block rounded bg-blue-800 px-2 py-0.5 text-[11px] font-semibold tracking-wide uppercase text-blue-200">
+                {exam.examCategory} Exam Simulation
+              </span>
+              <h1 className="text-lg sm:text-xl font-bold tracking-tight mt-0.5">
+                {exam.title}
+              </h1>
+            </div>
           </div>
 
           <div className="flex items-center gap-4 text-xs">

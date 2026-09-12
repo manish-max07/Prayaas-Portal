@@ -2,6 +2,7 @@
 
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
@@ -52,9 +53,16 @@ function LoginForm() {
     <div className="flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8 rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
         <div className="text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white font-bold text-xl shadow-xs">
-            P
-          </div>
+          <Link href="/" className="inline-block transition-transform hover:scale-105">
+            <Image
+              src="/logo.png"
+              alt="Prayaas Portal Logo"
+              width={72}
+              height={72}
+              className="mx-auto h-18 w-18 object-contain rounded-full shadow-sm"
+              priority
+            />
+          </Link>
           <h2 className="mt-4 text-2xl font-bold tracking-tight text-gray-900">
             Sign in to your account
           </h2>

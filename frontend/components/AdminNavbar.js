@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
@@ -19,13 +20,20 @@ export default function AdminNavbar() {
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Admin Brand */}
         <div className="flex items-center gap-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded bg-gray-700 text-white font-mono font-bold text-xs">
+          <Image
+            src="/logo.png"
+            alt="Prayaas Portal"
+            width={32}
+            height={32}
+            className="h-8 w-8 object-contain rounded-full"
+          />
+          <div className="flex h-6 w-6 items-center justify-center rounded bg-gray-800 text-gray-300 font-mono font-bold text-[10px] border border-gray-700">
             ADM
           </div>
           <div>
             <Link
               href="/admin/dashboard"
-              className="text-sm font-bold tracking-wider text-gray-100 uppercase"
+              className="text-sm font-bold tracking-wider text-gray-100 uppercase hover:text-white"
             >
               Prayaas Portal <span className="text-gray-400 font-normal">| Admin Console</span>
             </Link>
