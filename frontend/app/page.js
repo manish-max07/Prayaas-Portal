@@ -67,9 +67,9 @@ export default function HomePage() {
 
   const handleStartPractice = (examId) => {
     if (!isAuthenticated) {
-      router.push(`/login?redirect=/exam/${examId}`);
+      router.push(`/login?redirect=/exam/${examId}/login`);
     } else {
-      router.push(`/exam/${examId}`);
+      router.push(`/exam/${examId}/login`);
     }
   };
 
