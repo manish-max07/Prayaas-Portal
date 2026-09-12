@@ -16,6 +16,11 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "Prayaas-Portal | Online Exam Practice Portal",
   description: "TCS iON styled online exam practice portal for SSC, Banking, Railways, and competitive examinations.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({ children }) {
