@@ -188,13 +188,17 @@ export default function RankResultPage({ params }) {
           </div>
         </div>
 
-        {/* ============================================================ */}
-        {/* THE SCORECARD ITSELF (Target for PNG download & printing)    */}
-        {/* ============================================================ */}
-        <div
-          ref={scorecardRef}
-          className="rounded-2xl border border-slate-300/80 bg-white p-6 sm:p-8 shadow-sm space-y-6 text-slate-800 overflow-hidden"
-        >
+        {/* Mobile Horizontal View Wrapper with gentle hint */}
+        <div className="block md:hidden text-[11px] text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-xl px-3 py-2 text-center font-medium shadow-2xs">
+          👆 <strong>Mobile View:</strong> Swipe horizontally on the scorecard below to inspect all columns, or tap <strong>Download Scorecard (PNG)</strong> to get the high-res image.
+        </div>
+
+        {/* Scrollable Container for Mobile Viewports */}
+        <div className="w-full overflow-x-auto pb-4 -mx-1 px-1">
+          <div
+            ref={scorecardRef}
+            className="min-w-[720px] max-w-5xl mx-auto rounded-2xl border border-slate-300/80 bg-white p-6 sm:p-8 shadow-sm space-y-6 text-slate-800 overflow-hidden"
+          >
           {/* 1. TOP HEADER BANNER (With Department / PSU Logo) */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-200 pb-4">
             {/* Left: Department / PSU Header Banner Image */}
@@ -500,6 +504,7 @@ export default function RankResultPage({ params }) {
               Date & Time: {currentDateTime || "14 Sept 2026, 01:04 AM (IST)"}
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
