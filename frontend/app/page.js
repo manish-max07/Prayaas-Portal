@@ -495,6 +495,29 @@ export default function HomePage() {
           </div>
         )}
       </main>
+
+      {/* Portal Footer */}
+      <footer className="mt-16 border-t border-slate-200 bg-white py-8 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <div>
+            <p className="font-semibold text-slate-700">Prayaas Portal • Official Examination &amp; Prep Platform</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">© 2026 Prayaas Portal. All Rights Reserved. Built for aspirants across India.</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/rank-calculator" className="hover:text-blue-600 font-medium">
+              Rank Predictor
+            </Link>
+            <span>•</span>
+            <Link href="/rank-calculator/terms-conditions" className="hover:text-blue-600 font-medium underline">
+              Terms &amp; Conditions
+            </Link>
+            <span>•</span>
+            <Link href="/rank-calculator/terms-conditions" className="hover:text-blue-600 font-medium">
+              User Data Policy
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

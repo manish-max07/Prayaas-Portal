@@ -506,6 +506,26 @@ export default function RankResultPage({ params }) {
           </div>
         </div>
         </div>
+
+        {/* Outer Legal Links */}
+        <div className="mt-8 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 max-w-4xl mx-auto">
+          <p>© 2026 Prayaas Portal. Educational &amp; Community Exam Analysis Tool.</p>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/rank-calculator/terms-conditions"
+              className="text-blue-600 hover:text-blue-800 underline font-medium"
+            >
+              Terms &amp; Conditions
+            </Link>
+            <span>•</span>
+            <Link
+              href="/rank-calculator/terms-conditions"
+              className="text-blue-600 hover:text-blue-800 underline font-medium"
+            >
+              User Data Policy
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

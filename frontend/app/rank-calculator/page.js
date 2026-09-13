@@ -33,6 +33,7 @@ export default function RankCalculatorPage() {
   const [horizontalCategory, setHorizontalCategory] = useState("None");
   const [gender, setGender] = useState("Male");
   const [securityPin, setSecurityPin] = useState("1234");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   // Processing & Error State
   const [submitting, setSubmitting] = useState(false);
@@ -81,6 +82,11 @@ export default function RankCalculatorPage() {
 
     if (inputMode === "html" && !rawHtml.trim()) {
       setError("Please paste the raw HTML source of your response sheet.");
+      return;
+    }
+
+    if (!agreedToTerms) {
+      setError("Please agree to the Terms and Conditions and Privacy-Policy to proceed (tick the checkbox).");
       return;
     }
 
@@ -522,8 +528,53 @@ export default function RankCalculatorPage() {
               </div>
             </div>
 
+            {/* TERMS & CONDITIONS & PRIVACY POLICY CONSENT */}
+            <div
+              className={`rounded-2xl border p-4 transition-all ${
+                !agreedToTerms && error && error.includes("Terms")
+                  ? "border-rose-400 bg-rose-50/90 ring-2 ring-rose-300"
+                  : agreedToTerms
+                  ? "border-emerald-300 bg-emerald-50/60 shadow-xs"
+                  : "border-slate-200 bg-white hover:border-slate-300 shadow-xs"
+              }`}
+            >
+              <label className="flex items-center gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={agreedToTerms}
+                  onChange={(e) => {
+                    setAgreedToTerms(e.target.checked);
+                    if (e.target.checked && error && error.includes("Terms")) {
+                      setError(null);
+                    }
+                  }}
+                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
+                />
+                <div className="text-xs sm:text-sm text-slate-700 leading-normal font-medium">
+                  <span>I agree with </span>
+                  <Link
+                    href="/rank-calculator/terms-conditions"
+                    target="_blank"
+                    onClick={(e) => e.stopPropagation()}
+                    className="font-semibold text-blue-600 hover:text-blue-800 underline transition-colors"
+                  >
+                    Terms and Conditions
+                  </Link>
+                  <span> and </span>
+                  <Link
+                    href="/rank-calculator/terms-conditions"
+                    target="_blank"
+                    onClick={(e) => e.stopPropagation()}
+                    className="font-semibold text-blue-600 hover:text-blue-800 underline transition-colors"
+                  >
+                    Privacy-Policy
+                  </Link>
+                </div>
+              </label>
+            </div>
+
             {/* SUBMIT BUTTON CTA */}
-            <div className="pt-2">
+            <div className="pt-1">
               <button
                 type="submit"
                 disabled={submitting}
@@ -570,6 +621,33 @@ export default function RankCalculatorPage() {
               Paste the link in the box above to immediately calculate your marks and see where you rank!
             </li>
           </ol>
+        </div>
+
+        {/* Footer Legal Links */}
+        <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+          <p>© 2026 Prayaas Portal. Educational &amp; Community Exam Analysis Tool.</p>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/rank-calculator/terms-conditions"
+              className="text-blue-600 hover:text-blue-800 underline font-medium"
+            >
+              Terms &amp; Conditions
+            </Link>
+            <span>•</span>
+            <Link
+              href="/rank-calculator/terms-conditions"
+              className="text-blue-600 hover:text-blue-800 underline font-medium"
+            >
+              User Data Policy
+            </Link>
+            <span>•</span>
+            <Link
+              href="/rank-calculator/terms-conditions"
+              className="text-slate-500 hover:text-slate-700"
+            >
+              Disclaimer
+            </Link>
+          </div>
         </div>
       </main>
     </div>
