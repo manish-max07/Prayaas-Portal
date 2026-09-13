@@ -2,62 +2,44 @@ const RankExam = require("../models/RankExam");
 const RankSubmission = require("../models/RankSubmission");
 const { parseResponseSheetHtml, fetchResponseSheetUrl } = require("../services/digialmParser");
 
-// Default initial seed exams
+// Default exams as requested: AVNL and CIL with default marks +1 and 0
 const DEFAULT_EXAMS = [
   {
-    name: "DFCCIL Junior Manager / Executive Recruitment 2026",
-    slug: "dfccil-2026",
-    examCategory: "Railway",
+    name: "AVNL Recruitment 2026",
+    slug: "avnl-recruitment-2026",
+    examCategory: "Defence",
     marksForCorrect: 1.0,
-    negativeMarks: 0.25,
+    negativeMarks: 0.0,
     totalExpectedQuestions: 100,
-    description: "Dedicated Freight Corridor Corporation of India Limited (TCS iON Shift Examination)",
+    description: "Armoured Vehicles Nigam Limited (AVNL) Executive & Junior Manager Recruitment Examination 2026",
+    isActive: true,
   },
   {
-    name: "SSC CGL 2026 (Tier 1)",
-    slug: "ssc-cgl-2026",
-    examCategory: "SSC",
-    marksForCorrect: 2.0,
-    negativeMarks: 0.5,
-    totalExpectedQuestions: 100,
-    description: "Staff Selection Commission Combined Graduate Level Examination",
-  },
-  {
-    name: "RRB NTPC / Group D CBT 2026",
-    slug: "rrb-ntpc-2026",
-    examCategory: "Railway",
+    name: "CIL Management Trainee 2026 Recruitment",
+    slug: "cil-management-trainee-2026",
+    examCategory: "Engineering",
     marksForCorrect: 1.0,
-    negativeMarks: 0.33,
+    negativeMarks: 0.0,
     totalExpectedQuestions: 100,
-    description: "Railway Recruitment Board Non-Technical Popular Categories",
-  },
-  {
-    name: "GATE 2026 (Graduate Aptitude Test in Engineering)",
-    slug: "gate-2026",
-    examCategory: "GATE",
-    marksForCorrect: 1.0,
-    negativeMarks: 0.33,
-    totalExpectedQuestions: 65,
-    description: "GATE Engineering Response Sheet Analysis (MCQ + NAT + MSQ)",
-  },
-  {
-    name: "General TCS iON Competitive Exam (+1, -0.25)",
-    slug: "general-tcs-ion",
-    examCategory: "Other",
-    marksForCorrect: 1.0,
-    negativeMarks: 0.25,
-    totalExpectedQuestions: 100,
-    description: "Standard TCS iON Computer Based Test with 1/4th negative marking",
+    description: "Coal India Limited (CIL) Management Trainee Computer Based Test 2026",
+    isActive: true,
   },
 ];
 
 /**
- * Seed default exams if none exist
+ * Seed/ensure only the specified exams are active
  */
 async function ensureDefaultExams() {
-  const count = await RankExam.countDocuments();
-  if (count === 0) {
-    await RankExam.insertMany(DEFAULT_EXAMS);
+  const activeSlugs = DEFAULT_EXAMS.map((e) => e.slug);
+  // Deactivate any previous exams so only AVNL and CIL are visible
+  await RankExam.updateMany({ slug: { $nin: activeSlugs } }, { $set: { isActive: false } });
+
+  for (const def of DEFAULT_EXAMS) {
+    await RankExam.findOneAndUpdate(
+      { slug: def.slug },
+      { $set: { ...def, isActive: true } },
+      { upsert: true, new: true }
+    );
   }
 }
 
@@ -90,6 +72,8 @@ exports.calculateScoreAndRank = async (req, res, next) => {
       horizontalCategory = "None",
       gender = "Male",
       securityPin = "1234",
+      marksForCorrect: userMarksForCorrect,
+      negativeMarks: userNegativeMarks,
     } = req.body;
 
     if (!responseUrl && !rawHtml) {
@@ -110,9 +94,20 @@ exports.calculateScoreAndRank = async (req, res, next) => {
       exam = await RankExam.findOne({ isActive: true });
     }
 
+    // User can customize positive marks (default +1.0) and negative marks (default 0.0)
+    const marksForCorrect =
+      userMarksForCorrect !== undefined && userMarksForCorrect !== null && userMarksForCorrect !== ""
+        ? Math.max(0, Number(userMarksForCorrect))
+        : exam?.marksForCorrect ?? 1.0;
+
+    const negativeMarks =
+      userNegativeMarks !== undefined && userNegativeMarks !== null && userNegativeMarks !== ""
+        ? Math.max(0, Number(userNegativeMarks))
+        : exam?.negativeMarks ?? 0.0;
+
     const markingScheme = {
-      marksForCorrect: exam?.marksForCorrect ?? 1.0,
-      negativeMarks: exam?.negativeMarks ?? 0.25,
+      marksForCorrect,
+      negativeMarks,
     };
 
     // 2. Fetch HTML if URL provided
@@ -147,6 +142,10 @@ exports.calculateScoreAndRank = async (req, res, next) => {
       rankExam: exam._id,
       examName: exam.name,
       responseUrl: responseUrl || "",
+      headerImageUrl: candidateInfo.headerImageUrl || "",
+      examLanguage: candidateInfo.examLanguage || "English",
+      marksForCorrectScheme: marksForCorrect,
+      negativeMarksScheme: negativeMarks,
       participantId: candidateInfo.participantId,
       participantName: candidateInfo.participantName,
       testCenterName: candidateInfo.testCenterName,
@@ -428,4 +427,24 @@ exports.deleteSubmission = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @desc Proxy image to prevent CORS issues during HTML-to-Canvas PNG download
+ * @route GET /api/rank-calculator/proxy-image
+ */
+exports.proxyImage = async (req, res) => {
+  try {
+    const { url } = req.query;
+    if (!url) return res.status(400).send("No url provided");
+    const response = await fetch(url);
+    const buffer = await response.arrayBuffer();
+    const contentType = response.headers.get("content-type") || "image/jpeg";
+    res.set("Content-Type", contentType);
+    res.set("Cache-Control", "public, max-age=86400");
+    res.send(Buffer.from(buffer));
+  } catch (e) {
+    res.status(500).send("Failed to proxy image");
+  }
+};
+
 

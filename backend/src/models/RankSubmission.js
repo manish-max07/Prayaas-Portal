@@ -16,6 +16,22 @@ const RankSubmissionSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    headerImageUrl: {
+      type: String,
+      default: "",
+    },
+    examLanguage: {
+      type: String,
+      default: "English",
+    },
+    marksForCorrectScheme: {
+      type: Number,
+      default: 1.0,
+    },
+    negativeMarksScheme: {
+      type: Number,
+      default: 0.0,
+    },
     // Auto-parsed candidate details from TCS iON response sheet
     participantId: {
       type: String,

@@ -22,7 +22,20 @@ function parseResponseSheetHtml(html, markingScheme = { marksForCorrect: 1.0, ne
     testDate: "",
     testTime: "",
     subject: "General",
+    examLanguage: "English",
+    headerImageUrl: "",
   };
+
+  // Extract Department / PSU header banner image from response sheet HTML
+  // Usually the very first <img> tag or an image containing "banner" or inside the header table
+  const imgMatches = html.matchAll(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi);
+  for (const im of imgMatches) {
+    const src = im[1].trim();
+    if (!src.includes("tick.png") && !src.includes("cross.png") && !src.includes("adcimages")) {
+      candidateInfo.headerImageUrl = src;
+      break;
+    }
+  }
 
   const tableMatch = html.match(/<table border="1" cellpadding="1" cellspacing="1"[^>]*>([\s\S]*?)<\/table>/i);
   if (tableMatch) {
@@ -36,6 +49,8 @@ function parseResponseSheetHtml(html, markingScheme = { marksForCorrect: 1.0, ne
       else if (/Test Date/i.test(key)) candidateInfo.testDate = val;
       else if (/Test Time/i.test(key)) candidateInfo.testTime = val;
       else if (/Subject/i.test(key)) candidateInfo.subject = val;
+      else if (/Exam Language|Language/i.test(key)) candidateInfo.examLanguage = val;
+      else if (/Trade|Post/i.test(key) && candidateInfo.subject === "General") candidateInfo.subject = val;
     }
   }
 

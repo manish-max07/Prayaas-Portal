@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, useRef, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toPng } from "html-to-image";
+import QRCode from "qrcode";
 import api from "@/lib/api";
 
 export default function RankResultPage({ params }) {
@@ -10,12 +12,49 @@ export default function RankResultPage({ params }) {
   const { id } = unwrappedParams;
 
   const router = useRouter();
+  const scorecardRef = useRef(null);
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [downloading, setDownloading] = useState(false);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
+  const [currentDateTime, setCurrentDateTime] = useState("");
 
   useEffect(() => {
     fetchResult();
+  }, [id]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const url = window.location.href;
+      QRCode.toDataURL(url, {
+        width: 130,
+        margin: 1,
+        color: {
+          dark: "#0F172A",
+          light: "#FFFFFF",
+        },
+      })
+        .then((dataUrl) => setQrCodeDataUrl(dataUrl))
+        .catch((err) => console.error("QR Generation error:", err));
+
+      const now = new Date();
+      const formatted =
+        now.toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        }) +
+        ", " +
+        now.toLocaleTimeString("en-IN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }) +
+        " (IST)";
+      setCurrentDateTime(formatted);
+    }
   }, [id]);
 
   const fetchResult = async () => {
@@ -36,6 +75,31 @@ export default function RankResultPage({ params }) {
     }
   };
 
+  const handleDownloadPng = async () => {
+    if (!scorecardRef.current) return;
+    try {
+      setDownloading(true);
+      const dataUrl = await toPng(scorecardRef.current, {
+        quality: 0.98,
+        pixelRatio: 2,
+        backgroundColor: "#ffffff",
+        cacheBust: true,
+      });
+
+      const participant = data?.submission?.participantId || "Candidate";
+      const link = document.createElement("a");
+      link.download = `Smart_Score_Card_${participant}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error("Scorecard PNG export error:", err);
+      alert("Could not generate PNG automatically. Opening print preview instead.");
+      window.print();
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -44,7 +108,7 @@ export default function RankResultPage({ params }) {
     return (
       <div className="flex min-h-[70vh] flex-col items-center justify-center gap-3">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
-        <p className="text-sm font-semibold text-slate-700">Computing Live Ranks & Shift Analytics...</p>
+        <p className="text-sm font-semibold text-slate-700">Computing Live Ranks & Scorecard...</p>
       </div>
     );
   }
@@ -71,11 +135,26 @@ export default function RankResultPage({ params }) {
 
   const { submission, ranks } = data;
 
+  // Marking & Percentage calculations
+  const marksPerCorrect = submission.marksForCorrectScheme || 1.0;
+  const maxScore = (submission.totalQuestions || 100) * marksPerCorrect;
+  const attemptPct =
+    submission.totalQuestions > 0
+      ? ((submission.attempted / submission.totalQuestions) * 100).toFixed(1)
+      : "0.0";
+  const scorePct = maxScore > 0 ? ((submission.totalScore / maxScore) * 100).toFixed(2) : "0.00";
+
+  // Proxied header logo to guarantee zero CORS issues when exporting to PNG
+  const apiBase = api.defaults.baseURL || "http://localhost:5000";
+  const proxiedBannerUrl = submission.headerImageUrl
+    ? `${apiBase}/api/rank-calculator/proxy-image?url=${encodeURIComponent(submission.headerImageUrl)}`
+    : null;
+
   return (
-    <div className="min-h-screen bg-slate-50/70 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-5xl space-y-6">
-        {/* Navigation & Action Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2">
+    <div className="min-h-screen bg-slate-100/70 py-6 sm:py-10 px-3 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl space-y-4">
+        {/* Top Actions Bar (Hidden on print) */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-1 print:hidden">
           <Link
             href="/rank-calculator"
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
@@ -84,228 +163,338 @@ export default function RankResultPage({ params }) {
             <span>Check Another Response Sheet</span>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={handleDownloadPng}
+              disabled={downloading}
+              className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-indigo-700 transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+            >
+              <span>📥</span>
+              <span>{downloading ? "Generating PNG..." : "Download Scorecard (PNG)"}</span>
+            </button>
+
             <button
               onClick={handlePrint}
-              className="rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition-colors cursor-pointer flex items-center gap-1.5"
+              className="rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition-colors cursor-pointer flex items-center gap-1.5"
             >
               <span>🖨️</span>
-              <span>Print Scorecard</span>
+              <span>Print</span>
             </button>
           </div>
         </div>
 
-        {/* 1. CANDIDATE PROFILE & EXAM HEADER BANNER */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs overflow-hidden">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-100 pb-5">
-            <div>
-              <span className="inline-block rounded-md bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700 border border-blue-100 uppercase tracking-wide">
-                {submission.examName}
-              </span>
-              <h1 className="mt-1.5 text-xl sm:text-2xl font-black text-slate-900">
-                {submission.participantName || "Candidate Scorecard"}
+        {/* ============================================================ */}
+        {/* THE SCORECARD ITSELF (Target for PNG download & printing)    */}
+        {/* ============================================================ */}
+        <div
+          ref={scorecardRef}
+          className="rounded-2xl border border-slate-300/80 bg-white p-6 sm:p-8 shadow-sm space-y-6 text-slate-800"
+        >
+          {/* 1. TOP HEADER BANNER (With Department / PSU Logo) */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-200 pb-4">
+            {/* Left: Department / PSU Header Banner Image */}
+            <div className="flex items-center justify-center sm:justify-start min-w-[180px] max-w-xs">
+              {proxiedBannerUrl ? (
+                <img
+                  src={proxiedBannerUrl}
+                  alt="Exam Conducting Authority"
+                  crossOrigin="anonymous"
+                  className="max-h-16 max-w-full object-contain rounded"
+                />
+              ) : (
+                <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2 text-left">
+                  <span className="text-2xl">🏛️</span>
+                  <div>
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-slate-800 leading-tight">
+                      {submission.examName}
+                    </div>
+                    <div className="text-[10px] text-slate-500 font-medium">
+                      Official Candidate Assessment
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Center: Title */}
+            <div className="text-center">
+              <div className="text-xs font-black tracking-widest text-blue-600 uppercase">
+                PRAYAAS PORTAL
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 mt-0.5">
+                SMART SCORE CARD
               </h1>
-              <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 font-medium">
-                <span>Roll: <strong className="text-slate-800 font-mono">{submission.participantId}</strong></span>
-                <span>•</span>
-                <span>Category: <strong className="text-slate-800">{submission.category}</strong></span>
-                <span>•</span>
-                <span>State: <strong className="text-slate-800">{submission.state}</strong></span>
+              <div className="text-[11px] text-slate-500 font-medium tracking-wide mt-0.5">
+                Live • Version-aware • Community Analysis
               </div>
             </div>
 
-            <div className="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs space-y-1 md:text-right shrink-0">
-              <div>Subject / Trade: <strong className="text-slate-900">{submission.subject}</strong></div>
-              <div>Test Date: <strong className="text-slate-900">{submission.testDate || "N/A"}</strong></div>
-              <div>Shift Timing: <strong className="text-slate-900">{submission.testTime || "N/A"}</strong></div>
-              <div className="text-[11px] text-slate-400 truncate max-w-xs">{submission.testCenterName}</div>
+            {/* Right: Subject & Verification Pills */}
+            <div className="text-center sm:text-right shrink-0">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                SUBJECT
+              </div>
+              <div className="text-xs sm:text-sm font-black text-slate-900 max-w-[220px] truncate">
+                {submission.subject}
+              </div>
+              <div className="mt-1 flex items-center justify-center sm:justify-end gap-2 text-[10px] font-bold">
+                <span className="text-amber-600">RANK READY 🏆</span>
+                <span>•</span>
+                <span className="inline-flex items-center gap-1 text-emerald-600">
+                  <span>✔</span>
+                  <span>QR VERIFIED</span>
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* 2. DYNAMIC LIVE RANKS TILES */}
-          <div className="mt-6">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
-              Live Comparative Standing Across Submissions
-            </h2>
+          {/* 2. CANDIDATE PROFILE & HIGHLIGHT RANK BOX */}
+          <div className="rounded-xl border border-slate-300/80 bg-white p-4 sm:p-5 shadow-2xs">
+            <div className="flex flex-col lg:flex-row items-stretch justify-between gap-6">
+              {/* Profile Details (3 Columns) */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-3 text-xs flex-1">
+                {/* Column 1 */}
+                <div className="space-y-3">
+                  <div>
+                    <div className="text-[11px] font-semibold text-slate-400">Candidate Name</div>
+                    <div className="text-xs font-black uppercase text-slate-900 mt-0.5">
+                      {submission.participantName || "Candidate"}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-semibold text-slate-400">Gender</div>
+                    <div className="text-xs font-bold text-slate-800 mt-0.5">
+                      {submission.gender || "Male"}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-semibold text-slate-400">Trade / Post</div>
+                    <div className="text-xs font-bold text-slate-800 mt-0.5">
+                      {submission.subject}
+                    </div>
+                  </div>
+                </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-              {/* All India Rank */}
-              <div className="rounded-xl border border-amber-200 bg-gradient-to-b from-amber-50/80 to-white p-4 shadow-xs text-center">
-                <span className="text-lg">🏆</span>
-                <div className="text-xs font-bold text-amber-900 mt-1">All India Rank (AIR)</div>
-                <div className="text-2xl font-black text-amber-600 mt-0.5">
+                {/* Column 2 */}
+                <div className="space-y-3">
+                  <div>
+                    <div className="text-[11px] font-semibold text-slate-400">Roll Number</div>
+                    <div className="text-xs font-black font-mono text-slate-900 mt-0.5">
+                      {submission.participantId}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-semibold text-slate-400">Exam Date</div>
+                    <div className="text-xs font-bold text-slate-800 mt-0.5">
+                      {submission.testDate || "N/A"}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-semibold text-slate-400">Exam Language</div>
+                    <div className="text-xs font-bold text-slate-800 mt-0.5">
+                      {submission.examLanguage || "English"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Column 3 */}
+                <div className="space-y-3">
+                  <div>
+                    <div className="text-[11px] font-semibold text-slate-400">Category</div>
+                    <div className="text-xs font-black text-slate-900 mt-0.5">
+                      {submission.category}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-semibold text-slate-400">Shift / Time</div>
+                    <div className="text-xs font-bold text-slate-800 mt-0.5">
+                      {submission.testTime || "N/A"}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-semibold text-slate-400">Exam Centre</div>
+                    <div className="text-xs font-medium text-slate-700 mt-0.5 line-clamp-2">
+                      {submission.testCenterName || "N/A"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Far Right: Royal Purple "YOUR RANK" Highlight Box */}
+              <div className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-b from-[#342478] via-[#3E2B92] to-[#452FA0] text-white p-5 text-center min-w-[170px] shadow-sm shrink-0">
+                <div className="text-[11px] font-extrabold uppercase tracking-wider text-amber-300">
+                  YOUR RANK 🏆
+                </div>
+                <div className="text-3xl sm:text-4xl font-black text-white mt-1 leading-none">
                   #{ranks.air.rank}
                 </div>
-                <div className="text-[11px] text-slate-500 font-semibold">
-                  out of {ranks.air.total}
-                </div>
-                <div className="mt-1.5 text-[10px] font-bold text-amber-700 bg-amber-100/60 rounded px-1.5 py-0.5 inline-block">
-                  {ranks.percentile}%ile
-                </div>
-              </div>
-
-              {/* Category Rank */}
-              <div className="rounded-xl border border-blue-200 bg-gradient-to-b from-blue-50/80 to-white p-4 shadow-xs text-center">
-                <span className="text-lg">🏷️</span>
-                <div className="text-xs font-bold text-blue-900 mt-1">{submission.category} Category Rank</div>
-                <div className="text-2xl font-black text-blue-600 mt-0.5">
-                  #{ranks.category.rank}
-                </div>
-                <div className="text-[11px] text-slate-500 font-semibold">
-                  out of {ranks.category.total}
-                </div>
-              </div>
-
-              {/* Trade/Subject Rank */}
-              <div className="rounded-xl border border-purple-200 bg-gradient-to-b from-purple-50/80 to-white p-4 shadow-xs text-center">
-                <span className="text-lg">🛠️</span>
-                <div className="text-xs font-bold text-purple-900 mt-1">Trade / Branch Rank</div>
-                <div className="text-2xl font-black text-purple-600 mt-0.5">
-                  #{ranks.trade.rank}
-                </div>
-                <div className="text-[11px] text-slate-500 font-semibold">
-                  out of {ranks.trade.total}
-                </div>
-              </div>
-
-              {/* Shift Rank */}
-              <div className="rounded-xl border border-emerald-200 bg-gradient-to-b from-emerald-50/80 to-white p-4 shadow-xs text-center">
-                <span className="text-lg">⏱️</span>
-                <div className="text-xs font-bold text-emerald-900 mt-1">Shift Rank</div>
-                <div className="text-2xl font-black text-emerald-600 mt-0.5">
-                  #{ranks.shift.rank}
-                </div>
-                <div className="text-[11px] text-slate-500 font-semibold">
-                  out of {ranks.shift.total}
-                </div>
-              </div>
-
-              {/* State Rank */}
-              <div className="rounded-xl border border-rose-200 bg-gradient-to-b from-rose-50/80 to-white p-4 shadow-xs text-center col-span-2 sm:col-span-1">
-                <span className="text-lg">📍</span>
-                <div className="text-xs font-bold text-rose-900 mt-1">State Rank ({submission.state})</div>
-                <div className="text-2xl font-black text-rose-600 mt-0.5">
-                  #{ranks.state.rank}
-                </div>
-                <div className="text-[11px] text-slate-500 font-semibold">
-                  out of {ranks.state.total}
+                <div className="text-[11px] text-purple-200 mt-1.5 font-medium">
+                  Out of {ranks.air.total}
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* 3. SCORE & ACCURACY SUMMARY CARDS */}
-        <div className="grid gap-4 sm:grid-cols-4">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
-            <span className="text-xs font-semibold text-slate-500">Net Calculated Score</span>
-            <div className="mt-1 text-3xl font-black text-slate-900">
-              {submission.totalScore}
-              <span className="text-sm font-semibold text-slate-400 ml-1">/ {submission.totalQuestions}</span>
-            </div>
-            <div className="mt-2 text-xs text-emerald-600 font-bold flex items-center gap-1">
-              <span>+{submission.positiveMarks} positive</span>
-              <span className="text-slate-300">•</span>
-              <span className="text-rose-600">-{submission.negativeMarks} penalty</span>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
-            <span className="text-xs font-semibold text-slate-500">Overall Accuracy</span>
-            <div className="mt-1 text-3xl font-black text-blue-600">
-              {submission.accuracy}%
-            </div>
-            <div className="mt-2 text-xs text-slate-500">
-              {submission.correct} correct out of {submission.attempted} answered
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
-            <span className="text-xs font-semibold text-slate-500">Attempted Questions</span>
-            <div className="mt-1 text-3xl font-black text-slate-900">
-              {submission.attempted}
-              <span className="text-sm font-semibold text-slate-400 ml-1">/ {submission.totalQuestions}</span>
-            </div>
-            <div className="mt-2 text-xs text-slate-500">
-              {submission.unattempted} questions left unattempted
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
-            <span className="text-xs font-semibold text-slate-500">Shift Benchmark</span>
-            <div className="mt-1 text-xl font-bold text-slate-800">
-              Avg: {ranks.benchmarks?.examAverage || submission.totalScore}
-            </div>
-            <div className="mt-2 text-xs text-amber-700 font-semibold">
-              Topper Score: {ranks.benchmarks?.topperScore || submission.totalScore}
-            </div>
-          </div>
-        </div>
-
-        {/* 4. SECTION-WISE BREAKDOWN TABLE */}
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-          <div className="border-b border-slate-100 bg-slate-50/70 px-6 py-4 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-900">
-              Section-wise Marks & Question Breakdown
-            </h3>
-            <span className="text-xs text-slate-500">
-              {submission.sectionBreakdown?.length || 0} Sections Evaluated
-            </span>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-600">
-                <tr>
-                  <th className="py-3 px-6">Section Name</th>
-                  <th className="py-3 px-4 text-center">Questions</th>
-                  <th className="py-3 px-4 text-center text-emerald-700">Correct</th>
-                  <th className="py-3 px-4 text-center text-rose-700">Wrong</th>
-                  <th className="py-3 px-4 text-center text-slate-500">Left</th>
-                  <th className="py-3 px-4 text-center text-rose-600">Penalty</th>
-                  <th className="py-3 px-6 text-right font-black">Net Score</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {submission.sectionBreakdown?.map((sec, idx) => (
-                  <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="py-3.5 px-6 font-bold text-slate-900">{sec.sectionName}</td>
-                    <td className="py-3.5 px-4 text-center font-medium text-slate-700">{sec.questions}</td>
-                    <td className="py-3.5 px-4 text-center font-bold text-emerald-600">
-                      +{sec.correct}
-                    </td>
-                    <td className="py-3.5 px-4 text-center font-bold text-rose-600">
-                      -{sec.incorrect}
-                    </td>
-                    <td className="py-3.5 px-4 text-center font-medium text-slate-400">{sec.unanswered}</td>
-                    <td className="py-3.5 px-4 text-center font-semibold text-rose-600">
-                      -{sec.negativeMarks}
-                    </td>
-                    <td className="py-3.5 px-6 text-right font-black text-slate-900 text-sm">
-                      {sec.score}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* 5. FOOTER ACTION BANNER */}
-        <div className="rounded-2xl bg-gradient-to-r from-blue-700 to-indigo-800 p-6 sm:p-8 text-white shadow-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          {/* 3. PERFORMANCE OVERVIEW */}
           <div>
-            <h3 className="text-lg font-bold">Compare with Other Shift Candidates</h3>
-            <p className="text-xs text-blue-100 mt-1 max-w-xl">
-              See who topped your subject, view shift difficulty rankings to predict normalization impact, and check full filtered leaderboards.
-            </p>
+            <h2 className="text-xs font-black uppercase tracking-wider text-slate-900 mb-2.5">
+              PERFORMANCE OVERVIEW
+            </h2>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {/* Raw Score */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-4 text-center">
+                <div className="text-[11px] font-bold text-slate-500">Raw Score</div>
+                <div className="mt-1 text-xl sm:text-2xl font-black text-[#6B21A8]">
+                  {submission.totalScore.toFixed(2)}/{maxScore.toFixed(2)}
+                </div>
+              </div>
+
+              {/* Accuracy */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-4 text-center">
+                <div className="text-[11px] font-bold text-slate-500">Accuracy</div>
+                <div className="mt-1 text-xl sm:text-2xl font-black text-emerald-600">
+                  {submission.accuracy}%
+                </div>
+              </div>
+
+              {/* Attempt */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-4 text-center">
+                <div className="text-[11px] font-bold text-slate-500">Attempt</div>
+                <div className="mt-1 text-xl sm:text-2xl font-black text-amber-600">
+                  {attemptPct}%
+                </div>
+              </div>
+
+              {/* Correct / Wrong */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-4 text-center">
+                <div className="text-[11px] font-bold text-slate-500">Correct / Wrong</div>
+                <div className="mt-1 text-xl sm:text-2xl font-black text-slate-900">
+                  {submission.correct} / {submission.incorrect}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-2 text-[11px] text-slate-500 text-center sm:text-left">
+              Score {scorePct}% • Attempted {submission.attempted}/{submission.totalQuestions} • Analysis based on up to {ranks.air.total} candidates
+            </div>
           </div>
 
-          <Link
-            href={`/rank-calculator/leaderboard/${submission.rankExam?._id || submission.rankExam}`}
-            className="shrink-0 rounded-xl bg-white px-6 py-3 text-xs font-bold text-blue-700 shadow-md hover:bg-blue-50 transition-colors text-center"
-          >
-            Explore Live Leaderboard &rarr;
-          </Link>
+          {/* 4. SECTION-WISE PERFORMANCE */}
+          <div>
+            <h2 className="text-xs font-black uppercase tracking-wider text-slate-900 mb-2.5">
+              SECTION-WISE PERFORMANCE
+            </h2>
+
+            <div className="overflow-x-auto rounded-xl border border-slate-300">
+              <table className="w-full text-left text-xs text-slate-700">
+                <thead className="bg-[#0B57D0] text-white font-bold text-[11px] uppercase tracking-wider">
+                  <tr>
+                    <th className="px-4 py-2.5">Section</th>
+                    <th className="px-3 py-2.5 text-center">Total</th>
+                    <th className="px-3 py-2.5 text-center">Correct</th>
+                    <th className="px-3 py-2.5 text-center">Wrong</th>
+                    <th className="px-3 py-2.5 text-center">Unattempted</th>
+                    <th className="px-3 py-2.5 text-center">Score</th>
+                    <th className="px-3 py-2.5 text-center">Maximum</th>
+                    <th className="px-3 py-2.5 text-center">Type</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 bg-white font-medium">
+                  {submission.sectionBreakdown && submission.sectionBreakdown.length > 0 ? (
+                    submission.sectionBreakdown.map((sec, idx) => {
+                      const secMax = (sec.questions || 0) * marksPerCorrect;
+                      return (
+                        <tr key={idx} className="hover:bg-slate-50/70 transition-colors">
+                          <td className="px-4 py-2.5 font-bold text-slate-900">
+                            {sec.sectionName}
+                          </td>
+                          <td className="px-3 py-2.5 text-center font-semibold">
+                            {sec.questions}
+                          </td>
+                          <td className="px-3 py-2.5 text-center font-bold text-emerald-600">
+                            {sec.correct}
+                          </td>
+                          <td className="px-3 py-2.5 text-center font-bold text-red-600">
+                            {sec.incorrect}
+                          </td>
+                          <td className="px-3 py-2.5 text-center text-slate-500">
+                            {sec.unanswered}
+                          </td>
+                          <td className="px-3 py-2.5 text-center font-bold text-slate-900">
+                            {sec.score.toFixed(2)}
+                          </td>
+                          <td className="px-3 py-2.5 text-center font-semibold text-slate-600">
+                            {secMax.toFixed(2)}
+                          </td>
+                          <td className="px-3 py-2.5 text-center text-slate-500 font-semibold">
+                            Main
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td className="px-4 py-2.5 font-bold text-slate-900">General Paper</td>
+                      <td className="px-3 py-2.5 text-center font-semibold">{submission.totalQuestions}</td>
+                      <td className="px-3 py-2.5 text-center font-bold text-emerald-600">{submission.correct}</td>
+                      <td className="px-3 py-2.5 text-center font-bold text-red-600">{submission.incorrect}</td>
+                      <td className="px-3 py-2.5 text-center text-slate-500">{submission.unattempted}</td>
+                      <td className="px-3 py-2.5 text-center font-bold text-slate-900">{submission.totalScore.toFixed(2)}</td>
+                      <td className="px-3 py-2.5 text-center font-semibold text-slate-600">{maxScore.toFixed(2)}</td>
+                      <td className="px-3 py-2.5 text-center text-slate-500 font-semibold">Main</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* 5. IMPORTANT NOTE / महत्वपूर्ण सूचना (With QR Code) */}
+          <div className="rounded-xl border border-amber-300 bg-amber-50/50 p-4 sm:p-5">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="space-y-1 text-left flex-1">
+                <div className="text-xs font-bold uppercase tracking-wide text-amber-900">
+                  IMPORTANT NOTE / महत्वपूर्ण सूचना
+                </div>
+                <p className="text-[11px] text-slate-700 leading-relaxed">
+                  Raw score and live rank are ready. Normalization and Expected Cutoff may still be processing. Reopen the same Result Link later for the latest Smart Score Card.
+                </p>
+                <p className="text-[11px] font-medium text-slate-800 pt-1">
+                  यह computer-generated Smart Score Card आधिकारिक score card नहीं है।
+                </p>
+              </div>
+
+              {/* QR Code Verification */}
+              <div className="flex flex-col items-center justify-center shrink-0">
+                <div className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 mb-1 flex items-center gap-1">
+                  <span>✔</span>
+                  <span>SCAN TO VERIFY - v2.1</span>
+                </div>
+                {qrCodeDataUrl ? (
+                  <img
+                    src={qrCodeDataUrl}
+                    alt="Scan to verify Smart Scorecard"
+                    className="h-24 w-24 rounded-lg border border-slate-300 bg-white p-1 shadow-2xs"
+                  />
+                ) : (
+                  <div className="h-24 w-24 rounded-lg border border-slate-300 bg-white flex items-center justify-center text-[10px] text-slate-400">
+                    QR Ready
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 6. SCORECARD FOOTER BAR */}
+          <div className="rounded-xl bg-[#0B2559] text-white py-3 px-4 text-center text-xs space-y-0.5">
+            <div className="font-bold tracking-wide">
+              Prayaas Portal (prayaas-portal.com) • Smart Score Card System
+            </div>
+            <div className="text-[11px] text-slate-300">
+              Date & Time: {currentDateTime || "14 Sept 2026, 01:04 AM (IST)"}
+            </div>
+          </div>
         </div>
       </div>
     </div>

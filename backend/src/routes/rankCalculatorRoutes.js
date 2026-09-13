@@ -7,6 +7,7 @@ const {
   getLeaderboard,
   getAdminExamsSummary,
   deleteSubmission,
+  proxyImage,
 } = require("../controllers/rankCalculatorController");
 const { protect } = require("../middleware/authMiddleware");
 const { adminOnly } = require("../middleware/adminOnlyMiddleware");
@@ -15,6 +16,7 @@ const { adminOnly } = require("../middleware/adminOnlyMiddleware");
 router.get("/exams", getExams);
 router.post("/calculate", calculateScoreAndRank);
 router.get("/submission/:id", getSubmission);
+router.get("/proxy-image", proxyImage);
 
 // Admin-only endpoints for Rank Predictor Module
 router.get("/admin/exams-summary", protect, adminOnly, getAdminExamsSummary);

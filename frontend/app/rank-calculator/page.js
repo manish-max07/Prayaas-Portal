@@ -26,7 +26,9 @@ export default function RankCalculatorPage() {
   const [rawHtml, setRawHtml] = useState("");
   const [inputMode, setInputMode] = useState("url"); // 'url' or 'html'
   const [selectedExamId, setSelectedExamId] = useState("");
-  const [category, setCategory] = useState("UR");
+  const [marksForCorrect, setMarksForCorrect] = useState(1.0);
+  const [negativeMarks, setNegativeMarks] = useState(0.0);
+  const [category, setCategory] = useState("OBC");
   const [state, setState] = useState("Delhi NCR");
   const [horizontalCategory, setHorizontalCategory] = useState("None");
   const [gender, setGender] = useState("Male");
@@ -49,6 +51,9 @@ export default function RankCalculatorPage() {
         setExams(res.data.exams);
         if (res.data.exams.length > 0) {
           setSelectedExamId(res.data.exams[0]._id);
+          // Set defaults to +1 and 0 as requested
+          setMarksForCorrect(res.data.exams[0].marksForCorrect ?? 1.0);
+          setNegativeMarks(res.data.exams[0].negativeMarks ?? 0.0);
         }
       }
     } catch (err) {
@@ -60,6 +65,9 @@ export default function RankCalculatorPage() {
 
   const handlePasteDemoLink = () => {
     setResponseUrl("https://cdn.digialm.com//per/g01/pub/1258/touchstone/AssessmentQPHTMLMode1/1258O26337/1258O26337S2D531/17892129203014769/12492000001_1258O26337S2D531E1.html");
+    setMarksForCorrect(1.0);
+    setNegativeMarks(0.0);
+    setCategory("OBC");
   };
 
   const handleSubmit = async (e) => {
@@ -84,6 +92,8 @@ export default function RankCalculatorPage() {
         responseUrl: inputMode === "url" ? responseUrl.trim() : "",
         rawHtml: inputMode === "html" ? rawHtml : "",
         examId: selectedExamId,
+        marksForCorrect: Number(marksForCorrect),
+        negativeMarks: Number(negativeMarks),
         category,
         state,
         horizontalCategory,
@@ -247,10 +257,114 @@ export default function RankCalculatorPage() {
               >
                 {exams.map((ex) => (
                   <option key={ex._id} value={ex._id}>
-                    {ex.name} (+{ex.marksForCorrect}, -{ex.negativeMarks} per wrong)
+                    {ex.name}
                   </option>
                 ))}
               </select>
+            </div>
+
+            {/* Custom Marking Scheme (+ve / -ve Marks) */}
+            <div className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-950">
+                    Marking Scheme Customization
+                  </h3>
+                  <p className="text-[11px] text-slate-600">
+                    Default is <strong>+1</strong> for correct & <strong>0</strong> for wrong. You can customize them below if needed.
+                  </p>
+                </div>
+                {/* Preset Pills */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] font-semibold text-slate-500">Presets:</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMarksForCorrect(1.0);
+                      setNegativeMarks(0.0);
+                    }}
+                    className={`rounded-md px-2 py-0.5 text-[11px] font-bold border transition-colors cursor-pointer ${
+                      marksForCorrect === 1.0 && negativeMarks === 0.0
+                        ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                        : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+                    }`}
+                  >
+                    +1 / 0 (Default)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMarksForCorrect(1.0);
+                      setNegativeMarks(0.25);
+                    }}
+                    className={`rounded-md px-2 py-0.5 text-[11px] font-bold border transition-colors cursor-pointer ${
+                      marksForCorrect === 1.0 && negativeMarks === 0.25
+                        ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                        : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+                    }`}
+                  >
+                    +1 / -0.25
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMarksForCorrect(2.0);
+                      setNegativeMarks(0.5);
+                    }}
+                    className={`rounded-md px-2 py-0.5 text-[11px] font-bold border transition-colors cursor-pointer ${
+                      marksForCorrect === 2.0 && negativeMarks === 0.5
+                        ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                        : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+                    }`}
+                  >
+                    +2 / -0.5
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Marks For Correct (+ve)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="10"
+                      value={marksForCorrect}
+                      onChange={(e) => setMarksForCorrect(e.target.value)}
+                      required
+                      className="w-full rounded-xl border border-slate-300 bg-white py-2 px-3 text-xs font-bold text-slate-900 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    />
+                    <span className="absolute right-3 top-2 text-xs font-bold text-emerald-600">
+                      +pts
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Negative Penalty Per Wrong (-ve)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="0.05"
+                      min="0"
+                      max="5"
+                      value={negativeMarks}
+                      onChange={(e) => setNegativeMarks(e.target.value)}
+                      required
+                      className="w-full rounded-xl border border-slate-300 bg-white py-2 px-3 text-xs font-bold text-slate-900 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    />
+                    <span className="absolute right-3 top-2 text-xs font-bold text-red-600">
+                      -pts
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Demographics Grid: Category, State, Gender, Horizontal Category */}
