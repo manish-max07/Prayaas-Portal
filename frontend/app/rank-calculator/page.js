@@ -177,15 +177,15 @@ export default function RankCalculatorPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
             </span>
-            <span>Instant TCS iON & Digialm Response Sheet Evaluation</span>
+            <span>AVNL &amp; CIL MT 2026 Response Sheet Evaluation &amp; Cutoff</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
-            Official Exam <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300 bg-clip-text text-transparent">Rank & Marks Calculator</span>
+            AVNL Rank Calculator &amp; <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300 bg-clip-text text-transparent">CIL MT 2026 Cutoff</span>
           </h1>
 
           <p className="mt-4 text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Paste your post-exam response sheet link to calculate exact normalized marks, sectional accuracy, and check your real-time <strong>AIR, Category, Trade & Shift Ranks</strong> against thousands of candidates.
+            Paste your official <strong>AVNL response sheet</strong> or <strong>CIL MT</strong> link to calculate marks from the <strong>AVNL answer key 2026</strong>, check <strong>AVNL cutoff 2026</strong>, <strong>AVNL trade wise cutoff</strong>, and evaluate your expected <strong>AVNL result 2026</strong> position.
           </p>
 
           {/* Quick Pillars */}
@@ -687,7 +687,92 @@ export default function RankCalculatorPage() {
               Paste the link in the box above to immediately calculate your marks and see where you rank!
             </li>
           </ol>
-        </div>
+        {/* SEO CONTENT SECTION: AVNL & CIL EXAM INSIGHTS */}
+        <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-5">
+          <div className="border-b border-slate-100 pb-3">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-bold text-blue-700 border border-blue-200 mb-1.5">
+              <span>🎯</span>
+              <span>Trending Exam Cutoffs &amp; Rank Analysis</span>
+            </div>
+            <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+              AVNL Rank Calculator, Answer Key 2026 &amp; Cutoff Insights
+            </h2>
+            <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+              Real-time score calculation and expected cutoffs for Armoured Vehicles Nigam Limited (AVNL) Recruitment 2026 and Coal India Limited (CIL) Management Trainee (MT) 2026.
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 text-xs text-slate-600">
+            <div className="space-y-2 rounded-xl border border-slate-100 bg-slate-50/70 p-4">
+              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                <span>🛡️</span>
+                <span>AVNL Rank Calculator &amp; Response Sheet</span>
+              </h3>
+              <p className="leading-relaxed text-[11px]">
+                Enter your official <strong>AVNL response sheet</strong> link to calculate accurate raw marks, negative deductions, and overall accuracy. Check where you stand among all candidates with real-time All India Rank (AIR) and shift difficulty metrics.
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-[11px] text-slate-700 pt-1">
+                <li>Instant evaluation of 100 questions from Digialm link</li>
+                <li>Preview official AVNL answer key 2026 with correct &amp; wrong question markers</li>
+                <li>Estimated AVNL result 2026 readiness and merit position</li>
+              </ul>
+            </div>
+
+            <div className="space-y-2 rounded-xl border border-slate-100 bg-slate-50/70 p-4">
+              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                <span>📊</span>
+                <span>AVNL Cutoff 2026 &amp; Trade-Wise Cutoff</span>
+              </h3>
+              <p className="leading-relaxed text-[11px]">
+                Compare your scores against community benchmarks to analyze expected <strong>AVNL cutoff 2026</strong>. View competitive score ranges by discipline and reservation category:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-[11px] text-slate-700 pt-1">
+                <li><strong>AVNL trade wise cutoff</strong>: Mechanical, Electrical, Metallurgy, Civil &amp; Ordnance</li>
+                <li>Category cutoff trends for UR, OBC, SC, ST, and EWS</li>
+                <li>Shift-wise difficulty normalization comparison</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* CIL MT 2026 Section */}
+          <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4 space-y-1.5 text-xs text-slate-600">
+            <h3 className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+              <span>⛏️</span>
+              <span>CIL MT 2026 Cutoff &amp; Score Predictor</span>
+            </h3>
+            <p className="leading-relaxed text-[11px]">
+              Evaluate your Coal India Limited response sheet to project the <strong>CIL MT 2026 cutoff</strong> across Systems, Mining, Mechanical, Electrical, Civil, HR, and Finance disciplines. Download your high-resolution Smart Scorecard with official PSU headers.
+            </p>
+          </div>
+
+          {/* Search Keywords Tags */}
+          <div className="pt-2 border-t border-slate-100">
+            <span className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+              Popular Search Topics:
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                "AVNL rank calculator",
+                "AVNL Answer key 2026",
+                "AVNL cutoff",
+                "AVNL cutoff 2026",
+                "CIL MT 2026 cutoff",
+                "AVNL trade wise cutoff",
+                "AVNL response sheet",
+                "AVNL result 2026",
+                "TCS iON response sheet calculator",
+                "Digialm score calculator",
+              ].map((kw) => (
+                <span
+                  key={kw}
+                  className="rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-200 transition-colors"
+                >
+                  #{kw}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
 
         {/* Footer Legal Links */}
         <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">

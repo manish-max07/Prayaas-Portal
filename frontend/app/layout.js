@@ -20,12 +20,20 @@ export const viewport = {
 };
 
 export const metadata = {
-  title: "Prayaas-Portal | Online Exam Practice Portal",
-  description: "TCS iON styled online exam practice portal for SSC, Banking, Railways, and competitive examinations.",
+  metadataBase: new URL("https://prayaas-portal.vercel.app"),
+  title: {
+    default: "Prayaas Portal | Online Exam Practice & Rank Predictor",
+    template: "%s | Prayaas Portal",
+  },
+  description:
+    "Official examination portal for CBT practice, TCS iON response sheet evaluation, real-time rank predictions, and smart scorecards.",
   icons: {
     icon: "/logo.png",
     shortcut: "/logo.png",
     apple: "/logo.png",
+  },
+  verification: {
+    google: "google4b8e84a058fc3ad4",
   },
 };
 
