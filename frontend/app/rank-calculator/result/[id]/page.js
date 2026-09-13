@@ -84,6 +84,11 @@ export default function RankResultPage({ params }) {
         pixelRatio: 2,
         backgroundColor: "#ffffff",
         cacheBust: true,
+        style: {
+          overflow: "hidden",
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        },
       });
 
       const participant = data?.submission?.participantId || "Candidate";
@@ -188,7 +193,7 @@ export default function RankResultPage({ params }) {
         {/* ============================================================ */}
         <div
           ref={scorecardRef}
-          className="rounded-2xl border border-slate-300/80 bg-white p-6 sm:p-8 shadow-sm space-y-6 text-slate-800"
+          className="rounded-2xl border border-slate-300/80 bg-white p-6 sm:p-8 shadow-sm space-y-6 text-slate-800 overflow-hidden"
         >
           {/* 1. TOP HEADER BANNER (With Department / PSU Logo) */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-200 pb-4">
@@ -250,47 +255,47 @@ export default function RankResultPage({ params }) {
 
           {/* 2. CANDIDATE PROFILE & HIGHLIGHT RANK BOX */}
           <div className="rounded-xl border border-slate-300/80 bg-white p-4 sm:p-5 shadow-2xs">
-            <div className="flex flex-col lg:flex-row items-stretch justify-between gap-6">
+            <div className="flex flex-row items-stretch justify-between gap-4">
               {/* Profile Details (3 Columns) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-3 text-xs flex-1">
+              <div className="grid grid-cols-3 gap-x-4 gap-y-2.5 text-xs flex-1">
                 {/* Column 1 */}
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <div>
-                    <div className="text-[11px] font-semibold text-slate-400">Candidate Name</div>
-                    <div className="text-xs font-black uppercase text-slate-900 mt-0.5">
+                    <div className="text-[10px] font-semibold text-slate-400 uppercase">Candidate Name</div>
+                    <div className="text-xs font-black uppercase text-slate-900 mt-0.5 truncate">
                       {submission.participantName || "Candidate"}
                     </div>
                   </div>
                   <div>
-                    <div className="text-[11px] font-semibold text-slate-400">Gender</div>
+                    <div className="text-[10px] font-semibold text-slate-400 uppercase">Gender</div>
                     <div className="text-xs font-bold text-slate-800 mt-0.5">
                       {submission.gender || "Male"}
                     </div>
                   </div>
                   <div>
-                    <div className="text-[11px] font-semibold text-slate-400">Trade / Post</div>
-                    <div className="text-xs font-bold text-slate-800 mt-0.5">
+                    <div className="text-[10px] font-semibold text-slate-400 uppercase">Trade / Post</div>
+                    <div className="text-xs font-bold text-slate-800 mt-0.5 line-clamp-2">
                       {submission.subject}
                     </div>
                   </div>
                 </div>
 
                 {/* Column 2 */}
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <div>
-                    <div className="text-[11px] font-semibold text-slate-400">Roll Number</div>
+                    <div className="text-[10px] font-semibold text-slate-400 uppercase">Roll Number</div>
                     <div className="text-xs font-black font-mono text-slate-900 mt-0.5">
                       {submission.participantId}
                     </div>
                   </div>
                   <div>
-                    <div className="text-[11px] font-semibold text-slate-400">Exam Date</div>
+                    <div className="text-[10px] font-semibold text-slate-400 uppercase">Exam Date</div>
                     <div className="text-xs font-bold text-slate-800 mt-0.5">
                       {submission.testDate || "N/A"}
                     </div>
                   </div>
                   <div>
-                    <div className="text-[11px] font-semibold text-slate-400">Exam Language</div>
+                    <div className="text-[10px] font-semibold text-slate-400 uppercase">Exam Language</div>
                     <div className="text-xs font-bold text-slate-800 mt-0.5">
                       {submission.examLanguage || "English"}
                     </div>
@@ -298,21 +303,21 @@ export default function RankResultPage({ params }) {
                 </div>
 
                 {/* Column 3 */}
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <div>
-                    <div className="text-[11px] font-semibold text-slate-400">Category</div>
+                    <div className="text-[10px] font-semibold text-slate-400 uppercase">Category</div>
                     <div className="text-xs font-black text-slate-900 mt-0.5">
                       {submission.category}
                     </div>
                   </div>
                   <div>
-                    <div className="text-[11px] font-semibold text-slate-400">Shift / Time</div>
-                    <div className="text-xs font-bold text-slate-800 mt-0.5">
+                    <div className="text-[10px] font-semibold text-slate-400 uppercase">Shift / Time</div>
+                    <div className="text-xs font-bold text-slate-800 mt-0.5 truncate">
                       {submission.testTime || "N/A"}
                     </div>
                   </div>
                   <div>
-                    <div className="text-[11px] font-semibold text-slate-400">Exam Centre</div>
+                    <div className="text-[10px] font-semibold text-slate-400 uppercase">Exam Centre</div>
                     <div className="text-xs font-medium text-slate-700 mt-0.5 line-clamp-2">
                       {submission.testCenterName || "N/A"}
                     </div>
@@ -321,14 +326,14 @@ export default function RankResultPage({ params }) {
               </div>
 
               {/* Far Right: Royal Purple "YOUR RANK" Highlight Box */}
-              <div className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-b from-[#342478] via-[#3E2B92] to-[#452FA0] text-white p-5 text-center min-w-[170px] shadow-sm shrink-0">
-                <div className="text-[11px] font-extrabold uppercase tracking-wider text-amber-300">
+              <div className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-b from-[#342478] via-[#3E2B92] to-[#452FA0] text-white p-4 text-center w-[150px] shrink-0 shadow-sm">
+                <div className="text-[10px] font-extrabold uppercase tracking-wider text-amber-300">
                   YOUR RANK 🏆
                 </div>
                 <div className="text-3xl sm:text-4xl font-black text-white mt-1 leading-none">
                   #{ranks.air.rank}
                 </div>
-                <div className="text-[11px] text-purple-200 mt-1.5 font-medium">
+                <div className="text-[10px] text-purple-200 mt-1.5 font-medium">
                   Out of {ranks.air.total}
                 </div>
               </div>
@@ -337,97 +342,97 @@ export default function RankResultPage({ params }) {
 
           {/* 3. PERFORMANCE OVERVIEW */}
           <div>
-            <h2 className="text-xs font-black uppercase tracking-wider text-slate-900 mb-2.5">
+            <h2 className="text-xs font-black uppercase tracking-wider text-slate-900 mb-2">
               PERFORMANCE OVERVIEW
             </h2>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-4 gap-3">
               {/* Raw Score */}
-              <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-4 text-center">
-                <div className="text-[11px] font-bold text-slate-500">Raw Score</div>
-                <div className="mt-1 text-xl sm:text-2xl font-black text-[#6B21A8]">
+              <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 text-center">
+                <div className="text-[10px] font-bold text-slate-500 uppercase">Raw Score</div>
+                <div className="mt-1 text-lg sm:text-xl font-black text-[#6B21A8]">
                   {submission.totalScore.toFixed(2)}/{maxScore.toFixed(2)}
                 </div>
               </div>
 
               {/* Accuracy */}
-              <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-4 text-center">
-                <div className="text-[11px] font-bold text-slate-500">Accuracy</div>
-                <div className="mt-1 text-xl sm:text-2xl font-black text-emerald-600">
+              <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 text-center">
+                <div className="text-[10px] font-bold text-slate-500 uppercase">Accuracy</div>
+                <div className="mt-1 text-lg sm:text-xl font-black text-emerald-600">
                   {submission.accuracy}%
                 </div>
               </div>
 
               {/* Attempt */}
-              <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-4 text-center">
-                <div className="text-[11px] font-bold text-slate-500">Attempt</div>
-                <div className="mt-1 text-xl sm:text-2xl font-black text-amber-600">
+              <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 text-center">
+                <div className="text-[10px] font-bold text-slate-500 uppercase">Attempt</div>
+                <div className="mt-1 text-lg sm:text-xl font-black text-amber-600">
                   {attemptPct}%
                 </div>
               </div>
 
               {/* Correct / Wrong */}
-              <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-4 text-center">
-                <div className="text-[11px] font-bold text-slate-500">Correct / Wrong</div>
-                <div className="mt-1 text-xl sm:text-2xl font-black text-slate-900">
+              <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 text-center">
+                <div className="text-[10px] font-bold text-slate-500 uppercase">Correct / Wrong</div>
+                <div className="mt-1 text-lg sm:text-xl font-black text-slate-900">
                   {submission.correct} / {submission.incorrect}
                 </div>
               </div>
             </div>
 
-            <div className="mt-2 text-[11px] text-slate-500 text-center sm:text-left">
+            <div className="mt-1.5 text-[10px] text-slate-500">
               Score {scorePct}% • Attempted {submission.attempted}/{submission.totalQuestions} • Analysis based on up to {ranks.air.total} candidates
             </div>
           </div>
 
-          {/* 4. SECTION-WISE PERFORMANCE */}
+          {/* 4. SECTION-WISE PERFORMANCE (No scrollbars, perfectly fitted columns) */}
           <div>
-            <h2 className="text-xs font-black uppercase tracking-wider text-slate-900 mb-2.5">
+            <h2 className="text-xs font-black uppercase tracking-wider text-slate-900 mb-2">
               SECTION-WISE PERFORMANCE
             </h2>
 
-            <div className="overflow-x-auto rounded-xl border border-slate-300">
-              <table className="w-full text-left text-xs text-slate-700">
-                <thead className="bg-[#0B57D0] text-white font-bold text-[11px] uppercase tracking-wider">
+            <div className="overflow-hidden rounded-xl border border-slate-300 bg-white">
+              <table className="w-full table-fixed text-left text-[11px] text-slate-700">
+                <thead className="bg-[#0B57D0] text-white font-bold text-[10px] uppercase tracking-wider">
                   <tr>
-                    <th className="px-4 py-2.5">Section</th>
-                    <th className="px-3 py-2.5 text-center">Total</th>
-                    <th className="px-3 py-2.5 text-center">Correct</th>
-                    <th className="px-3 py-2.5 text-center">Wrong</th>
-                    <th className="px-3 py-2.5 text-center">Unattempted</th>
-                    <th className="px-3 py-2.5 text-center">Score</th>
-                    <th className="px-3 py-2.5 text-center">Maximum</th>
-                    <th className="px-3 py-2.5 text-center">Type</th>
+                    <th className="w-[36%] px-3.5 py-2.5">Section</th>
+                    <th className="w-[8%] px-2 py-2.5 text-center">Total</th>
+                    <th className="w-[9%] px-2 py-2.5 text-center">Correct</th>
+                    <th className="w-[9%] px-2 py-2.5 text-center">Wrong</th>
+                    <th className="w-[12%] px-2 py-2.5 text-center">Unattempted</th>
+                    <th className="w-[9%] px-2 py-2.5 text-center">Score</th>
+                    <th className="w-[9%] px-2 py-2.5 text-center">Maximum</th>
+                    <th className="w-[8%] px-2 py-2.5 text-center">Type</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 bg-white font-medium">
+                <tbody className="divide-y divide-slate-200 font-medium">
                   {submission.sectionBreakdown && submission.sectionBreakdown.length > 0 ? (
                     submission.sectionBreakdown.map((sec, idx) => {
                       const secMax = (sec.questions || 0) * marksPerCorrect;
                       return (
                         <tr key={idx} className="hover:bg-slate-50/70 transition-colors">
-                          <td className="px-4 py-2.5 font-bold text-slate-900">
+                          <td className="px-3.5 py-2 font-bold text-slate-900 truncate">
                             {sec.sectionName}
                           </td>
-                          <td className="px-3 py-2.5 text-center font-semibold">
+                          <td className="px-2 py-2 text-center font-semibold">
                             {sec.questions}
                           </td>
-                          <td className="px-3 py-2.5 text-center font-bold text-emerald-600">
+                          <td className="px-2 py-2 text-center font-bold text-emerald-600">
                             {sec.correct}
                           </td>
-                          <td className="px-3 py-2.5 text-center font-bold text-red-600">
+                          <td className="px-2 py-2 text-center font-bold text-red-600">
                             {sec.incorrect}
                           </td>
-                          <td className="px-3 py-2.5 text-center text-slate-500">
+                          <td className="px-2 py-2 text-center text-slate-500">
                             {sec.unanswered}
                           </td>
-                          <td className="px-3 py-2.5 text-center font-bold text-slate-900">
+                          <td className="px-2 py-2 text-center font-bold text-slate-900">
                             {sec.score.toFixed(2)}
                           </td>
-                          <td className="px-3 py-2.5 text-center font-semibold text-slate-600">
+                          <td className="px-2 py-2 text-center font-semibold text-slate-600">
                             {secMax.toFixed(2)}
                           </td>
-                          <td className="px-3 py-2.5 text-center text-slate-500 font-semibold">
+                          <td className="px-2 py-2 text-center text-slate-500 font-semibold">
                             Main
                           </td>
                         </tr>
@@ -435,14 +440,14 @@ export default function RankResultPage({ params }) {
                     })
                   ) : (
                     <tr>
-                      <td className="px-4 py-2.5 font-bold text-slate-900">General Paper</td>
-                      <td className="px-3 py-2.5 text-center font-semibold">{submission.totalQuestions}</td>
-                      <td className="px-3 py-2.5 text-center font-bold text-emerald-600">{submission.correct}</td>
-                      <td className="px-3 py-2.5 text-center font-bold text-red-600">{submission.incorrect}</td>
-                      <td className="px-3 py-2.5 text-center text-slate-500">{submission.unattempted}</td>
-                      <td className="px-3 py-2.5 text-center font-bold text-slate-900">{submission.totalScore.toFixed(2)}</td>
-                      <td className="px-3 py-2.5 text-center font-semibold text-slate-600">{maxScore.toFixed(2)}</td>
-                      <td className="px-3 py-2.5 text-center text-slate-500 font-semibold">Main</td>
+                      <td className="px-3.5 py-2 font-bold text-slate-900">General Paper</td>
+                      <td className="px-2 py-2 text-center font-semibold">{submission.totalQuestions}</td>
+                      <td className="px-2 py-2 text-center font-bold text-emerald-600">{submission.correct}</td>
+                      <td className="px-2 py-2 text-center font-bold text-red-600">{submission.incorrect}</td>
+                      <td className="px-2 py-2 text-center text-slate-500">{submission.unattempted}</td>
+                      <td className="px-2 py-2 text-center font-bold text-slate-900">{submission.totalScore.toFixed(2)}</td>
+                      <td className="px-2 py-2 text-center font-semibold text-slate-600">{maxScore.toFixed(2)}</td>
+                      <td className="px-2 py-2 text-center text-slate-500 font-semibold">Main</td>
                     </tr>
                   )}
                 </tbody>
