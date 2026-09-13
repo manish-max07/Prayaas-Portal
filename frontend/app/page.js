@@ -228,6 +228,36 @@ export default function HomePage() {
 
       {/* 3. MAIN WORKSPACE / EXAMS BROWSER */}
       <main className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+        {/* Rank Calculator Promo Banner */}
+        <div className="rounded-2xl bg-gradient-to-r from-indigo-950 via-blue-950 to-slate-900 border border-indigo-700/40 p-6 sm:p-7 text-white shadow-lg mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-5 relative overflow-hidden">
+          <div className="pointer-events-none absolute -right-10 -bottom-10 h-48 w-48 rounded-full bg-indigo-500/20 blur-2xl" />
+          <div className="relative z-10 max-w-2xl">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/20 px-3 py-1 text-[11px] font-bold text-indigo-300 border border-indigo-400/30 mb-2">
+              <span>⚡ Live Feature</span>
+              <span>•</span>
+              <span>TCS iON Response Sheet Rank Predictor</span>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+              Have your Official Exam Response Sheet Link?
+            </h3>
+            <p className="mt-1.5 text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Paste your Digialm response sheet URL to calculate exact marks, negative deductions, and see your real-time <strong>All India Rank (AIR), Category Rank, and Shift Difficulty Analytics</strong>.
+            </p>
+          </div>
+
+          <div className="relative z-10 shrink-0">
+            <Link
+              href="/rank-calculator"
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-xs font-bold text-blue-900 shadow-md hover:bg-blue-50 transition-all hover:scale-105 cursor-pointer"
+            >
+              <span>Calculate Marks & Rank</span>
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+
         {/* Category Filter Bar */}
         <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs mb-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-slate-100">

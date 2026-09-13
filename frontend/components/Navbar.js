@@ -48,6 +48,13 @@ export default function Navbar() {
             Home
           </Link>
 
+          <Link
+            href="/rank-calculator"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200/70 px-2.5 py-1 rounded-full hover:bg-indigo-100 transition-colors shadow-2xs"
+          >
+            <span>⚡ Rank Predictor</span>
+          </Link>
+
           {isAuthenticated ? (
             <div className="flex items-center gap-4">
               <Link
