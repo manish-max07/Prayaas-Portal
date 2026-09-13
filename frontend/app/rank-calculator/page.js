@@ -30,7 +30,7 @@ export default function RankCalculatorPage() {
   const [marksForCorrect, setMarksForCorrect] = useState(1.0);
   const [negativeMarks, setNegativeMarks] = useState(0.0);
   const [category, setCategory] = useState("UR");
-  const [state, setState] = useState("Delhi NCR");
+  const [state, setState] = useState("");
   const [horizontalCategory, setHorizontalCategory] = useState("None");
   const [gender, setGender] = useState("Male");
   const [securityPin, setSecurityPin] = useState("1234");
@@ -68,6 +68,7 @@ export default function RankCalculatorPage() {
     setMarksForCorrect(1.0);
     setNegativeMarks(0.0);
     setCategory("UR");
+    setState("Delhi NCR");
   };
 
   const handleExamChange = (val) => {
@@ -107,6 +108,11 @@ export default function RankCalculatorPage() {
 
     if (selectedExamId === "other" && !customExamName.trim()) {
       setError("Please enter the name of your examination in the box provided.");
+      return;
+    }
+
+    if (!state) {
+      setError("Please select your Domicile / State from the dropdown.");
       return;
     }
 
@@ -528,6 +534,7 @@ export default function RankCalculatorPage() {
                     onChange={(e) => setState(e.target.value)}
                     className="w-full rounded-xl border border-slate-300 bg-white py-2 px-3 text-xs text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   >
+                    <option value="">-- Select Your State --</option>
                     {INDIAN_STATES.map((st) => (
                       <option key={st} value={st}>
                         {st}
@@ -752,6 +759,12 @@ export default function RankCalculatorPage() {
                   <span className="font-semibold text-slate-500">Social Category:</span>
                   <span className="inline-flex items-center gap-1 font-bold text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded-md">
                     {category}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs border-t border-slate-200/70 pt-2">
+                  <span className="font-semibold text-slate-500">State / Domicile:</span>
+                  <span className="font-bold text-slate-900">
+                    {state || "Not Selected"}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-2.5 border-t border-slate-200/70 pt-2.5">
