@@ -354,3 +354,78 @@ async function computeDynamicRanks(submission) {
     benchmarks,
   };
 }
+
+/**
+ * @desc Get admin summary of all rank exams with submission stats
+ * @route GET /api/rank-calculator/admin/exams-summary
+ */
+exports.getAdminExamsSummary = async (req, res, next) => {
+  try {
+    await ensureDefaultExams();
+    const exams = await RankExam.find().sort({ createdAt: -1 });
+
+    const examSummaries = await Promise.all(
+      exams.map(async (exam) => {
+        const [submissionCount, stats] = await Promise.all([
+          RankSubmission.countDocuments({ rankExam: exam._id }),
+          RankSubmission.aggregate([
+            { $match: { rankExam: exam._id } },
+            {
+              $group: {
+                _id: null,
+                avgScore: { $avg: "$totalScore" },
+                maxScore: { $max: "$totalScore" },
+                minScore: { $min: "$totalScore" },
+              },
+            },
+          ]),
+        ]);
+
+        return {
+          _id: exam._id,
+          name: exam.name,
+          slug: exam.slug,
+          examCategory: exam.examCategory,
+          marksForCorrect: exam.marksForCorrect,
+          negativeMarks: exam.negativeMarks,
+          totalExpectedQuestions: exam.totalExpectedQuestions,
+          description: exam.description,
+          isActive: exam.isActive,
+          createdAt: exam.createdAt,
+          submissionCount,
+          avgScore: stats[0] ? Number(stats[0].avgScore.toFixed(2)) : 0,
+          maxScore: stats[0] ? Number(stats[0].maxScore.toFixed(2)) : 0,
+          minScore: stats[0] ? Number(stats[0].minScore.toFixed(2)) : 0,
+        };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      exams: examSummaries,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc Admin delete a candidate submission
+ * @route DELETE /api/rank-calculator/submission/:id
+ */
+exports.deleteSubmission = async (req, res, next) => {
+  try {
+    const submission = await RankSubmission.findByIdAndDelete(req.params.id);
+    if (!submission) {
+      return res.status(404).json({ success: false, message: "Submission not found." });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Submission deleted successfully.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

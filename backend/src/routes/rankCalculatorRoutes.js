@@ -5,12 +5,21 @@ const {
   calculateScoreAndRank,
   getSubmission,
   getLeaderboard,
+  getAdminExamsSummary,
+  deleteSubmission,
 } = require("../controllers/rankCalculatorController");
+const { protect } = require("../middleware/authMiddleware");
+const { adminOnly } = require("../middleware/adminOnlyMiddleware");
 
-// Public endpoints
+// Public candidate endpoints
 router.get("/exams", getExams);
 router.post("/calculate", calculateScoreAndRank);
 router.get("/submission/:id", getSubmission);
-router.get("/leaderboard/:examId", getLeaderboard);
+
+// Admin-only endpoints for Rank Predictor Module
+router.get("/admin/exams-summary", protect, adminOnly, getAdminExamsSummary);
+router.get("/leaderboard/:examId", protect, adminOnly, getLeaderboard);
+router.delete("/submission/:id", protect, adminOnly, deleteSubmission);
 
 module.exports = router;
+

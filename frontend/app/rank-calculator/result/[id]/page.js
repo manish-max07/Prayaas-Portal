@@ -92,14 +92,6 @@ export default function RankResultPage({ params }) {
               <span>🖨️</span>
               <span>Print Scorecard</span>
             </button>
-
-            <Link
-              href={`/rank-calculator/leaderboard/${submission.rankExam?._id || submission.rankExam}`}
-              className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition-colors flex items-center gap-1.5"
-            >
-              <span>🏆</span>
-              <span>View Full Leaderboard</span>
-            </Link>
           </div>
         </div>
 
