@@ -173,40 +173,52 @@ export default function RankCalculatorPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Input Mode Selector */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Response Sheet Source
-                </label>
-                <div className="flex rounded-lg bg-slate-100 p-0.5 text-xs font-semibold">
+            {/* STEP 1: RESPONSE SHEET INPUT */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+                    1
+                  </span>
+                  <h2 className="text-sm font-bold text-slate-900">
+                    Official Response Sheet Source
+                  </h2>
+                </div>
+
+                {/* Input Mode Selector Tabs */}
+                <div className="inline-flex rounded-xl bg-slate-100 p-1 text-xs font-semibold self-start sm:self-auto">
                   <button
                     type="button"
                     onClick={() => setInputMode("url")}
-                    className={`rounded-md px-3 py-1 transition-all cursor-pointer ${
+                    className={`rounded-lg px-3 py-1.5 transition-all cursor-pointer flex items-center gap-1.5 ${
                       inputMode === "url"
-                        ? "bg-white text-blue-600 shadow-xs"
+                        ? "bg-white text-blue-700 shadow-xs font-bold"
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
-                    Paste Link (URL)
+                    <span>🔗</span>
+                    <span>Response Sheet URL</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setInputMode("html")}
-                    className={`rounded-md px-3 py-1 transition-all cursor-pointer ${
+                    className={`rounded-lg px-3 py-1.5 transition-all cursor-pointer flex items-center gap-1.5 ${
                       inputMode === "html"
-                        ? "bg-white text-blue-600 shadow-xs"
+                        ? "bg-white text-blue-700 shadow-xs font-bold"
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
-                    Paste HTML Source
+                    <span>📄</span>
+                    <span>Paste HTML Source</span>
                   </button>
                 </div>
               </div>
 
               {inputMode === "url" ? (
-                <div>
+                <div className="space-y-2">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    TCS iON / Digialm Response Sheet Link
+                  </label>
                   <div className="relative">
                     <input
                       type="url"
@@ -214,269 +226,319 @@ export default function RankCalculatorPage() {
                       value={responseUrl}
                       onChange={(e) => setResponseUrl(e.target.value)}
                       required
-                      className="w-full rounded-xl border border-slate-300 py-3 pl-4 pr-24 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                      className="w-full rounded-xl border border-slate-300 py-3 pl-3.5 pr-28 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
                     />
                     <button
                       type="button"
                       onClick={handlePasteDemoLink}
-                      className="absolute right-2 top-2 rounded-lg bg-slate-100 px-2.5 py-1.5 text-[11px] font-semibold text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+                      className="absolute right-2 top-2 rounded-lg bg-blue-50 border border-blue-200 px-3 py-1.5 text-[11px] font-bold text-blue-700 hover:bg-blue-100 transition-colors cursor-pointer"
                     >
                       Sample Link
                     </button>
                   </div>
-                  <p className="mt-1.5 text-[11px] text-slate-500">
-                    Supports any official TCS iON / Digialm candidate response sheet link (SSC, RRB, DFCCIL, GATE, etc.).
+                  <p className="text-[11px] text-slate-500 flex items-center gap-1">
+                    <span>💡</span>
+                    <span>Copy the response sheet URL from your browser address bar or click Sample Link to test.</span>
                   </p>
                 </div>
               ) : (
-                <div>
+                <div className="space-y-2">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    Raw HTML Source Code
+                  </label>
                   <textarea
                     rows={4}
-                    placeholder="Right click response sheet in browser -> View Page Source -> Copy all and paste here..."
+                    placeholder="Right-click on your response sheet page -> Select 'View Page Source' -> Press Ctrl+A, Ctrl+C -> Paste here..."
                     value={rawHtml}
                     onChange={(e) => setRawHtml(e.target.value)}
                     required
                     className="w-full rounded-xl border border-slate-300 p-3 text-xs font-mono text-slate-800 placeholder-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
-                  <p className="mt-1.5 text-[11px] text-slate-500">
-                    Use this option if your link has expired or is blocked by CORS/VPN.
+                  <p className="text-[11px] text-slate-500">
+                    Useful if your response sheet link has expired or is blocked by network firewalls.
                   </p>
                 </div>
               )}
             </div>
 
-            {/* Exam Selection Dropdown */}
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Target Examination / Agency
-              </label>
-              <select
-                value={selectedExamId}
-                onChange={(e) => setSelectedExamId(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white py-3 px-3.5 text-xs sm:text-sm text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              >
-                {exams.map((ex) => (
-                  <option key={ex._id} value={ex._id}>
-                    {ex.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Custom Marking Scheme (+ve / -ve Marks) */}
-            <div className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-950">
-                    Marking Scheme Customization
-                  </h3>
-                  <p className="text-[11px] text-slate-600">
-                    Default is <strong>+1</strong> for correct & <strong>0</strong> for wrong. You can customize them below if needed.
-                  </p>
-                </div>
-                {/* Preset Pills */}
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[10px] font-semibold text-slate-500">Presets:</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMarksForCorrect(1.0);
-                      setNegativeMarks(0.0);
-                    }}
-                    className={`rounded-md px-2 py-0.5 text-[11px] font-bold border transition-colors cursor-pointer ${
-                      marksForCorrect === 1.0 && negativeMarks === 0.0
-                        ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
-                        : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-                    }`}
-                  >
-                    +1 / 0 (Default)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMarksForCorrect(1.0);
-                      setNegativeMarks(0.25);
-                    }}
-                    className={`rounded-md px-2 py-0.5 text-[11px] font-bold border transition-colors cursor-pointer ${
-                      marksForCorrect === 1.0 && negativeMarks === 0.25
-                        ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
-                        : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-                    }`}
-                  >
-                    +1 / -0.25
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMarksForCorrect(2.0);
-                      setNegativeMarks(0.5);
-                    }}
-                    className={`rounded-md px-2 py-0.5 text-[11px] font-bold border transition-colors cursor-pointer ${
-                      marksForCorrect === 2.0 && negativeMarks === 0.5
-                        ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
-                        : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-                    }`}
-                  >
-                    +2 / -0.5
-                  </button>
-                </div>
+            {/* STEP 2: TARGET EXAM & MARKING SCHEME */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs space-y-4">
+              <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+                  2
+                </span>
+                <h2 className="text-sm font-bold text-slate-900">
+                  Target Examination & Scoring Rules
+                </h2>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Marks For Correct (+ve)
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="10"
-                      value={marksForCorrect}
-                      onChange={(e) => setMarksForCorrect(e.target.value)}
-                      required
-                      className="w-full rounded-xl border border-slate-300 bg-white py-2 px-3 text-xs font-bold text-slate-900 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                    />
-                    <span className="absolute right-3 top-2 text-xs font-bold text-emerald-600">
-                      +pts
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Negative Penalty Per Wrong (-ve)
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      step="0.05"
-                      min="0"
-                      max="5"
-                      value={negativeMarks}
-                      onChange={(e) => setNegativeMarks(e.target.value)}
-                      required
-                      className="w-full rounded-xl border border-slate-300 bg-white py-2 px-3 text-xs font-bold text-slate-900 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                    />
-                    <span className="absolute right-3 top-2 text-xs font-bold text-red-600">
-                      -pts
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Demographics Grid: Category, State, Gender, Horizontal Category */}
-            <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-slate-100">
-              {/* Category */}
+              {/* Exam Selection Dropdown */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Reservation Category
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Select Your Examination
                 </label>
                 <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3.5 text-xs text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  value={selectedExamId}
+                  onChange={(e) => setSelectedExamId(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 >
-                  <option value="UR">UR (Unreserved / General)</option>
-                  <option value="OBC">OBC (Other Backward Class - NCL)</option>
-                  <option value="EWS">EWS (Economically Weaker Section)</option>
-                  <option value="SC">SC (Scheduled Caste)</option>
-                  <option value="ST">ST (Scheduled Tribe)</option>
-                </select>
-              </div>
-
-              {/* State */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Home State / UT
-                </label>
-                <select
-                  value={state}
-                  onChange={(e) => setState(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3.5 text-xs text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                >
-                  {INDIAN_STATES.map((st) => (
-                    <option key={st} value={st}>
-                      {st}
+                  {exams.map((ex) => (
+                    <option key={ex._id} value={ex._id}>
+                      {ex.name}
                     </option>
                   ))}
                 </select>
               </div>
 
-              {/* Horizontal Category */}
+              {/* Custom Marking Scheme */}
+              <div className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-950">
+                      Scoring & Negative Penalty Scheme
+                    </h3>
+                    <p className="text-[11px] text-slate-600">
+                      Default is <strong>+1</strong> for correct & <strong>0</strong> negative penalty. Click a preset or edit numbers.
+                    </p>
+                  </div>
+                  {/* Preset Pills */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMarksForCorrect(1.0);
+                        setNegativeMarks(0.0);
+                      }}
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-bold border transition-colors cursor-pointer ${
+                        marksForCorrect === 1.0 && negativeMarks === 0.0
+                          ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                          : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+                      }`}
+                    >
+                      +1 / 0 (Default)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMarksForCorrect(1.0);
+                        setNegativeMarks(0.25);
+                      }}
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-bold border transition-colors cursor-pointer ${
+                        marksForCorrect === 1.0 && negativeMarks === 0.25
+                          ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                          : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+                      }`}
+                    >
+                      +1 / -0.25
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMarksForCorrect(2.0);
+                        setNegativeMarks(0.5);
+                      }}
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-bold border transition-colors cursor-pointer ${
+                        marksForCorrect === 2.0 && negativeMarks === 0.5
+                          ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                          : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+                      }`}
+                    >
+                      +2 / -0.5
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      Marks per Correct Answer
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="10"
+                        value={marksForCorrect}
+                        onChange={(e) => setMarksForCorrect(e.target.value)}
+                        required
+                        className="w-full rounded-xl border border-slate-300 bg-white py-2 px-3 text-xs font-bold text-slate-900 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      />
+                      <span className="absolute right-3 top-2 text-xs font-bold text-emerald-600">
+                        +pts
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      Negative Penalty per Wrong
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="0.05"
+                        min="0"
+                        max="5"
+                        value={negativeMarks}
+                        onChange={(e) => setNegativeMarks(e.target.value)}
+                        required
+                        className="w-full rounded-xl border border-slate-300 bg-white py-2 px-3 text-xs font-bold text-slate-900 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      />
+                      <span className="absolute right-3 top-2 text-xs font-bold text-red-600">
+                        -pts
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* STEP 3: CANDIDATE DEMOGRAPHICS */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs space-y-4">
+              <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+                  3
+                </span>
+                <h2 className="text-sm font-bold text-slate-900">
+                  Candidate Profile & Category
+                </h2>
+              </div>
+
+              {/* Reservation Category - Interactive Visual Pills */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Horizontal Category
+                <label className="block text-xs font-semibold text-slate-700 mb-2">
+                  Social Category (Used for Category Rank calculation)
                 </label>
+                <div className="grid grid-cols-5 gap-2">
+                  {["UR", "OBC", "EWS", "SC", "ST"].map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setCategory(cat)}
+                      className={`rounded-xl py-2.5 text-center text-xs font-bold transition-all cursor-pointer border ${
+                        category === cat
+                          ? "bg-blue-600 text-white border-blue-600 shadow-sm scale-[1.02]"
+                          : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Gender & State Grid */}
+              <div className="grid gap-4 sm:grid-cols-2 pt-2">
+                {/* Gender */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-2">
+                    Gender
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {["Male", "Female", "Other"].map((gen) => (
+                      <button
+                        key={gen}
+                        type="button"
+                        onClick={() => setGender(gen)}
+                        className={`rounded-xl py-2 text-center text-xs font-bold transition-all cursor-pointer border ${
+                          gender === gen
+                            ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                            : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                        }`}
+                      >
+                        {gen}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* State */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Domicile / State
+                  </label>
+                  <select
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 bg-white py-2 px-3 text-xs text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  >
+                    {INDIAN_STATES.map((st) => (
+                      <option key={st} value={st}>
+                        {st}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Horizontal Category (Clearly Marked Optional) */}
+              <div className="pt-2 border-t border-slate-100">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-semibold text-slate-700">
+                    Horizontal / Sub-Category
+                  </label>
+                  <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500 uppercase">
+                    Optional
+                  </span>
+                </div>
                 <select
                   value={horizontalCategory}
                   onChange={(e) => setHorizontalCategory(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3.5 text-xs text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-xl border border-slate-300 bg-white py-2 px-3 text-xs text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 >
-                  <option value="None">None (General)</option>
-                  <option value="PwD">PwD (Persons with Disabilities)</option>
+                  <option value="None">None (Not Applicable)</option>
+                  <option value="PwD">PwD (Persons with Benchmark Disabilities)</option>
                   <option value="Ex-Servicemen">Ex-Servicemen (ESM)</option>
                   <option value="Female">Women Reservation</option>
-                  <option value="Other">Other Sub-Category</option>
+                  <option value="Other">Other Specific Quota</option>
                 </select>
               </div>
 
-              {/* Gender */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Gender
-                </label>
-                <select
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3.5 text-xs text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                >
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other / Transgender</option>
-                </select>
+              {/* 4-Digit Security PIN (Optional with Clear Explanation) */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs">🔒</span>
+                    <span className="text-xs font-bold text-slate-800">
+                      4-Digit Security PIN
+                    </span>
+                    <span className="rounded bg-slate-200 px-1.5 py-0.2 text-[9px] font-bold text-slate-600 uppercase">
+                      Optional (Default: 1234)
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 leading-tight">
+                    Protects your scorecard privacy so others cannot alter your submission. You can keep the default 1234 or change it.
+                  </p>
+                </div>
+                <input
+                  type="text"
+                  maxLength={4}
+                  value={securityPin}
+                  onChange={(e) => setSecurityPin(e.target.value)}
+                  placeholder="1234"
+                  className="w-24 rounded-xl border border-slate-300 bg-white py-1.5 px-3 text-center text-sm font-mono font-bold tracking-widest text-slate-900 focus:border-blue-600 focus:outline-none shrink-0"
+                />
               </div>
             </div>
 
-            {/* Security PIN / Password for returning */}
-            <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                  4-Digit Security PIN
-                </label>
-                <p className="text-[11px] text-slate-500">
-                  Remember this PIN to re-view or modify your submission anytime.
-                </p>
-              </div>
-              <input
-                type="text"
-                maxLength={4}
-                value={securityPin}
-                onChange={(e) => setSecurityPin(e.target.value)}
-                className="w-28 rounded-xl border border-slate-300 py-2 px-3 text-center text-sm font-mono font-bold tracking-widest text-slate-900 focus:border-blue-600 focus:outline-none"
-              />
-            </div>
-
-            {/* Submit CTA */}
-            <div className="pt-4">
+            {/* SUBMIT BUTTON CTA */}
+            <div className="pt-2">
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3.5 text-sm font-bold text-white shadow-md hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2"
+                className="w-full rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 py-3.5 text-sm font-black text-white shadow-md hover:from-blue-700 hover:to-indigo-800 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <>
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    <span>{statusMessage || "Evaluating Response Sheet..."}</span>
+                    <span>{statusMessage || "Evaluating Questions & Ranking..."}</span>
                   </>
                 ) : (
                   <>
-                    <span>Calculate Marks & Predict Rank</span>
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
+                    <span>⚡</span>
+                    <span>Calculate Marks & Generate Smart Score Card</span>
+                    <span>&rarr;</span>
                   </>
                 )}
               </button>
