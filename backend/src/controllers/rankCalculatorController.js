@@ -27,13 +27,9 @@ const DEFAULT_EXAMS = [
 ];
 
 /**
- * Seed/ensure only the specified exams are active
+ * Seed/ensure default exams are active without deactivating user-added exams
  */
 async function ensureDefaultExams() {
-  const activeSlugs = DEFAULT_EXAMS.map((e) => e.slug);
-  // Deactivate any previous exams so only AVNL and CIL are visible
-  await RankExam.updateMany({ slug: { $nin: activeSlugs } }, { $set: { isActive: false } });
-
   for (const def of DEFAULT_EXAMS) {
     await RankExam.findOneAndUpdate(
       { slug: def.slug },
@@ -67,6 +63,7 @@ exports.calculateScoreAndRank = async (req, res, next) => {
       responseUrl,
       rawHtml,
       examId,
+      customExamName,
       category = "UR",
       state = "Delhi",
       horizontalCategory = "None",
@@ -83,12 +80,62 @@ exports.calculateScoreAndRank = async (req, res, next) => {
       });
     }
 
-    // 1. Resolve Exam Configuration
+    // 1. Resolve or Create Exam Configuration
     await ensureDefaultExams();
     let exam = null;
-    if (examId) {
+
+    if (customExamName && customExamName.trim()) {
+      const trimmedName = customExamName.trim();
+      const baseSlug =
+        trimmedName
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, "")
+          .replace(/[\s_-]+/g, "-")
+          .replace(/^-+|-+$/g, "") || "exam-" + Date.now();
+
+      // Check if an exam with the same name or slug already exists (case-insensitive)
+      let existingExam = await RankExam.findOne({
+        $or: [
+          { slug: baseSlug },
+          { name: { $regex: new RegExp(`^${trimmedName}$`, "i") } },
+        ],
+      });
+
+      if (existingExam) {
+        exam = existingExam;
+        if (!exam.isActive) {
+          exam.isActive = true;
+          await exam.save();
+        }
+      } else {
+        // Create new active exam in MongoDB so other candidates see it in dropdown
+        let finalSlug = baseSlug;
+        const slugExists = await RankExam.findOne({ slug: finalSlug });
+        if (slugExists) {
+          finalSlug = `${baseSlug}-${Date.now().toString().slice(-4)}`;
+        }
+
+        exam = await RankExam.create({
+          name: trimmedName,
+          slug: finalSlug,
+          examCategory: "Other",
+          marksForCorrect:
+            userMarksForCorrect !== undefined && userMarksForCorrect !== null && userMarksForCorrect !== ""
+              ? Math.max(0, Number(userMarksForCorrect))
+              : 1.0,
+          negativeMarks:
+            userNegativeMarks !== undefined && userNegativeMarks !== null && userNegativeMarks !== ""
+              ? Math.max(0, Number(userNegativeMarks))
+              : 0.0,
+          totalExpectedQuestions: 100,
+          description: `Candidate-added exam: ${trimmedName}`,
+          isActive: true,
+        });
+      }
+    } else if (examId && examId !== "other") {
       exam = await RankExam.findById(examId);
     }
+
     if (!exam) {
       // Pick first active exam as default
       exam = await RankExam.findOne({ isActive: true });
@@ -124,8 +171,8 @@ exports.calculateScoreAndRank = async (req, res, next) => {
       }
     }
 
-    // Auto-detect exam if not explicitly specified by user
-    if (!examId && htmlContent) {
+    // Auto-detect exam if not explicitly specified by user and not a custom exam
+    if (!examId && !customExamName && htmlContent) {
       if (/coal\s*india|\bcil\b|form97495/i.test(htmlContent)) {
         const cilExam = await RankExam.findOne({ slug: "cil-management-trainee-2026" });
         if (cilExam) exam = cilExam;

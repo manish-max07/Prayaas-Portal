@@ -26,14 +26,16 @@ export default function RankCalculatorPage() {
   const [rawHtml, setRawHtml] = useState("");
   const [inputMode, setInputMode] = useState("url"); // 'url' or 'html'
   const [selectedExamId, setSelectedExamId] = useState("");
+  const [customExamName, setCustomExamName] = useState("");
   const [marksForCorrect, setMarksForCorrect] = useState(1.0);
   const [negativeMarks, setNegativeMarks] = useState(0.0);
-  const [category, setCategory] = useState("OBC");
+  const [category, setCategory] = useState("UR");
   const [state, setState] = useState("Delhi NCR");
   const [horizontalCategory, setHorizontalCategory] = useState("None");
   const [gender, setGender] = useState("Male");
   const [securityPin, setSecurityPin] = useState("1234");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   // Processing & Error State
   const [submitting, setSubmitting] = useState(false);
@@ -50,12 +52,9 @@ export default function RankCalculatorPage() {
       const res = await api.get("/api/rank-calculator/exams");
       if (res.data && res.data.exams) {
         setExams(res.data.exams);
-        if (res.data.exams.length > 0) {
-          setSelectedExamId(res.data.exams[0]._id);
-          // Set defaults to +1 and 0 as requested
-          setMarksForCorrect(res.data.exams[0].marksForCorrect ?? 1.0);
-          setNegativeMarks(res.data.exams[0].negativeMarks ?? 0.0);
-        }
+        // Default stays on '-- Select Your Examination --' with standard +1 / 0 marking scheme
+        setMarksForCorrect(1.0);
+        setNegativeMarks(0.0);
       }
     } catch (err) {
       console.error("Failed to load rank exams:", err);
@@ -68,10 +67,26 @@ export default function RankCalculatorPage() {
     setResponseUrl("https://cdn.digialm.com//per/g01/pub/1258/touchstone/AssessmentQPHTMLMode1/1258O26337/1258O26337S2D531/17892129203014769/12492000001_1258O26337S2D531E1.html");
     setMarksForCorrect(1.0);
     setNegativeMarks(0.0);
-    setCategory("OBC");
+    setCategory("UR");
   };
 
-  const handleSubmit = async (e) => {
+  const handleExamChange = (val) => {
+    setSelectedExamId(val);
+    if (val !== "other") {
+      const found = exams.find((e) => e._id === val);
+      if (found) {
+        setMarksForCorrect(found.marksForCorrect ?? 1.0);
+        setNegativeMarks(found.negativeMarks ?? 0.0);
+      }
+    }
+  };
+
+  const displayExamName =
+    selectedExamId === "other"
+      ? customExamName.trim() || "Custom Examination"
+      : exams.find((e) => e._id === selectedExamId)?.name || "Selected Examination";
+
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError(null);
 
@@ -85,11 +100,26 @@ export default function RankCalculatorPage() {
       return;
     }
 
+    if (!selectedExamId) {
+      setError("Please select your examination from the dropdown (or choose 'Other').");
+      return;
+    }
+
+    if (selectedExamId === "other" && !customExamName.trim()) {
+      setError("Please enter the name of your examination in the box provided.");
+      return;
+    }
+
     if (!agreedToTerms) {
       setError("Please agree to the Terms and Conditions and Privacy-Policy to proceed (tick the checkbox).");
       return;
     }
 
+    // Open confirmation modal for candidate to recheck exam name, category, and marking scheme
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmedSubmit = async () => {
     try {
       setSubmitting(true);
       setStatusMessage("Connecting to examination response server...");
@@ -97,7 +127,8 @@ export default function RankCalculatorPage() {
       const payload = {
         responseUrl: inputMode === "url" ? responseUrl.trim() : "",
         rawHtml: inputMode === "html" ? rawHtml : "",
-        examId: selectedExamId,
+        examId: selectedExamId === "other" ? "" : selectedExamId,
+        customExamName: selectedExamId === "other" ? customExamName.trim() : "",
         marksForCorrect: Number(marksForCorrect),
         negativeMarks: Number(negativeMarks),
         category,
@@ -123,6 +154,7 @@ export default function RankCalculatorPage() {
         err.message ||
         "Could not parse the response sheet. Please verify the URL or paste the HTML directly.";
       setError(msg);
+      setShowConfirmModal(false);
       setSubmitting(false);
     }
   };
@@ -285,15 +317,42 @@ export default function RankCalculatorPage() {
                 </label>
                 <select
                   value={selectedExamId}
-                  onChange={(e) => setSelectedExamId(e.target.value)}
+                  onChange={(e) => handleExamChange(e.target.value)}
                   className="w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 >
+                  <option value="">-- Select Your Examination --</option>
                   {exams.map((ex) => (
                     <option key={ex._id} value={ex._id}>
                       {ex.name}
                     </option>
                   ))}
+                  <option value="other">➕ Other (Enter New Exam Name)</option>
                 </select>
+
+                {/* Custom Exam Name Field when 'Other' is selected */}
+                {selectedExamId === "other" && (
+                  <div className="mt-3 space-y-1.5 rounded-xl border border-blue-200 bg-blue-50/60 p-3.5 animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-xs font-bold text-blue-950">
+                        Enter Examination Name *
+                      </label>
+                      <span className="text-[10px] font-semibold text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-full">
+                        Will be added to dropdown
+                      </span>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="e.g. SSC CGL 2026 Tier 1, RRB NTPC CBT 1, etc."
+                      value={customExamName}
+                      onChange={(e) => setCustomExamName(e.target.value)}
+                      required
+                      className="w-full rounded-xl border border-blue-300 bg-white py-2 px-3 text-xs sm:text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    />
+                    <p className="text-[11px] text-blue-800/80">
+                      Once your marks are calculated, this exam will automatically be added to the dropdown for you and all other aspirants.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Custom Marking Scheme */}
@@ -650,6 +709,118 @@ export default function RankCalculatorPage() {
           </div>
         </div>
       </main>
+
+      {/* RECHECK & CONFIRMATION MODAL */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 sm:p-7 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-100 text-blue-700 text-xl font-bold">
+                  🔍
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-slate-900">
+                    Recheck &amp; Confirm Your Details
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Please verify your exam and marks before generating scorecard
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => !submitting && setShowConfirmModal(false)}
+                disabled={submitting}
+                className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Candidate Details Summary Card */}
+            <div className="space-y-3">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 space-y-2.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-500">Target Examination:</span>
+                  <span className="font-bold text-slate-900 text-right max-w-[240px] truncate">
+                    {displayExamName}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs border-t border-slate-200/70 pt-2">
+                  <span className="font-semibold text-slate-500">Social Category:</span>
+                  <span className="inline-flex items-center gap-1 font-bold text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded-md">
+                    {category}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2.5 border-t border-slate-200/70 pt-2.5">
+                  <div className="bg-white rounded-xl p-2.5 border border-slate-200 text-center shadow-2xs">
+                    <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">
+                      Positive Mark (Correct)
+                    </span>
+                    <span className="text-lg font-black text-emerald-600">
+                      +{Number(marksForCorrect)}
+                    </span>
+                  </div>
+                  <div className="bg-white rounded-xl p-2.5 border border-slate-200 text-center shadow-2xs">
+                    <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">
+                      Negative Penalty (Wrong)
+                    </span>
+                    <span className="text-lg font-black text-rose-600">
+                      -{Number(negativeMarks)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Advisory Callout */}
+              <div className="rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 p-4 text-xs text-amber-950 space-y-1.5">
+                <div className="flex items-center gap-1.5 font-bold text-amber-900">
+                  <span className="text-sm">⚠️</span>
+                  <span>Enter Marks Strictly According to Your Question Paper:</span>
+                </div>
+                <p className="text-[11px] leading-relaxed text-amber-900/90">
+                  Please confirm that the <strong>Positive (+{marksForCorrect})</strong> and <strong>Negative (-{negativeMarks})</strong> marks match your exam rules (e.g. <em>+1 / 0</em>, <em>+1 / -0.25</em>, <em>+2 / -0.5</em>).
+                </p>
+                <p className="text-[11px] font-semibold text-amber-950 pt-0.5">
+                  यदि आपके पेपर में नेगेटिव मार्किंग है या अंक अलग हैं, तो &ldquo;Edit / Go Back&rdquo; दबाकर सही अंक भरें।
+                </p>
+              </div>
+            </div>
+
+            {/* Modal Action Buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowConfirmModal(false)}
+                disabled={submitting}
+                className="w-full rounded-xl border border-slate-300 bg-white py-2.5 px-4 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-all cursor-pointer disabled:opacity-50"
+              >
+                ✏️ Edit / Go Back
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmedSubmit}
+                disabled={submitting}
+                className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-2.5 px-4 text-xs font-bold text-white shadow-md hover:from-blue-700 hover:to-indigo-700 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {submitting ? (
+                  <>
+                    <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>Evaluating Marks...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Confirm &amp; Calculate Now</span>
+                    <span>&rarr;</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
