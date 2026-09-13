@@ -1,6 +1,19 @@
 // Native fetch is built into Node.js v18+
 
 /**
+ * Helper to normalize "1", "2", "3", "4", "A", "B", "C", "D" into 1, 2, 3, 4
+ */
+function normalizeOptionToIndex(val) {
+  if (!val) return null;
+  const str = String(val).trim().toUpperCase();
+  if (str === "A" || str === "1") return 1;
+  if (str === "B" || str === "2") return 2;
+  if (str === "C" || str === "3") return 3;
+  if (str === "D" || str === "4") return 4;
+  return null;
+}
+
+/**
  * Parses official TCS iON / Digialm Response Sheet HTML
  * @param {string} html Raw HTML content of the response sheet
  * @param {object} markingScheme { marksForCorrect: 1.0, negativeMarks: 0.25 }
@@ -31,45 +44,77 @@ function parseResponseSheetHtml(html, markingScheme = { marksForCorrect: 1.0, ne
   const imgMatches = html.matchAll(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi);
   for (const im of imgMatches) {
     const src = im[1].trim();
-    if (!src.includes("tick.png") && !src.includes("cross.png") && !src.includes("adcimages")) {
-      candidateInfo.headerImageUrl = src;
+    if (
+      !src.includes("tick.png") &&
+      !src.includes("cross.png") &&
+      !src.includes("adcimages") &&
+      !src.includes("jplayer") &&
+      (src.startsWith("http") || src.startsWith("//") || src.startsWith("/"))
+    ) {
+      candidateInfo.headerImageUrl = src.startsWith("//") ? "https:" + src : src;
       break;
     }
   }
 
-  const tableMatch = html.match(/<table border="1" cellpadding="1" cellspacing="1"[^>]*>([\s\S]*?)<\/table>/i);
-  if (tableMatch) {
-    const rowMatches = tableMatch[1].matchAll(/<tr>\s*<td>(.*?)<\/td>\s*<td>(.*?)<\/td>\s*<\/tr>/gi);
-    for (const m of rowMatches) {
-      const key = m[1].replace(/<[^>]+>/g, "").trim();
-      const val = m[2].replace(/<[^>]+>/g, "").trim();
-      if (/Participant ID/i.test(key)) candidateInfo.participantId = val;
-      else if (/Participant Name/i.test(key)) candidateInfo.participantName = val;
-      else if (/Test Center Name/i.test(key)) candidateInfo.testCenterName = val;
-      else if (/Test Date/i.test(key)) candidateInfo.testDate = val;
-      else if (/Test Time/i.test(key)) candidateInfo.testTime = val;
-      else if (/Subject/i.test(key)) candidateInfo.subject = val;
-      else if (/Exam Language|Language/i.test(key)) candidateInfo.examLanguage = val;
-      else if (/Trade|Post/i.test(key) && candidateInfo.subject === "General") candidateInfo.subject = val;
+  // Resilient 2-cell table row extraction (handles any styling, nested spans, classes)
+  const rowMatches = html.matchAll(/<tr[^>]*>\s*<td[^>]*>([\s\S]*?)<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>\s*<\/tr>/gi);
+  for (const m of rowMatches) {
+    const rawKey = m[1].replace(/<[^>]+>/g, "").replace(/&nbsp;/gi, " ").trim();
+    const rawVal = m[2].replace(/<[^>]+>/g, "").replace(/&nbsp;/gi, " ").trim();
+
+    if (!rawKey || !rawVal) continue;
+
+    if (/Participant\s*ID|Roll\s*No|Roll\s*Number|Application\s*No|Candidate\s*ID|Registration\s*No/i.test(rawKey)) {
+      if (!candidateInfo.participantId) candidateInfo.participantId = rawVal;
+    } else if (/Participant\s*Name|Candidate\s*Name|Applicant\s*Name/i.test(rawKey)) {
+      if (!candidateInfo.participantName || candidateInfo.participantName === "Candidate") {
+        candidateInfo.participantName = rawVal;
+      }
+    } else if (/Test\s*Center\s*Name|Centre\s*Name|Venue/i.test(rawKey)) {
+      if (!candidateInfo.testCenterName) candidateInfo.testCenterName = rawVal;
+    } else if (/Test\s*Date|Exam\s*Date|Date\s*of\s*Exam/i.test(rawKey)) {
+      if (!candidateInfo.testDate) candidateInfo.testDate = rawVal;
+    } else if (/Test\s*Time|Exam\s*Time|Shift/i.test(rawKey)) {
+      if (!candidateInfo.testTime) candidateInfo.testTime = rawVal;
+    } else if (/Subject|Discipline|Trade|Post\s*Applied/i.test(rawKey)) {
+      if (!candidateInfo.subject || candidateInfo.subject === "General") {
+        candidateInfo.subject = rawVal;
+      }
+    } else if (/Language|Medium/i.test(rawKey)) {
+      if (!candidateInfo.examLanguage || candidateInfo.examLanguage === "English") {
+        candidateInfo.examLanguage = rawVal;
+      }
     }
   }
 
-  // Fallback: search for Participant ID directly if table structure differs slightly
+  // Fallback direct regex checks in case candidate info is rendered outside standard <tr>
   if (!candidateInfo.participantId) {
-    const idMatch = html.match(/Participant ID\s*<\/td>\s*<td[^>]*>([^<]+)<\/td>/i);
-    if (idMatch) candidateInfo.participantId = idMatch[1].trim();
+    const idMatch = html.match(/Participant\s*ID[\s\S]*?<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>/i);
+    if (idMatch) candidateInfo.participantId = idMatch[1].replace(/<[^>]+>/g, "").trim();
   }
   if (!candidateInfo.participantName || candidateInfo.participantName === "Candidate") {
-    const nameMatch = html.match(/Participant Name\s*<\/td>\s*<td[^>]*>([^<]+)<\/td>/i);
-    if (nameMatch) candidateInfo.participantName = nameMatch[1].trim();
+    const nameMatch = html.match(/Participant\s*Name[\s\S]*?<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>/i);
+    if (nameMatch) candidateInfo.participantName = nameMatch[1].replace(/<[^>]+>/g, "").trim();
+  }
+  if (!candidateInfo.testCenterName) {
+    const centerMatch = html.match(/Test\s*Center\s*Name[\s\S]*?<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>/i);
+    if (centerMatch) candidateInfo.testCenterName = centerMatch[1].replace(/<[^>]+>/g, "").trim();
+  }
+  if (!candidateInfo.testDate) {
+    const dateMatch = html.match(/Test\s*Date[\s\S]*?<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>/i);
+    if (dateMatch) candidateInfo.testDate = dateMatch[1].replace(/<[^>]+>/g, "").trim();
+  }
+  if (!candidateInfo.testTime) {
+    const timeMatch = html.match(/Test\s*Time[\s\S]*?<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>/i);
+    if (timeMatch) candidateInfo.testTime = timeMatch[1].replace(/<[^>]+>/g, "").trim();
   }
   if (!candidateInfo.subject || candidateInfo.subject === "General") {
-    const subMatch = html.match(/Subject\s*<\/td>\s*<td[^>]*>([^<]+)<\/td>/i);
-    if (subMatch) candidateInfo.subject = subMatch[1].trim();
+    const subMatch = html.match(/Subject[\s\S]*?<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>/i);
+    if (subMatch) candidateInfo.subject = subMatch[1].replace(/<[^>]+>/g, "").trim();
   }
 
   if (!candidateInfo.participantId) {
-    // Generate a fallback ID if participant ID is not in standard table
+    // Generate a deterministic or random fallback ID if participant ID is not in standard table
     candidateInfo.participantId = "CAND-" + Math.random().toString(36).substring(2, 9).toUpperCase();
   }
 
@@ -82,23 +127,56 @@ function parseResponseSheetHtml(html, markingScheme = { marksForCorrect: 1.0, ne
   const sectionSummaries = [];
 
   // Split by section labels if present, or treat whole document as 1 section
-  const sectionChunks = html.split(/<div class="section-lbl">/i);
+  const sectionChunks = html.split(/<div[^>]*class=["'][^"']*section-lbl[^"']*["'][^>]*>/i);
 
   if (sectionChunks.length > 1) {
     for (let s = 1; s < sectionChunks.length; s++) {
       const chunk = sectionChunks[s];
-      const secNameMatch = chunk.match(/<span class="bold">([^<]+)<\/span>/i);
-      const sectionName = secNameMatch ? secNameMatch[1].trim() : `Section ${s}`;
+      let sectionName = `Section ${s}`;
+      const secNameMatch = chunk.match(/<span[^>]*class=["'][^"']*bold[^"']*["'][^>]*>([^<]+)<\/span>/i);
+      if (secNameMatch && secNameMatch[1].trim()) {
+        sectionName = secNameMatch[1].trim();
+      } else {
+        const topText = chunk.substring(0, 300).replace(/<[^>]+>/g, " ").replace(/Section\s*:?/i, "").trim();
+        const firstLine = topText.split(/\n/)[0].trim();
+        if (firstLine && firstLine.length < 100) {
+          sectionName = firstLine;
+        }
+      }
 
       const secResult = parseQuestionsFromChunk(chunk, marksForCorrect, negativeMarks);
 
-      totalQuestions += secResult.questions;
-      totalCorrect += secResult.correct;
-      totalIncorrect += secResult.incorrect;
-      totalUnanswered += secResult.unanswered;
+      if (secResult.questions > 0) {
+        totalQuestions += secResult.questions;
+        totalCorrect += secResult.correct;
+        totalIncorrect += secResult.incorrect;
+        totalUnanswered += secResult.unanswered;
+
+        sectionSummaries.push({
+          sectionName,
+          questions: secResult.questions,
+          correct: secResult.correct,
+          incorrect: secResult.incorrect,
+          unanswered: secResult.unanswered,
+          positiveMarks: secResult.positiveMarks,
+          negativeMarks: secResult.negativeMarks,
+          score: secResult.score,
+        });
+      }
+    }
+  }
+
+  if (totalQuestions === 0) {
+    // Single general section fallback
+    const secResult = parseQuestionsFromChunk(html, marksForCorrect, negativeMarks);
+    if (secResult.questions > 0) {
+      totalQuestions = secResult.questions;
+      totalCorrect = secResult.correct;
+      totalIncorrect = secResult.incorrect;
+      totalUnanswered = secResult.unanswered;
 
       sectionSummaries.push({
-        sectionName,
+        sectionName: candidateInfo.subject || "General Section",
         questions: secResult.questions,
         correct: secResult.correct,
         incorrect: secResult.incorrect,
@@ -108,24 +186,6 @@ function parseResponseSheetHtml(html, markingScheme = { marksForCorrect: 1.0, ne
         score: secResult.score,
       });
     }
-  } else {
-    // Single general section
-    const secResult = parseQuestionsFromChunk(html, marksForCorrect, negativeMarks);
-    totalQuestions = secResult.questions;
-    totalCorrect = secResult.correct;
-    totalIncorrect = secResult.incorrect;
-    totalUnanswered = secResult.unanswered;
-
-    sectionSummaries.push({
-      sectionName: candidateInfo.subject || "General Section",
-      questions: secResult.questions,
-      correct: secResult.correct,
-      incorrect: secResult.incorrect,
-      unanswered: secResult.unanswered,
-      positiveMarks: secResult.positiveMarks,
-      negativeMarks: secResult.negativeMarks,
-      score: secResult.score,
-    });
   }
 
   if (totalQuestions === 0) {
@@ -159,48 +219,107 @@ function parseResponseSheetHtml(html, markingScheme = { marksForCorrect: 1.0, ne
  * Helper to parse question panels within a chunk
  */
 function parseQuestionsFromChunk(chunkHtml, marksForCorrect, negativeMarks) {
-  const qPanels = chunkHtml.match(/<div class="question-pnl"[\s\S]*?(?=<div class="question-pnl"|<\/body|$)/gi) || [];
+  let qPanels = chunkHtml.match(/<div[^>]*class=["'][^"']*question-pnl[^"']*["'][\s\S]*?(?=<div[^>]*class=["'][^"']*question-pnl[^"']*["']|<\/body|$)/gi) || [];
+
+  if (qPanels.length === 0) {
+    qPanels = chunkHtml.match(/<table[^>]*class=["'][^"']*questionPnlTbl[^"']*["'][\s\S]*?(?=<table[^>]*class=["'][^"']*questionPnlTbl[^"']*["']|<\/body|$)/gi) || [];
+  }
 
   let correct = 0;
   let incorrect = 0;
   let unanswered = 0;
 
   for (const panel of qPanels) {
-    // 1. Right Option Detection
-    const rightAnsMatch = panel.match(/<td class="rightAns"[^>]*>[\s\S]*?(?:<img[^>]*>)?\s*(\d+)\.\s*([\s\S]*?)<\/td>/i);
-    let rightOptionNum = rightAnsMatch ? rightAnsMatch[1] : null;
+    // Check for Dropped question
+    const isDropped =
+      /Status\s*:\s*<\/td>\s*<td[^>]*>\s*Dropped\s*<\/td>/i.test(panel) ||
+      /benefit of marks to all|marked as dropped|invalid question/i.test(panel);
 
-    // Alternative: check which option has tick.png if class rightAns wasn't applied
-    if (!rightOptionNum) {
-      const tickMatch = panel.match(/(\d+)\.\s*[^<]*<img[^>]*tick\.png/i);
-      if (tickMatch) rightOptionNum = tickMatch[1];
+    // 1. Right / Correct Option Detection
+    let rightIndex = null; // 1, 2, 3, or 4
+
+    // Method A: Check rightAns cell and inspect text prefix (e.g., "A. ", "1. ", "D. ", "2. ")
+    const rightAnsCellMatch = panel.match(/<td[^>]*class=["'][^"']*rightAns[^"']*["'][^>]*>([\s\S]*?)<\/td>/i);
+    if (rightAnsCellMatch) {
+      const cleanRightText = rightAnsCellMatch[1].replace(/<[^>]+>/g, "").trim();
+      const prefixMatch = cleanRightText.match(/^([A-Da-d1-4])[\.\)\s]/);
+      if (prefixMatch) {
+        rightIndex = normalizeOptionToIndex(prefixMatch[1]);
+      }
     }
 
-    // 2. Chosen Option Detection
-    const chosenOptMatch = panel.match(/Chosen Option\s*:\s*<\/td>\s*<td class="bold">([^<]+)<\/td>/i);
-    const chosenOptIdMatch = panel.match(/Chosen Option ID\s*:\s*<\/td>\s*<td class="bold">([^<]+)<\/td>/i);
-    const statusMatch = panel.match(/Status\s*:\s*<\/td>\s*<td class="bold">([^<]+)<\/td>/i);
-
-    let chosenOptionNum = null;
-    if (chosenOptMatch && chosenOptMatch[1].trim() !== "--") {
-      chosenOptionNum = chosenOptMatch[1].trim();
-    } else if (chosenOptIdMatch && chosenOptIdMatch[1].trim() !== "--") {
-      const chosenId = chosenOptIdMatch[1].trim();
-      for (let opt = 1; opt <= 4; opt++) {
-        const optIdRegex = new RegExp("Option " + opt + " ID\\s*:\\s*<\\/td>\\s*<td class=\"bold\">([0-9]+)<\\/td>", "i");
-        const optIdMatch = panel.match(optIdRegex);
-        if (optIdMatch && optIdMatch[1].trim() === chosenId) {
-          chosenOptionNum = String(opt);
-          break;
+    // Method B: Find sequential position of rightAns among option cells
+    if (rightIndex === null) {
+      const optionCells = [...panel.matchAll(/<td[^>]*class=["']([^"']*(?:rightAns|wrngAns)[^"']*)["'][^>]*>/gi)];
+      if (optionCells.length > 0) {
+        for (let idx = 0; idx < optionCells.length; idx++) {
+          if (optionCells[idx][1].includes("rightAns")) {
+            rightIndex = idx + 1; // 1-indexed
+            break;
+          }
         }
       }
     }
 
-    const isMarkedNotAnswered = statusMatch && /Not Answered/i.test(statusMatch[1]);
-    const isAnswered = !isMarkedNotAnswered && chosenOptionNum !== null && chosenOptionNum !== "--";
+    // Method C: Check for tick image (tick.png) prefix or row index
+    if (rightIndex === null) {
+      const tickPrefixMatch =
+        panel.match(/([A-Da-d1-4])\.\s*[^<]*<img[^>]*tick\.png/i) ||
+        panel.match(/<img[^>]*tick\.png[^>]*>\s*([A-Da-d1-4])[\.\)\s]/i);
+      if (tickPrefixMatch) {
+        rightIndex = normalizeOptionToIndex(tickPrefixMatch[1]);
+      } else {
+        const optionRows = [...panel.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/gi)];
+        let optRowIdx = 0;
+        for (const r of optionRows) {
+          if (r[1].includes("wrngAns") || r[1].includes("rightAns") || r[1].includes("tick.png") || r[1].includes("cross.png")) {
+            optRowIdx++;
+            if (r[1].includes("tick.png") || r[1].includes("rightAns")) {
+              rightIndex = optRowIdx;
+              break;
+            }
+          }
+        }
+      }
+    }
 
-    if (isAnswered) {
-      if (rightOptionNum && chosenOptionNum === rightOptionNum) {
+    // 2. Candidate Chosen Option Detection
+    const statusMatch = panel.match(/Status\s*:\s*<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>/i);
+    const statusText = statusMatch ? statusMatch[1].replace(/<[^>]+>/g, "").trim() : "";
+
+    const chosenOptMatch = panel.match(/Chosen Option\s*:\s*<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>/i);
+    const chosenOptIdMatch = panel.match(/Chosen Option ID\s*:\s*<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>/i);
+
+    let rawChosen = null;
+    if (chosenOptMatch) {
+      const txt = chosenOptMatch[1].replace(/<[^>]+>/g, "").trim();
+      if (txt && txt !== "--" && !/not\s*answered/i.test(txt)) {
+        rawChosen = txt;
+      }
+    }
+
+    if (!rawChosen && chosenOptIdMatch) {
+      const chosenId = chosenOptIdMatch[1].replace(/<[^>]+>/g, "").trim();
+      if (chosenId && chosenId !== "--") {
+        for (let opt = 1; opt <= 4; opt++) {
+          const optIdRegex = new RegExp(`Option\\s*${opt}\\s*ID\\s*:\\s*<\\/td>\\s*<td[^>]*>\\s*${chosenId}\\s*<\\/td>`, "i");
+          if (optIdRegex.test(panel)) {
+            rawChosen = String(opt);
+            break;
+          }
+        }
+      }
+    }
+
+    const chosenIndex = normalizeOptionToIndex(rawChosen);
+    const isNotAnswered = /Not Answered|Not Attempted/i.test(statusText) || chosenIndex === null;
+    const isAnswered = !isNotAnswered && chosenIndex !== null;
+
+    if (isDropped) {
+      // In competitive exams, dropped questions award marks to all candidates
+      correct++;
+    } else if (isAnswered) {
+      if (rightIndex !== null && chosenIndex === rightIndex) {
         correct++;
       } else {
         incorrect++;
@@ -234,7 +353,7 @@ async function fetchResponseSheetUrl(url) {
   }
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  const timeoutId = setTimeout(() => controller.abort(), 20000);
 
   try {
     const response = await fetch(url, {

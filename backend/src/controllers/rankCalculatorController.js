@@ -124,6 +124,17 @@ exports.calculateScoreAndRank = async (req, res, next) => {
       }
     }
 
+    // Auto-detect exam if not explicitly specified by user
+    if (!examId && htmlContent) {
+      if (/coal\s*india|\bcil\b|form97495/i.test(htmlContent)) {
+        const cilExam = await RankExam.findOne({ slug: "cil-management-trainee-2026" });
+        if (cilExam) exam = cilExam;
+      } else if (/avnl|armoured/i.test(htmlContent)) {
+        const avnlExam = await RankExam.findOne({ slug: "avnl-recruitment-2026" });
+        if (avnlExam) exam = avnlExam;
+      }
+    }
+
     // 3. Parse Response Sheet
     let parsedResult;
     try {
