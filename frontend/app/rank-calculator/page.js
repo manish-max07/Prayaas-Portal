@@ -687,6 +687,8 @@ export default function RankCalculatorPage() {
               Paste the link in the box above to immediately calculate your marks and see where you rank!
             </li>
           </ol>
+        </div>
+
         {/* SEO CONTENT SECTION: AVNL & CIL EXAM INSIGHTS */}
         <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-5">
           <div className="border-b border-slate-100 pb-3">
