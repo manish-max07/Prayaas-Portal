@@ -6,11 +6,13 @@ import Link from "next/link";
 import { toPng } from "html-to-image";
 import QRCode from "qrcode";
 import api from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function RankResultPage({ params }) {
   const unwrappedParams = use(params);
   const { id } = unwrappedParams;
 
+  const { isAdmin } = useAuth();
   const router = useRouter();
   const scorecardRef = useRef(null);
 
@@ -169,6 +171,17 @@ export default function RankResultPage({ params }) {
           </Link>
 
           <div className="flex items-center gap-2.5">
+            {isAdmin && submission?.rankExam && (
+              <Link
+                href={`/admin/rank-predictor/leaderboard/${submission.rankExam._id || submission.rankExam}`}
+                target="_blank"
+                className="rounded-lg bg-indigo-50 border border-indigo-200 px-3.5 py-2 text-xs font-bold text-indigo-700 hover:bg-indigo-100 transition-colors flex items-center gap-1.5 shadow-2xs"
+              >
+                <span>🏆</span>
+                <span>Admin Leaderboard ↗</span>
+              </Link>
+            )}
+
             <button
               onClick={handleDownloadPng}
               disabled={downloading}

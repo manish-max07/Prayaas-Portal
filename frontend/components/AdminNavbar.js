@@ -55,7 +55,7 @@ export default function AdminNavbar() {
             className="font-medium text-indigo-300 hover:text-white transition-colors flex items-center gap-1 bg-gray-800/80 px-2.5 py-1 rounded-md border border-gray-700"
           >
             <span>⚡</span>
-            <span>Rank Predictor</span>
+            <span>Rank Leaderboards</span>
           </Link>
           <Link
             href="/admin/exams/new"

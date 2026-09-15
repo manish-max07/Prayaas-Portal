@@ -172,10 +172,12 @@ export default function AdminRankLeaderboardPage({ params }) {
           </div>
 
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-gray-900">
-            Official All-India Leaderboard & Applicant Database
+            {data?.exam?.name ? `${data.exam.name} — All-India Leaderboard` : "Official All-India Leaderboard & Applicant Database"}
           </h1>
           <p className="mt-0.5 text-xs text-gray-500">
-            Admin console view • Full candidate identities, negative penalties, and comparative metrics
+            {data?.exam?.marksForCorrect !== undefined
+              ? `Marking: +${data.exam.marksForCorrect} / -${data.exam.negativeMarks} • Category: ${data.exam.examCategory} • Full applicant database`
+              : "Admin console view • Full candidate identities, negative penalties, and comparative metrics"}
           </p>
         </div>
 
@@ -429,7 +431,7 @@ export default function AdminRankLeaderboardPage({ params }) {
                               : "bg-gray-50 text-gray-700 border border-gray-200"
                           }`}
                         >
-                          {globalRank}
+                          {globalRank === 1 ? "🥇" : globalRank === 2 ? "🥈" : globalRank === 3 ? "🥉" : globalRank}
                         </span>
                       </td>
 

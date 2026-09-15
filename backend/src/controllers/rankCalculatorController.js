@@ -279,7 +279,29 @@ exports.getLeaderboard = async (req, res, next) => {
     const { examId } = req.params;
     const { trade, category, shift, state, page = 1, limit = 50 } = req.query;
 
-    const query = { rankExam: examId };
+    await ensureDefaultExams();
+
+    // Resolve exam by ObjectId, slug, or name
+    let exam = null;
+    const mongoose = require("mongoose");
+    if (mongoose.Types.ObjectId.isValid(examId)) {
+      exam = await RankExam.findById(examId);
+    }
+    if (!exam) {
+      exam = await RankExam.findOne({ slug: examId });
+    }
+    if (!exam && examId) {
+      exam = await RankExam.findOne({ name: { $regex: new RegExp(`^${examId}$`, "i") } });
+    }
+
+    if (!exam) {
+      return res.status(404).json({
+        success: false,
+        message: "Rank examination not found.",
+      });
+    }
+
+    const query = { rankExam: exam._id };
 
     if (trade && trade !== "all") query.subject = trade;
     if (category && category !== "all") query.category = category;
@@ -299,15 +321,15 @@ exports.getLeaderboard = async (req, res, next) => {
 
     // Distinct filter options for UI
     const [trades, categories, shifts, states] = await Promise.all([
-      RankSubmission.distinct("subject", { rankExam: examId }),
-      RankSubmission.distinct("category", { rankExam: examId }),
-      RankSubmission.distinct("testTime", { rankExam: examId }),
-      RankSubmission.distinct("state", { rankExam: examId }),
+      RankSubmission.distinct("subject", { rankExam: exam._id }),
+      RankSubmission.distinct("category", { rankExam: exam._id }),
+      RankSubmission.distinct("testTime", { rankExam: exam._id }),
+      RankSubmission.distinct("state", { rankExam: exam._id }),
     ]);
 
-    // Shift difficulty stats aggregation
+    // Shift difficulty stats aggregation (based on full exam cohort)
     const shiftStats = await RankSubmission.aggregate([
-      { $match: { rankExam: submissions[0]?.rankExam || null } },
+      { $match: { rankExam: exam._id } },
       {
         $group: {
           _id: { date: "$testDate", time: "$testTime" },
@@ -322,6 +344,16 @@ exports.getLeaderboard = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
+      exam: {
+        _id: exam._id,
+        name: exam.name,
+        slug: exam.slug,
+        examCategory: exam.examCategory,
+        marksForCorrect: exam.marksForCorrect,
+        negativeMarks: exam.negativeMarks,
+        totalExpectedQuestions: exam.totalExpectedQuestions,
+        description: exam.description,
+      },
       totalCount,
       page: Number(page),
       totalPages: Math.ceil(totalCount / Number(limit)),

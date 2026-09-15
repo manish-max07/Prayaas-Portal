@@ -17,6 +17,9 @@ api.interceptors.request.use(
     // Check for admin token or user token
     const token =
       Cookies.get("prayaas_admin_token") ||
+      (typeof window !== "undefined"
+        ? localStorage.getItem("prayaas_admin_token")
+        : null) ||
       Cookies.get("prayaas_user_token") ||
       (typeof window !== "undefined"
         ? localStorage.getItem("prayaas_token")
