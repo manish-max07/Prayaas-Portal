@@ -294,6 +294,11 @@ export default function RankResultPage({ params }) {
                     <div className="text-xs font-bold text-slate-800 mt-0.5 line-clamp-2">
                       {submission.subject}
                     </div>
+                    {ranks?.trade && (
+                      <div className="inline-block mt-1 rounded bg-blue-50 px-1.5 py-0.5 text-[10px] font-extrabold text-blue-700 border border-blue-200">
+                        Trade Rank: #{ranks.trade.rank} / {ranks.trade.total}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -326,12 +331,22 @@ export default function RankResultPage({ params }) {
                     <div className="text-xs font-black text-slate-900 mt-0.5">
                       {submission.category}
                     </div>
+                    {ranks?.category && (
+                      <div className="inline-block mt-1 rounded bg-purple-50 px-1.5 py-0.5 text-[10px] font-extrabold text-purple-700 border border-purple-200">
+                        Cat. Rank: #{ranks.category.rank} / {ranks.category.total}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <div className="text-[10px] font-semibold text-slate-400 uppercase">Shift / Time</div>
                     <div className="text-xs font-bold text-slate-800 mt-0.5 truncate">
                       {submission.testTime || "N/A"}
                     </div>
+                    {ranks?.shift && (
+                      <div className="text-[10px] font-semibold text-emerald-700 mt-0.5">
+                        Shift Rank: #{ranks.shift.rank} / {ranks.shift.total}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <div className="text-[10px] font-semibold text-slate-400 uppercase">Exam Centre</div>
@@ -345,19 +360,106 @@ export default function RankResultPage({ params }) {
               {/* Far Right: Royal Purple "YOUR RANK" Highlight Box */}
               <div className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-b from-[#342478] via-[#3E2B92] to-[#452FA0] text-white p-4 text-center w-[150px] shrink-0 shadow-sm">
                 <div className="text-[10px] font-extrabold uppercase tracking-wider text-amber-300">
-                  YOUR RANK 🏆
+                  ALL INDIA RANK 🏆
                 </div>
                 <div className="text-3xl sm:text-4xl font-black text-white mt-1 leading-none">
                   #{ranks.air.rank}
                 </div>
-                <div className="text-[10px] text-purple-200 mt-1.5 font-medium">
+                <div className="text-[10px] text-purple-200 mt-1 font-medium">
                   Out of {ranks.air.total}
+                </div>
+                {ranks.percentile !== undefined && (
+                  <div className="mt-1.5 rounded bg-white/20 px-2 py-0.5 text-[9px] font-black tracking-wide text-amber-200">
+                    {ranks.percentile}%ile
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 3. DYNAMIC RANKINGS & BENCHMARKS STRIP */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-xs font-black uppercase tracking-wider text-slate-900">
+                OFFICIAL RANKINGS & COMPARATIVE STANDINGS
+              </h2>
+              <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full">
+                ⚡ Real-time Dynamic Standings
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {/* Card 1: All India Rank */}
+              <div className="rounded-xl border border-indigo-200 bg-gradient-to-b from-indigo-50/80 to-white p-3.5 text-center shadow-2xs">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-indigo-900 flex items-center justify-center gap-1">
+                  <span>🏆</span>
+                  <span>All India Rank</span>
+                </div>
+                <div className="mt-1 text-2xl sm:text-3xl font-black text-indigo-950 font-mono">
+                  #{ranks.air?.rank || 1}
+                </div>
+                <div className="mt-1 text-[11px] font-semibold text-indigo-700">
+                  Out of {ranks.air?.total || 1} candidates
+                </div>
+                <div className="mt-1 text-[9px] font-bold text-indigo-500 uppercase">
+                  National Standing
+                </div>
+              </div>
+
+              {/* Card 2: Category Rank */}
+              <div className="rounded-xl border border-purple-200 bg-gradient-to-b from-purple-50/80 to-white p-3.5 text-center shadow-2xs">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-purple-900 flex items-center justify-center gap-1">
+                  <span>🏷️</span>
+                  <span>Category Rank</span>
+                </div>
+                <div className="mt-1 text-2xl sm:text-3xl font-black text-purple-950 font-mono">
+                  #{ranks.category?.rank || 1}
+                </div>
+                <div className="mt-1 text-[11px] font-semibold text-purple-700">
+                  Out of {ranks.category?.total || 1} in {ranks.category?.name || submission.category}
+                </div>
+                <div className="mt-1 text-[9px] font-bold text-purple-500 uppercase">
+                  Category Quota
+                </div>
+              </div>
+
+              {/* Card 3: Trade / Subject Rank */}
+              <div className="rounded-xl border border-blue-200 bg-gradient-to-b from-blue-50/80 to-white p-3.5 text-center shadow-2xs">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-blue-900 flex items-center justify-center gap-1">
+                  <span>🎓</span>
+                  <span className="truncate max-w-[130px]">Trade Rank</span>
+                </div>
+                <div className="mt-1 text-2xl sm:text-3xl font-black text-blue-950 font-mono">
+                  #{ranks.trade?.rank || 1}
+                </div>
+                <div className="mt-1 text-[11px] font-semibold text-blue-700 truncate" title={submission.subject}>
+                  Out of {ranks.trade?.total || 1} in Trade
+                </div>
+                <div className="mt-1 text-[9px] font-bold text-blue-500 uppercase truncate" title={submission.subject}>
+                  {submission.subject}
+                </div>
+              </div>
+
+              {/* Card 4: Shift Rank & Percentile */}
+              <div className="rounded-xl border border-emerald-200 bg-gradient-to-b from-emerald-50/80 to-white p-3.5 text-center shadow-2xs">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-900 flex items-center justify-center gap-1">
+                  <span>⚡</span>
+                  <span>Shift Standing</span>
+                </div>
+                <div className="mt-1 text-2xl sm:text-3xl font-black text-emerald-950 font-mono">
+                  #{ranks.shift?.rank || 1}
+                </div>
+                <div className="mt-1 text-[11px] font-semibold text-emerald-700">
+                  Out of {ranks.shift?.total || 1} ({ranks.percentile}%ile)
+                </div>
+                <div className="mt-1 text-[9px] font-bold text-emerald-600 uppercase">
+                  Shift Normalization
                 </div>
               </div>
             </div>
           </div>
 
-          {/* 3. PERFORMANCE OVERVIEW */}
+          {/* 4. PERFORMANCE OVERVIEW */}
           <div>
             <h2 className="text-xs font-black uppercase tracking-wider text-slate-900 mb-2">
               PERFORMANCE OVERVIEW
