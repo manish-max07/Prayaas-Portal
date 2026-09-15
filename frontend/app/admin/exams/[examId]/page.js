@@ -33,6 +33,15 @@ export default function AdminExamDetailPage({ params }) {
   const [uploadingExcel, setUploadingExcel] = useState(false);
   const [uploadSummary, setUploadSummary] = useState(null);
 
+  // Digialm Link / HTML Import state
+  const [digialmUrl, setDigialmUrl] = useState("");
+  const [rawHtml, setRawHtml] = useState("");
+  const [showRawHtmlInput, setShowRawHtmlInput] = useState(false);
+  const [digialmMarks, setDigialmMarks] = useState("1.0");
+  const [digialmNegativeMarks, setDigialmNegativeMarks] = useState("0.25");
+  const [importingDigialm, setImportingDigialm] = useState(false);
+  const [digialmSummary, setDigialmSummary] = useState(null);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -169,6 +178,41 @@ export default function AdminExamDetailPage({ params }) {
       );
     } finally {
       setUploadingExcel(false);
+    }
+  };
+
+  const handleImportDigialm = async (e) => {
+    e.preventDefault();
+    if (!digialmUrl.trim() && !rawHtml.trim()) {
+      alert("Please provide a valid Digialm link or paste the raw page HTML.");
+      return;
+    }
+
+    try {
+      setImportingDigialm(true);
+      setDigialmSummary(null);
+
+      const res = await api.post(`/api/admin/exams/${examId}/import-digialm`, {
+        digialmUrl: digialmUrl.trim() || undefined,
+        rawHtml: rawHtml.trim() || undefined,
+        marksForCorrect: Number(digialmMarks) || 1.0,
+        negativeMarks: Number(digialmNegativeMarks) || 0.25,
+      });
+
+      if (res.data) {
+        setDigialmSummary(res.data);
+        setDigialmUrl("");
+        setRawHtml("");
+        // Refresh exam sections & questions
+        fetchExamDetail();
+      }
+    } catch (err) {
+      console.error("Digialm import error:", err);
+      alert(
+        err.response?.data?.message || "Failed to import questions from Digialm."
+      );
+    } finally {
+      setImportingDigialm(false);
     }
   };
 
@@ -401,7 +445,141 @@ export default function AdminExamDetailPage({ params }) {
         )}
       </div>
 
-      {/* 4. Sections & Questions Architecture */}
+      {/* 4. Import Questions via Digialm / TCS iON Link */}
+      <div className="rounded-xl border border-indigo-200 bg-linear-to-br from-indigo-50/70 via-white to-purple-50/50 p-6 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-bold text-indigo-950">
+                Import Questions from Digialm / TCS iON Link
+              </h2>
+              <span className="inline-flex items-center rounded-md bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-800 uppercase tracking-wide">
+                Auto Extract with Images
+              </span>
+            </div>
+            <p className="text-xs text-indigo-800 mt-0.5">
+              Paste an official Digialm / TCS iON Assessment Response Sheet URL. Sections, questions, diagram/formula images, 4 options, and correct answers are extracted automatically!
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowRawHtmlInput(!showRawHtmlInput)}
+            className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 underline self-start sm:self-center cursor-pointer"
+          >
+            {showRawHtmlInput ? "Hide Raw HTML Input" : "Paste Raw HTML instead?"}
+          </button>
+        </div>
+
+        <form onSubmit={handleImportDigialm} className="space-y-4">
+          {!showRawHtmlInput ? (
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">
+                Digialm Response Sheet / Assessment Link URL
+              </label>
+              <input
+                type="url"
+                required={!showRawHtmlInput}
+                placeholder="https://cdn.digialm.com//per/g01/pub/.../assessment.html"
+                value={digialmUrl}
+                onChange={(e) => setDigialmUrl(e.target.value)}
+                className="w-full rounded-lg border border-indigo-200 bg-white px-3 py-2 text-xs text-gray-900 font-mono focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+              />
+            </div>
+          ) : (
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">
+                Paste Raw HTML of Response Sheet / Question Paper
+              </label>
+              <textarea
+                rows="4"
+                required={showRawHtmlInput}
+                placeholder="Paste the full <html>...</html> page source here..."
+                value={rawHtml}
+                onChange={(e) => setRawHtml(e.target.value)}
+                className="w-full rounded-lg border border-indigo-200 bg-white px-3 py-2 text-xs text-gray-900 font-mono focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+              />
+            </div>
+          )}
+
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
+            <div className="flex flex-wrap items-center gap-4 text-xs">
+              <div className="flex items-center gap-1.5">
+                <label className="font-semibold text-gray-700">Marks/Question:</label>
+                <input
+                  type="number"
+                  step="0.25"
+                  min="0"
+                  value={digialmMarks}
+                  onChange={(e) => setDigialmMarks(e.target.value)}
+                  className="w-18 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs text-gray-900 font-mono focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <label className="font-semibold text-gray-700">Negative Marks:</label>
+                <input
+                  type="number"
+                  step="0.05"
+                  min="0"
+                  value={digialmNegativeMarks}
+                  onChange={(e) => setDigialmNegativeMarks(e.target.value)}
+                  className="w-18 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs text-gray-900 font-mono focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={importingDigialm || (!digialmUrl.trim() && !rawHtml.trim())}
+              className="rounded-lg bg-indigo-600 px-6 py-2 text-xs font-bold text-white shadow-xs hover:bg-indigo-700 disabled:opacity-50 transition-colors cursor-pointer flex items-center gap-2"
+            >
+              {importingDigialm ? (
+                <>
+                  <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                  <span>Fetching & Extracting Questions...</span>
+                </>
+              ) : (
+                <span>Extract & Import All Questions</span>
+              )}
+            </button>
+          </div>
+        </form>
+
+        {digialmSummary && (
+          <div className="rounded-lg border border-emerald-300 bg-emerald-50 p-4 text-xs space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="font-bold text-emerald-950 text-sm flex items-center gap-1.5">
+                <span>✓</span>
+                <span>{digialmSummary.message}</span>
+              </div>
+              <span className="rounded-full bg-emerald-200/80 px-2.5 py-0.5 text-[11px] font-bold text-emerald-900">
+                {digialmSummary.totalQuestions} Questions Added
+              </span>
+            </div>
+
+            <div className="text-emerald-800 flex items-center gap-4 text-xs font-medium">
+              <span>Diagrams / Images Extracted: <strong>{digialmSummary.totalImages || 0}</strong></span>
+              <span>Sections Handled: <strong>{digialmSummary.sectionsSummary?.length || 0}</strong></span>
+            </div>
+
+            {digialmSummary.sectionsSummary?.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
+                {digialmSummary.sectionsSummary.map((s, idx) => (
+                  <div key={idx} className="rounded-md border border-emerald-200 bg-white/80 px-2.5 py-1.5">
+                    <div className="font-bold text-gray-800 truncate">{s.sectionName}</div>
+                    <div className="text-[11px] text-emerald-700 font-semibold mt-0.5">
+                      {s.questionCount} questions
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* 5. Sections & Questions Architecture */}
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-xs space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-100 pb-4">
           <div>

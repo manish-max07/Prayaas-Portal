@@ -377,7 +377,238 @@ async function fetchResponseSheetUrl(url) {
   }
 }
 
+/**
+ * Utility to clean HTML tags and decode entities into clean text
+ */
+function cleanHtmlText(raw) {
+  if (!raw) return "";
+  return raw
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&deg;/gi, "°")
+    .replace(/&minus;/gi, "−")
+    .replace(/&sup2;/gi, "²")
+    .replace(/&sup3;/gi, "³")
+    .replace(/&times;/gi, "×")
+    .replace(/&plusmn;/gi, "±")
+    .replace(/&quot;/gi, '"')
+    .replace(/&amp;/gi, "&")
+    .replace(/&#39;/gi, "'")
+    .replace(/&rsquo;/gi, "'")
+    .replace(/&lsquo;/gi, "'")
+    .replace(/&rdquo;/gi, '"')
+    .replace(/&ldquo;/gi, '"')
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Resolves relative image URLs against a base URL
+ */
+function resolveImageUrl(src, baseUrl) {
+  if (!src) return null;
+  src = src.trim();
+  if (src.startsWith("data:")) return src;
+  try {
+    if (baseUrl) {
+      return new URL(src, baseUrl).href;
+    }
+    if (src.startsWith("//")) return "https:" + src;
+    if (src.startsWith("/")) return "https://cdn.digialm.com" + src;
+    return src;
+  } catch {
+    if (src.startsWith("//")) return "https:" + src;
+    if (src.startsWith("/")) return "https://cdn.digialm.com" + src;
+    return src;
+  }
+}
+
+/**
+ * Parses full examination question paper HTML from Digialm / TCS iON
+ * Extracts sections, questions, diagrams/images, 4 options, and correct option indices.
+ * @param {string} html Raw HTML of the question paper / response sheet
+ * @param {string} baseUrl Base URL to resolve relative image links
+ * @param {number} defaultMarks Default positive marks per question
+ * @param {number} defaultNegativeMarks Default negative marks per question
+ * @returns {object} { sections: [ { name, questions: [ ... ] } ], totalQuestions: number, totalImages: number }
+ */
+function parseDigialmQuestionPaper(html, baseUrl = "https://cdn.digialm.com", defaultMarks = 1.0, defaultNegativeMarks = 0.25) {
+  if (!html || typeof html !== "string") {
+    throw new Error("Invalid HTML content provided for question paper parsing.");
+  }
+
+  const sections = [];
+  let totalQuestions = 0;
+  let totalImages = 0;
+
+  // Split by section labels if present
+  const sectionChunks = html.split(/<div[^>]*class=["'][^"']*section-lbl[^"']*["'][^>]*>/i);
+
+  const processChunk = (chunk, defaultName) => {
+    let sectionName = defaultName;
+    const secNameMatch = chunk.match(/<span[^>]*class=["'][^"']*bold[^"']*["'][^>]*>([^<]+)<\/span>/i);
+    if (secNameMatch && secNameMatch[1].trim()) {
+      sectionName = secNameMatch[1].trim();
+    } else {
+      const topText = chunk.substring(0, 300).replace(/<[^>]+>/g, " ").replace(/Section\s*:?/i, "").trim();
+      const firstLine = topText.split(/\n/)[0].trim();
+      if (firstLine && firstLine.length < 100) {
+        sectionName = firstLine;
+      }
+    }
+
+    let qPanels = chunk.match(/<div[^>]*class=["'][^"']*question-pnl[^"']*["'][\s\S]*?(?=<div[^>]*class=["'][^"']*question-pnl[^"']*["']|<\/body|$)/gi) || [];
+    if (qPanels.length === 0) {
+      qPanels = chunk.match(/<table[^>]*class=["'][^"']*questionPnlTbl[^"']*["'][\s\S]*?(?=<table[^>]*class=["'][^"']*questionPnlTbl[^"']*["']|<\/body|$)/gi) || [];
+    }
+
+    const sectionQuestions = [];
+
+    for (let pIdx = 0; pIdx < qPanels.length; pIdx++) {
+      const panel = qPanels[pIdx];
+
+      // 1. Extract Question HTML and Question Image
+      let questionHtml = "";
+      const qCellMatch = panel.match(/<td[^>]*align=["']center["'][^>]*class=["']bold["'][^>]*>\s*Q\.\s*\d+[\s\S]*?<\/td>\s*<td([^>]*)>([\s\S]*?)<\/td>/i);
+      if (qCellMatch) {
+        questionHtml = qCellMatch[2];
+      } else {
+        const fallbackMatch = panel.match(/<td[^>]*class=["'][^"']*bold[^"']*["'][^>]*style=["'][^"']*overflow-x[^"']*["'][^>]*>([\s\S]*?)<\/td>/i);
+        if (fallbackMatch) {
+          questionHtml = fallbackMatch[1];
+        } else {
+          // Fallback to table row before Ans
+          const beforeAnsMatch = panel.match(/<tr>\s*<td[^>]*>(?:Q\.\s*\d+|&nbsp;|\s*)<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>\s*<\/tr>\s*<tr>\s*<td[^>]*>Ans<\/td>/i);
+          if (beforeAnsMatch) questionHtml = beforeAnsMatch[1];
+        }
+      }
+
+      // Extract image from question HTML if any
+      let questionImageUrl = null;
+      if (questionHtml) {
+        const imgMatches = [...questionHtml.matchAll(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi)];
+        for (const im of imgMatches) {
+          const src = im[1].trim();
+          if (!src.includes("tick.png") && !src.includes("cross.png") && !src.includes("jplayer") && !src.includes("banner")) {
+            questionImageUrl = resolveImageUrl(src, baseUrl);
+            totalImages++;
+            break;
+          }
+        }
+      }
+
+      let questionText = cleanHtmlText(questionHtml);
+      if (!questionText) {
+        questionText = questionImageUrl ? "Question (Refer to the attached image / diagram)" : `Question ${pIdx + 1}`;
+      }
+
+      // 2. Extract Options (4 options)
+      const optCellMatches = [...panel.matchAll(/<td[^>]*class=["']([^"']*(?:rightAns|wrngAns)[^"']*)["'][^>]*>([\s\S]*?)<\/td>/gi)];
+      const options = [];
+      let correctOptionIndex = -1;
+
+      if (optCellMatches.length > 0) {
+        optCellMatches.forEach((m, idx) => {
+          const isRight = m[1].includes("rightAns");
+          let optInner = m[2];
+
+          // Check if option contains an image
+          let optImg = null;
+          const optImgs = [...optInner.matchAll(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi)]
+            .filter(im => !im[1].includes("tick.png") && !im[1].includes("cross.png"));
+          if (optImgs.length > 0) {
+            optImg = resolveImageUrl(optImgs[0][1], baseUrl);
+          }
+
+          // Clean option text (remove tick/cross icons, strip leading 1., A., etc.)
+          let optClean = cleanHtmlText(optInner.replace(/<img[^>]+(?:tick|cross)\.png[^>]*>/gi, ""));
+          optClean = optClean.replace(/^[1-4A-Da-d][\.\)]\s*/, "").trim();
+
+          if (!optClean && optImg) {
+            optClean = optImg;
+          }
+
+          options.push(optClean || `Option ${idx + 1}`);
+
+          if (isRight && correctOptionIndex === -1) {
+            correctOptionIndex = idx;
+          }
+        });
+      }
+
+      // Fallback for options if not matched by rightAns / wrngAns
+      if (options.length < 4) {
+        // Try matching tick / cross images in rows
+        const optRows = [...panel.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/gi)];
+        for (const r of optRows) {
+          if (r[1].includes("tick.png") || r[1].includes("cross.png")) {
+            const cleanText = cleanHtmlText(r[1].replace(/<img[^>]+(?:tick|cross)\.png[^>]*>/gi, "")).replace(/^[1-4A-Da-d][\.\)]\s*/, "").trim();
+            if (cleanText) {
+              if (r[1].includes("tick.png") && correctOptionIndex === -1) {
+                correctOptionIndex = options.length;
+              }
+              options.push(cleanText);
+            }
+          }
+        }
+      }
+
+      // Ensure exactly 4 options
+      while (options.length < 4) {
+        options.push(`Option ${options.length + 1}`);
+      }
+      if (options.length > 4) {
+        options.length = 4;
+      }
+
+      // Fallback for correct option index
+      if (correctOptionIndex < 0 || correctOptionIndex > 3) {
+        correctOptionIndex = 0;
+      }
+
+      sectionQuestions.push({
+        questionText,
+        imageUrl: questionImageUrl,
+        options,
+        correctOptionIndex,
+        marksForCorrect: defaultMarks,
+        negativeMarks: defaultNegativeMarks,
+      });
+    }
+
+    if (sectionQuestions.length > 0) {
+      totalQuestions += sectionQuestions.length;
+      sections.push({
+        name: sectionName,
+        questions: sectionQuestions,
+      });
+    }
+  };
+
+  if (sectionChunks.length > 1) {
+    for (let s = 1; s < sectionChunks.length; s++) {
+      processChunk(sectionChunks[s], `Section ${s}`);
+    }
+  } else {
+    processChunk(html, "General Section");
+  }
+
+  if (totalQuestions === 0) {
+    throw new Error("Could not extract any questions from the provided response sheet / link.");
+  }
+
+  return {
+    sections,
+    totalQuestions,
+    totalImages,
+  };
+}
+
 module.exports = {
   parseResponseSheetHtml,
   fetchResponseSheetUrl,
+  parseDigialmQuestionPaper,
 };

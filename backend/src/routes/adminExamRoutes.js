@@ -13,7 +13,8 @@ const {
   updateQuestion,
   deleteQuestion,
   uploadQuestionsExcel,
-  uploadExamQuestionsExcel
+  uploadExamQuestionsExcel,
+  importExamQuestionsDigialm
 } = require("../controllers/adminExamController");
 const { protect } = require("../middleware/authMiddleware");
 const { adminOnly } = require("../middleware/adminOnlyMiddleware");
@@ -33,8 +34,11 @@ router.route("/:id")
 
 router.put("/:id/status", toggleExamStatus);
 
-// Exam-Level Bulk Question Upload (auto-creates sections from "Section" column)
+// Exam-Level Bulk Question Upload via Excel (auto-creates sections from "Section" column)
 router.post("/:id/upload-questions", uploadExcel.single("file"), uploadExamQuestionsExcel);
+
+// Exam-Level Bulk Question Import via Digialm / TCS iON Link or Raw HTML
+router.post("/:id/import-digialm", importExamQuestionsDigialm);
 
 // Section Management
 router.post("/:id/sections", addSection);

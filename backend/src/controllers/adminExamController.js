@@ -2,6 +2,7 @@ const ExcelJS = require("exceljs");
 const ExamPaper = require("../models/ExamPaper");
 const Section = require("../models/Section");
 const Question = require("../models/Question");
+const { fetchResponseSheetUrl, parseDigialmQuestionPaper } = require("../services/digialmParser");
 
 // Helper to convert cell value to string cleanly
 const getCellString = (cell) => {
@@ -874,6 +875,132 @@ const getSectionById = async (req, res, next) => {
   }
 };
 
+// @desc    Import Questions from Digialm Response Sheet / Question Paper URL or raw HTML
+// @route   POST /api/admin/exams/:id/import-digialm
+// @access  Private (Admin)
+const importExamQuestionsDigialm = async (req, res, next) => {
+  try {
+    const { digialmUrl, rawHtml, marksForCorrect, negativeMarks } = req.body;
+
+    if (!digialmUrl && !rawHtml) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide either a Digialm URL or raw HTML content."
+      });
+    }
+
+    const examPaper = await ExamPaper.findById(req.params.id).populate("sections");
+    if (!examPaper) {
+      return res.status(404).json({
+        success: false,
+        message: "Exam paper not found."
+      });
+    }
+
+    let html = rawHtml;
+    let baseUrl = "https://cdn.digialm.com";
+
+    if (digialmUrl) {
+      try {
+        const parsedUrl = new URL(digialmUrl.trim());
+        baseUrl = parsedUrl.origin;
+      } catch (e) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid Digialm URL format. Please provide a valid HTTP/HTTPS URL."
+        });
+      }
+
+      try {
+        html = await fetchResponseSheetUrl(digialmUrl.trim());
+      } catch (fetchErr) {
+        return res.status(400).json({
+          success: false,
+          message: `Failed to fetch response sheet from link: ${fetchErr.message}. If the link is restricted or expired, you can paste the raw page HTML directly.`
+        });
+      }
+    }
+
+    const defaultPositive =
+      marksForCorrect !== undefined && !isNaN(Number(marksForCorrect))
+        ? Number(marksForCorrect)
+        : 1.0;
+    const defaultNeg =
+      negativeMarks !== undefined && !isNaN(Number(negativeMarks))
+        ? Number(negativeMarks)
+        : 0.25;
+
+    let parsed;
+    try {
+      parsed = parseDigialmQuestionPaper(html, baseUrl, defaultPositive, defaultNeg);
+    } catch (parseErr) {
+      return res.status(400).json({
+        success: false,
+        message: `Failed to parse Digialm question paper: ${parseErr.message}`
+      });
+    }
+
+    // Section Cache: Map sectionName -> Section Doc
+    const sectionMap = new Map();
+    examPaper.sections.forEach((sec) => {
+      sectionMap.set(sec.name.toLowerCase().trim(), sec);
+    });
+
+    let totalInserted = 0;
+    const sectionsSummary = [];
+
+    // Process each section group
+    for (const secData of parsed.sections) {
+      const normSec = secData.name.toLowerCase().trim();
+      let sectionDoc = sectionMap.get(normSec);
+
+      // If section doesn't exist, create it
+      if (!sectionDoc) {
+        sectionDoc = await Section.create({
+          examPaper: examPaper._id,
+          name: secData.name.trim(),
+          order: examPaper.sections.length + 1,
+          questions: []
+        });
+        examPaper.sections.push(sectionDoc._id);
+        sectionMap.set(normSec, sectionDoc);
+      }
+
+      let currentOrder = sectionDoc.questions.length + 1;
+      const questionsToInsert = secData.questions.map((q) => ({
+        ...q,
+        examPaper: examPaper._id,
+        section: sectionDoc._id,
+        order: currentOrder++
+      }));
+
+      const createdQuestions = await Question.insertMany(questionsToInsert);
+      const createdIds = createdQuestions.map((q) => q._id);
+
+      sectionDoc.questions.push(...createdIds);
+      await sectionDoc.save();
+
+      totalInserted += createdQuestions.length;
+      sectionsSummary.push({
+        sectionName: sectionDoc.name,
+        questionCount: createdQuestions.length
+      });
+    }
+
+    await examPaper.save();
+
+    res.status(201).json({
+      success: true,
+      message: `Successfully imported ${totalInserted} questions across ${sectionsSummary.length} section(s) from Digialm link!`,
+      totalQuestions: totalInserted,
+      totalImages: parsed.totalImages,
+      sectionsSummary
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createExamPaper,
   updateExamPaper,
@@ -887,5 +1014,7 @@ module.exports = {
   updateQuestion,
   deleteQuestion,
   uploadQuestionsExcel,
-  uploadExamQuestionsExcel
+  uploadExamQuestionsExcel,
+  importExamQuestionsDigialm
 };
+
