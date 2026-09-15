@@ -51,7 +51,12 @@ export default function RankCalculatorPage() {
       setLoadingExams(true);
       const res = await api.get("/api/rank-calculator/exams");
       if (res.data && res.data.exams) {
-        setExams(res.data.exams);
+        const filtered = res.data.exams.filter(
+          (e) =>
+            e.slug !== "avnl-recruitment-2026" &&
+            e.name?.toLowerCase() !== "avnl recruitment 2026"
+        );
+        setExams(filtered);
         // Default stays on '-- Select Your Examination --' with standard +1 / 0 marking scheme
         setMarksForCorrect(1.0);
         setNegativeMarks(0.0);

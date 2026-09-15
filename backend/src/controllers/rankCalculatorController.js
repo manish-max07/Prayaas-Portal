@@ -5,8 +5,8 @@ const { parseResponseSheetHtml, fetchResponseSheetUrl } = require("../services/d
 // Default exams as requested: AVNL and CIL with default marks +1 and 0
 const DEFAULT_EXAMS = [
   {
-    name: "AVNL Recruitment 2026",
-    slug: "avnl-recruitment-2026",
+    name: "AVNL",
+    slug: "avnl",
     examCategory: "Defence",
     marksForCorrect: 1.0,
     negativeMarks: 0.0,
@@ -30,6 +30,14 @@ const DEFAULT_EXAMS = [
  * Seed/ensure default exams are active without deactivating user-added exams
  */
 async function ensureDefaultExams() {
+  // Purge redundant / deprecated exam model
+  await RankExam.deleteMany({
+    $or: [
+      { slug: "avnl-recruitment-2026" },
+      { name: { $regex: /^avnl recruitment 2026$/i } },
+    ],
+  });
+
   for (const def of DEFAULT_EXAMS) {
     await RankExam.findOneAndUpdate(
       { slug: def.slug },
@@ -46,7 +54,11 @@ async function ensureDefaultExams() {
 exports.getExams = async (req, res, next) => {
   try {
     await ensureDefaultExams();
-    const exams = await RankExam.find({ isActive: true }).sort({ createdAt: -1 });
+    const exams = await RankExam.find({
+      isActive: true,
+      slug: { $ne: "avnl-recruitment-2026" },
+      name: { $not: /^avnl recruitment 2026$/i },
+    }).sort({ createdAt: -1 });
     res.status(200).json({ success: true, count: exams.length, exams });
   } catch (error) {
     next(error);
@@ -177,7 +189,7 @@ exports.calculateScoreAndRank = async (req, res, next) => {
         const cilExam = await RankExam.findOne({ slug: "cil-management-trainee-2026" });
         if (cilExam) exam = cilExam;
       } else if (/avnl|armoured/i.test(htmlContent)) {
-        const avnlExam = await RankExam.findOne({ slug: "avnl-recruitment-2026" });
+        const avnlExam = await RankExam.findOne({ slug: "avnl" });
         if (avnlExam) exam = avnlExam;
       }
     }
@@ -451,7 +463,10 @@ async function computeDynamicRanks(submission) {
 exports.getAdminExamsSummary = async (req, res, next) => {
   try {
     await ensureDefaultExams();
-    const exams = await RankExam.find().sort({ createdAt: -1 });
+    const exams = await RankExam.find({
+      slug: { $ne: "avnl-recruitment-2026" },
+      name: { $not: /^avnl recruitment 2026$/i },
+    }).sort({ createdAt: -1 });
 
     const examSummaries = await Promise.all(
       exams.map(async (exam) => {

@@ -37,7 +37,11 @@ export default function AdminRankPredictorPage() {
       setExamsError(null);
       const res = await api.get("/api/rank-calculator/admin/exams-summary");
       if (res.data && res.data.exams) {
-        const examList = res.data.exams;
+        const examList = res.data.exams.filter(
+          (e) =>
+            e.slug !== "avnl-recruitment-2026" &&
+            e.name?.toLowerCase() !== "avnl recruitment 2026"
+        );
         setExams(examList);
 
         const urlParams =
