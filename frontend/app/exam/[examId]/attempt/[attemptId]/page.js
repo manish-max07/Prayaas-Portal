@@ -6,6 +6,7 @@ import Image from "next/image";
 import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import QuestionOptionDisplay from "@/components/QuestionOptionDisplay";
 
 function LiveExamContent({ params }) {
   const unwrappedParams = use(params);
@@ -493,15 +494,17 @@ function LiveExamContent({ params }) {
                           name={`question_${currentQuestionId}`}
                           checked={isSelected}
                           onChange={() => handleSelectOption(optIndex)}
-                          className="mt-0.5 h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                          className="mt-1 h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500 shrink-0"
                         />
-                        <div className="flex gap-2">
-                          <span className="font-bold text-gray-700">
+                        <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                          <span className="font-bold text-gray-700 shrink-0">
                             ({optionLetter})
                           </span>
-                          <span className="text-gray-900 leading-snug break-words">
-                            {optionText}
-                          </span>
+                          <QuestionOptionDisplay
+                            optionText={optionText}
+                            letter={optionLetter}
+                            imageClassName="max-h-32 sm:max-h-36"
+                          />
                         </div>
                       </label>
                     );

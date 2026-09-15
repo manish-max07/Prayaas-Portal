@@ -4,6 +4,7 @@ import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
 import api from "@/lib/api";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import QuestionOptionDisplay from "@/components/QuestionOptionDisplay";
 
 function ExamResultContent({ params }) {
   const unwrappedParams = use(params);
@@ -295,14 +296,18 @@ function ExamResultContent({ params }) {
                       return (
                         <div
                           key={oIdx}
-                          className={`flex items-center justify-between rounded-lg border p-3 text-xs ${optionStyle}`}
+                          className={`flex items-center justify-between gap-3 rounded-lg border p-3 text-xs ${optionStyle}`}
                         >
-                          <div className="flex items-center gap-2.5">
-                            <span className="font-bold">({optionLetter})</span>
-                            <span>{opt}</span>
+                          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                            <span className="font-bold shrink-0">({optionLetter})</span>
+                            <QuestionOptionDisplay
+                              optionText={opt}
+                              letter={optionLetter}
+                              imageClassName="max-h-24 sm:max-h-28"
+                            />
                           </div>
 
-                          <div className="flex items-center gap-2 font-bold text-[11px]">
+                          <div className="flex items-center gap-2 font-bold text-[11px] shrink-0">
                             {isCandidateChoice && (
                               <span className={isRealCorrect ? "text-green-700" : "text-red-700"}>
                                 [Your Answer]

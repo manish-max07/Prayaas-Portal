@@ -518,9 +518,10 @@ function parseDigialmQuestionPaper(html, baseUrl = "https://cdn.digialm.com", de
           // Check if option contains an image
           let optImg = null;
           const optImgs = [...optInner.matchAll(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi)]
-            .filter(im => !im[1].includes("tick.png") && !im[1].includes("cross.png"));
+            .filter(im => !im[1].includes("tick.png") && !im[1].includes("cross.png") && !im[1].includes("jplayer"));
           if (optImgs.length > 0) {
             optImg = resolveImageUrl(optImgs[0][1], baseUrl);
+            totalImages++;
           }
 
           // Clean option text (remove tick/cross icons, strip leading 1., A., etc.)
@@ -528,6 +529,8 @@ function parseDigialmQuestionPaper(html, baseUrl = "https://cdn.digialm.com", de
           optClean = optClean.replace(/^[1-4A-Da-d][\.\)]\s*/, "").trim();
 
           if (!optClean && optImg) {
+            optClean = optImg;
+          } else if (optClean && optImg) {
             optClean = optImg;
           }
 
@@ -545,12 +548,20 @@ function parseDigialmQuestionPaper(html, baseUrl = "https://cdn.digialm.com", de
         const optRows = [...panel.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/gi)];
         for (const r of optRows) {
           if (r[1].includes("tick.png") || r[1].includes("cross.png")) {
+            let rowImg = null;
+            const rowImgs = [...r[1].matchAll(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi)]
+              .filter(im => !im[1].includes("tick.png") && !im[1].includes("cross.png") && !im[1].includes("jplayer"));
+            if (rowImgs.length > 0) {
+              rowImg = resolveImageUrl(rowImgs[0][1], baseUrl);
+              totalImages++;
+            }
             const cleanText = cleanHtmlText(r[1].replace(/<img[^>]+(?:tick|cross)\.png[^>]*>/gi, "")).replace(/^[1-4A-Da-d][\.\)]\s*/, "").trim();
-            if (cleanText) {
+            const finalVal = cleanText || rowImg;
+            if (finalVal) {
               if (r[1].includes("tick.png") && correctOptionIndex === -1) {
                 correctOptionIndex = options.length;
               }
-              options.push(cleanText);
+              options.push(finalVal);
             }
           }
         }

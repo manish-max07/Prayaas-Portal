@@ -3,6 +3,8 @@
 import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
 import api from "@/lib/api";
+import QuestionOptionDisplay from "@/components/QuestionOptionDisplay";
+import { isImageUrl } from "@/lib/imageHelper";
 
 export default function AdminSectionQuestionsPage({ params }) {
   const unwrappedParams = use(params);
@@ -320,9 +322,14 @@ export default function AdminSectionQuestionsPage({ params }) {
                     required
                     value={optA}
                     onChange={(e) => setOptA(e.target.value)}
-                    placeholder="Option A text"
+                    placeholder="Option A text or image URL"
                     className="w-full rounded border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:border-blue-500 focus:outline-none"
                   />
+                  {isImageUrl(optA) && (
+                    <div className="mt-1 rounded border border-gray-200 bg-white p-1 max-w-[150px]">
+                      <img src={optA} alt="Option A Preview" className="max-h-16 w-auto object-contain rounded" />
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -332,9 +339,14 @@ export default function AdminSectionQuestionsPage({ params }) {
                     required
                     value={optB}
                     onChange={(e) => setOptB(e.target.value)}
-                    placeholder="Option B text"
+                    placeholder="Option B text or image URL"
                     className="w-full rounded border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:border-blue-500 focus:outline-none"
                   />
+                  {isImageUrl(optB) && (
+                    <div className="mt-1 rounded border border-gray-200 bg-white p-1 max-w-[150px]">
+                      <img src={optB} alt="Option B Preview" className="max-h-16 w-auto object-contain rounded" />
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -344,9 +356,14 @@ export default function AdminSectionQuestionsPage({ params }) {
                     required
                     value={optC}
                     onChange={(e) => setOptC(e.target.value)}
-                    placeholder="Option C text"
+                    placeholder="Option C text or image URL"
                     className="w-full rounded border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:border-blue-500 focus:outline-none"
                   />
+                  {isImageUrl(optC) && (
+                    <div className="mt-1 rounded border border-gray-200 bg-white p-1 max-w-[150px]">
+                      <img src={optC} alt="Option C Preview" className="max-h-16 w-auto object-contain rounded" />
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -356,9 +373,14 @@ export default function AdminSectionQuestionsPage({ params }) {
                     required
                     value={optD}
                     onChange={(e) => setOptD(e.target.value)}
-                    placeholder="Option D text"
+                    placeholder="Option D text or image URL"
                     className="w-full rounded border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:border-blue-500 focus:outline-none"
                   />
+                  {isImageUrl(optD) && (
+                    <div className="mt-1 rounded border border-gray-200 bg-white p-1 max-w-[150px]">
+                      <img src={optD} alt="Option D Preview" className="max-h-16 w-auto object-contain rounded" />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -555,17 +577,22 @@ export default function AdminSectionQuestionsPage({ params }) {
                       return (
                         <div
                           key={oIdx}
-                          className={`rounded border p-2 flex items-center justify-between ${
+                          className={`rounded-lg border p-2.5 flex items-center justify-between gap-3 overflow-hidden ${
                             isCorrect
-                              ? "border-green-400 bg-green-50 text-green-950 font-bold"
+                              ? "border-green-400 bg-green-50/70 text-green-950 font-semibold"
                               : "border-gray-200 bg-white text-gray-700"
                           }`}
                         >
-                          <span>
-                            <strong>({letter})</strong> {opt}
-                          </span>
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <span className="shrink-0 font-bold">({letter})</span>
+                            <QuestionOptionDisplay
+                              optionText={opt}
+                              letter={letter}
+                              imageClassName="max-h-20 sm:max-h-24"
+                            />
+                          </div>
                           {isCorrect && (
-                            <span className="text-[10px] font-extrabold text-green-700">
+                            <span className="shrink-0 rounded bg-green-200/90 px-2 py-0.5 text-[10px] font-extrabold text-green-800">
                               ✓ Correct
                             </span>
                           )}
