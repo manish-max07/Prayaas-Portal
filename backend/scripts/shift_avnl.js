@@ -1,6 +1,7 @@
 const dns = require('dns');
 dns.setServers(['8.8.8.8', '1.1.1.1']);
-require('dotenv').config({ path: 'd:/[05] Projects/Prayaas-Portal/backend/.env' });
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const mongoose = require('mongoose');
 
 async function shiftExamSubmissions() {

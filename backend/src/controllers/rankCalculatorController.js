@@ -540,8 +540,45 @@ exports.deleteSubmission = async (req, res, next) => {
 exports.proxyImage = async (req, res) => {
   try {
     const { url } = req.query;
-    if (!url) return res.status(400).send("No url provided");
-    const response = await fetch(url);
+    if (!url || typeof url !== "string") {
+      return res.status(400).send("No url provided");
+    }
+
+    // SSRF Protection: ensure valid HTTP/HTTPS and disallow private IP ranges
+    let parsed;
+    try {
+      parsed = new URL(url);
+    } catch {
+      return res.status(400).send("Invalid URL format");
+    }
+
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return res.status(400).send("Invalid protocol");
+    }
+
+    const host = parsed.hostname.toLowerCase();
+    if (
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host === "::1" ||
+      host.startsWith("169.254.") ||
+      host.startsWith("10.") ||
+      host.startsWith("192.168.") ||
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host)
+    ) {
+      return res.status(403).send("Forbidden destination host");
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      return res.status(response.status).send("Failed to fetch upstream image");
+    }
+
     const buffer = await response.arrayBuffer();
     const contentType = response.headers.get("content-type") || "image/jpeg";
     res.set("Content-Type", contentType);

@@ -1,4 +1,24 @@
-# Root-level .gitignore — catches OS and editor noise from the repo root
+# Root-level .gitignore
+
+# Environment variables — NEVER commit real secret files
+.env
+.env.*
+.env.local
+.env.development
+.env.test
+.env.production
+!.env.example
+!.env*.example
+
+# Dependencies
+node_modules/
+
+# Production & Build outputs
+.next/
+out/
+build/
+dist/
+coverage/
 
 # OS-generated files
 .DS_Store
@@ -15,5 +35,9 @@ Thumbs.db
 *.swp
 *.swo
 
-# Logs at root level
+# Logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+

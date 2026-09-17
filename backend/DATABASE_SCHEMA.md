@@ -57,13 +57,13 @@ Dedicated collection for administrative access, credential management, and isola
     type: String,
     required: true,
     unique: true,
-    default: "AdminManish",
     trim: true
+    // Set dynamically via ADMIN_DEFAULT_USERNAME in .env
   },
-  passwordHash: {
+  password: {
     type: String,
     required: true
-    // Initial seeded password default: "admin" (hashed with bcrypt), changeable via admin settings
+    // Seeded via ADMIN_DEFAULT_PASSWORD in .env (hashed with bcrypt), changeable via admin settings
   },
   role: {
     type: String,

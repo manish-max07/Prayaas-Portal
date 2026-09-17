@@ -1,8 +1,14 @@
-const { fetchResponseSheetUrl } = require('./src/services/digialmParser');
+const path = require('path');
+const { fetchResponseSheetUrl } = require('../src/services/digialmParser');
 
 async function inspectDigialmHtml() {
-  const url = "https://cdn.digialm.com//per/g01/pub/1258/touchstone/AssessmentQPHTMLMode1/1258O26337/1258O26337S2D531/17892129203014769/12492000001_1258O26337S2D531E1.html";
-  console.log("Fetching demo response sheet...");
+  const url = process.argv[2] || process.env.TEST_DIGIALM_URL;
+  if (!url) {
+    console.log("Usage: node scripts/inspect_digialm_structure.js <response_sheet_url>");
+    console.log("Or set TEST_DIGIALM_URL environment variable.");
+    process.exit(1);
+  }
+  console.log("Fetching response sheet...");
   try {
     const html = await fetchResponseSheetUrl(url);
     console.log("Fetched HTML length:", html.length);
