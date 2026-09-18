@@ -362,9 +362,10 @@ export default function ArticleClient({ article }) {
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 border-l-4 border-blue-600 pl-3">
             Detailed Guide & Information
           </h2>
-          <div className="prose prose-slate max-w-none text-xs sm:text-sm text-slate-800 leading-relaxed whitespace-pre-line bg-slate-50/50 p-6 rounded-2xl border border-slate-200">
-            {article.content}
-          </div>
+          <div
+            className="prose prose-slate max-w-none text-xs sm:text-sm text-slate-800 leading-relaxed bg-slate-50/50 p-6 rounded-2xl border border-slate-200"
+            dangerouslySetInnerHTML={{ __html: article.content }}
+          />
         </section>
       )}
 

@@ -36,7 +36,7 @@ async function publishArticle() {
         avatar: "/logo.png",
       },
       readingTime: "4 min read",
-      publishDate: new Date("2026-09-18T18:00:00+05:30"),
+      publishDate: new Date(),
       lastUpdated: new Date(),
       advtNumber: "ISRO:ICRB:03(EMC):2026",
       organization: "Indian Space Research Organisation (ISRO) - ICRB",
