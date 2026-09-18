@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 
 const SECTORS = [
@@ -48,11 +48,44 @@ function formatCardDate(dateVal) {
   );
 }
 
-export default function NewsListClient({ articles, categories }) {
+export default function NewsListClient({ articles: initialArticles = [], categories = [] }) {
+  const [articles, setArticles] = useState(initialArticles);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedSector, setSelectedSector] = useState("All");
   const [selectedState, setSelectedState] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Re-sync if SSR initialArticles updates
+  useEffect(() => {
+    if (initialArticles && initialArticles.length > 1) {
+      setArticles(initialArticles);
+    }
+  }, [initialArticles]);
+
+  // Client-side hydration safety: if SSR only returned the single static fallback article, fetch the live 21+ articles
+  useEffect(() => {
+    if (articles.length <= 1) {
+      const fetchLiveArticles = async () => {
+        try {
+          const baseUrl =
+            process.env.NEXT_PUBLIC_API_BASE_URL ||
+            (process.env.NODE_ENV === "production"
+              ? "https://prayaas-portal.onrender.com"
+              : "http://localhost:5000");
+          const res = await fetch(`${baseUrl}/api/articles?limit=100`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data?.articles && Array.isArray(data.articles) && data.articles.length > 0) {
+              setArticles(data.articles);
+            }
+          }
+        } catch (err) {
+          console.warn("[NewsListClient] Live articles fetch failed:", err);
+        }
+      };
+      fetchLiveArticles();
+    }
+  }, [articles.length]);
 
   const filteredArticles = useMemo(() => {
     return articles.filter((item) => {

@@ -184,17 +184,20 @@ export const NEWS_ARTICLES = [
 ];
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  (process.env.NODE_ENV === "production"
+    ? "https://prayaas-portal.onrender.com"
+    : "http://localhost:5000");
 
 // Check if we should attempt fetching (avoids hanging on localhost during Vercel builds)
 function canFetchFromApi() {
   if (typeof window === "undefined") {
     const isLocal =
-      !process.env.NEXT_PUBLIC_API_BASE_URL ||
-      process.env.NEXT_PUBLIC_API_BASE_URL.includes("localhost") ||
-      process.env.NEXT_PUBLIC_API_BASE_URL.includes("127.0.0.1");
+      API_BASE_URL.includes("localhost") ||
+      API_BASE_URL.includes("127.0.0.1");
 
-    if (process.env.VERCEL || (process.env.NODE_ENV === "production" && isLocal)) {
+    // Only skip fetching if we are in production/Vercel and API_BASE_URL still points to local machine
+    if ((process.env.VERCEL || process.env.NODE_ENV === "production") && isLocal) {
       return false;
     }
   }
