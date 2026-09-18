@@ -77,10 +77,14 @@ app.use("/api/rank-calculator", rankCalculatorRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
+const { initArticleCron } = require("./utils/cronScheduler");
+
 const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, () => {
   console.log(`[Prayaas Server]: Running in ${process.env.NODE_ENV || "development"} mode on http://localhost:${PORT}`);
+  // Start background auto-article monitor
+  initArticleCron(120);
 });
 
 // Handle unhandled promise rejections

@@ -16,6 +16,30 @@ const CATEGORIES = [
   "General",
 ];
 
+const SECTORS = [
+  "Central Govt",
+  "SSC",
+  "Banking & Insurance",
+  "Railways",
+  "Defence & Police",
+  "Teaching",
+  "Engineering & PSU",
+  "Civil Services / UPSC",
+  "State Govt",
+];
+
+const STATES = [
+  "All India",
+  "Delhi",
+  "Uttar Pradesh",
+  "Bihar",
+  "Rajasthan",
+  "Madhya Pradesh",
+  "Haryana",
+  "Maharashtra",
+  "West Bengal",
+];
+
 const STATUSES = ["Published", "Draft"];
 
 export default function ArticleForm({ initialData = {}, isEdit = false, articleId = null }) {
@@ -28,6 +52,8 @@ export default function ArticleForm({ initialData = {}, isEdit = false, articleI
     seoTitle: initialData.seoTitle || "",
     metaDescription: initialData.metaDescription || "",
     category: initialData.category || "Admit Card",
+    sector: initialData.sector || "Central Govt",
+    state: initialData.state || "All India",
     status: initialData.status || "Published",
     badge: initialData.badge || "🔴 Out Now",
     readingTime: initialData.readingTime || "4 min read",
@@ -220,6 +246,8 @@ export default function ArticleForm({ initialData = {}, isEdit = false, articleI
         seoTitle: formData.seoTitle.trim() || formData.title.trim(),
         metaDescription: formData.metaDescription.trim(),
         category: formData.category,
+        sector: formData.sector,
+        state: formData.state,
         status: formData.status,
         badge: formData.badge.trim(),
         readingTime: formData.readingTime.trim(),
@@ -436,7 +464,7 @@ export default function ArticleForm({ initialData = {}, isEdit = false, articleI
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Category
@@ -450,6 +478,42 @@ export default function ArticleForm({ initialData = {}, isEdit = false, articleI
                   {CATEGORIES.map((cat) => (
                     <option key={cat} value={cat}>
                       {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Exam Sector
+                </label>
+                <select
+                  name="sector"
+                  value={formData.sector}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/30 font-semibold"
+                >
+                  {SECTORS.map((sec) => (
+                    <option key={sec} value={sec}>
+                      {sec}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  State / Region
+                </label>
+                <select
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/30 font-semibold"
+                >
+                  {STATES.map((st) => (
+                    <option key={st} value={st}>
+                      {st}
                     </option>
                   ))}
                 </select>
@@ -472,7 +536,9 @@ export default function ArticleForm({ initialData = {}, isEdit = false, articleI
                   ))}
                 </select>
               </div>
+            </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Pill Badge
