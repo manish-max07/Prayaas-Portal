@@ -226,8 +226,48 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* 2.5 LATEST EXAM ALERTS TICKER */}
+      <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <div className="rounded-2xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 p-4 sm:p-5 text-white shadow-sm border border-blue-800/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-3">
+            <span className="flex h-3 w-3 relative shrink-0 mt-1 sm:mt-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-red-500/30 text-red-200 border border-red-500/40">
+                  Breaking Exam Alert
+                </span>
+                <span className="text-xs text-slate-300 font-medium hidden sm:inline">
+                  Released on 17 Sep 2026
+                </span>
+              </div>
+              <h3 className="text-sm sm:text-base font-bold text-white mt-1">
+                IOCL Admit Card 2026 Released: Direct Download Link Active for 470 Engineer & Officer Posts
+              </h3>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href="/news/iocl-engineer-officer-admit-card-2026"
+              className="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold transition shadow-xs"
+            >
+              Check Hall Ticket & Links →
+            </Link>
+            <Link
+              href="/news"
+              className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition"
+            >
+              All Updates
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* 3. MAIN WORKSPACE / EXAMS BROWSER */}
-      <main className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+      <main id="exams" className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
         {/* Rank Calculator Promo Banner */}
         <div className="rounded-2xl bg-gradient-to-r from-indigo-950 via-blue-950 to-slate-900 border border-indigo-700/40 p-6 sm:p-7 text-white shadow-lg mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-5 relative overflow-hidden">
           <div className="pointer-events-none absolute -right-10 -bottom-10 h-48 w-48 rounded-full bg-indigo-500/20 blur-2xl" />

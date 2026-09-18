@@ -22,8 +22,20 @@ export default function Footer() {
             </span>
           </div>
 
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-gray-600">
+            <a href="/" className="hover:text-blue-600 transition">Home</a>
+            <span>•</span>
+            <a href="/news" className="hover:text-blue-600 transition text-blue-600 font-bold">Exam Updates 2026</a>
+            <span>•</span>
+            <a href="/news/iocl-engineer-officer-admit-card-2026" className="hover:text-blue-600 transition">IOCL Admit Card 2026</a>
+            <span>•</span>
+            <a href="/rank-calculator" className="hover:text-blue-600 transition">Rank Calculator</a>
+            <span>•</span>
+            <a href="/rank-calculator/terms-conditions" className="hover:text-blue-600 transition">Terms & Privacy</a>
+          </div>
+
           <p className="text-xs text-gray-500 text-center sm:text-right">
-            &copy; {new Date().getFullYear()} Prayaas-Portal. Designed for competitive exam practice & TCS iON simulations.
+            &copy; {new Date().getFullYear()} Prayaas-Portal. Official Examination Suite & Competitive Alerts.
           </p>
         </div>
       </div>

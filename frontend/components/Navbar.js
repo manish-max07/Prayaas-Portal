@@ -50,6 +50,14 @@ export default function Navbar() {
           </Link>
 
           <Link
+            href="/news"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-700 bg-blue-50 border border-blue-200/70 px-2.5 py-1 rounded-full hover:bg-blue-100 transition-colors shadow-2xs"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-ping" />
+            <span>📢 Exam Updates</span>
+          </Link>
+
+          <Link
             href="/rank-calculator"
             className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200/70 px-2.5 py-1 rounded-full hover:bg-indigo-100 transition-colors shadow-2xs"
           >
@@ -125,6 +133,18 @@ export default function Navbar() {
             className="block py-2 text-sm font-semibold text-gray-800 hover:text-blue-600 border-b border-gray-100"
           >
             🏠 Home
+          </Link>
+
+          <Link
+            href="/news"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-between py-2 text-sm font-bold text-blue-700 border-b border-gray-100"
+          >
+            <span className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+              📢 Exam News & Updates
+            </span>
+            <span className="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full uppercase font-bold">Live</span>
           </Link>
 
           <Link
