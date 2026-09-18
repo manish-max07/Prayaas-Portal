@@ -8,8 +8,11 @@ import {
 } from "@/lib/newsData";
 import ArticleClient from "./ArticleClient";
 
+export const dynamicParams = true;
+export const revalidate = 60;
+
 export async function generateStaticParams() {
-  const articles = getAllNewsArticles();
+  const articles = await getAllNewsArticles();
   return articles.map((article) => ({
     slug: article.slug,
   }));
@@ -17,7 +20,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
-  const article = getNewsArticleBySlug(resolvedParams.slug);
+  const article = await getNewsArticleBySlug(resolvedParams.slug);
 
   if (!article) {
     return {
@@ -28,34 +31,34 @@ export async function generateMetadata({ params }) {
   const pageUrl = `https://prayaas-portal.vercel.app/news/${article.slug}`;
 
   return {
-    title: article.seoTitle,
+    title: article.seoTitle || article.title,
     description: article.metaDescription,
-    keywords: article.tags,
+    keywords: article.tags || [],
     alternates: {
       canonical: pageUrl,
     },
     openGraph: {
-      title: article.seoTitle,
+      title: article.seoTitle || article.title,
       description: article.metaDescription,
       url: pageUrl,
       siteName: "Prayaas Portal",
       type: "article",
       publishedTime: article.publishDate,
       modifiedTime: article.lastUpdated,
-      authors: [article.author.name],
-      tags: article.tags,
+      authors: [article.author?.name || "Prayaas Portal Exam Desk"],
+      tags: article.tags || [],
       images: [
         {
           url: "https://prayaas-portal.vercel.app/logo.png",
           width: 512,
           height: 512,
-          alt: article.shortTitle,
+          alt: article.shortTitle || article.title,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: article.seoTitle,
+      title: article.seoTitle || article.title,
       description: article.metaDescription,
       images: ["https://prayaas-portal.vercel.app/logo.png"],
     },
@@ -64,13 +67,13 @@ export async function generateMetadata({ params }) {
 
 export default async function NewsArticlePage({ params }) {
   const resolvedParams = await params;
-  const article = getNewsArticleBySlug(resolvedParams.slug);
+  const article = await getNewsArticleBySlug(resolvedParams.slug);
 
   if (!article) {
     notFound();
   }
 
-  const relatedArticles = getRelatedNews(article.slug);
+  const relatedArticles = await getRelatedNews(article.slug);
   const pageUrl = `https://prayaas-portal.vercel.app/news/${article.slug}`;
 
   // Structured Data (Schema.org JSON-LD)
@@ -87,8 +90,8 @@ export default async function NewsArticlePage({ params }) {
     },
     author: {
       "@type": "Person",
-      name: article.author.name,
-      jobTitle: article.author.role,
+      name: article.author?.name || "Prayaas Portal Exam Desk",
+      jobTitle: article.author?.role || "Senior Exam Analyst",
     },
     publisher: {
       "@type": "Organization",
@@ -101,7 +104,7 @@ export default async function NewsArticlePage({ params }) {
     image: "https://prayaas-portal.vercel.app/logo.png",
   };
 
-  const faqSchema = {
+  const faqSchema = article.faqs && article.faqs.length > 0 ? {
     "@context": "https://schema.org",
     "@type": "FAQPage",
     mainEntity: article.faqs.map((faq) => ({
@@ -112,7 +115,7 @@ export default async function NewsArticlePage({ params }) {
         text: faq.answer,
       },
     })),
-  };
+  } : null;
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -152,10 +155,12 @@ export default async function NewsArticlePage({ params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(newsArticleSchema) }}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}

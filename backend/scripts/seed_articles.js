@@ -1,36 +1,32 @@
-/**
- * Data store for Exam News, Admit Cards, Answer Keys, and Recruitment Alerts.
- * Formatted for rich SEO, Google Discover, Google News, and Schema.org integration.
- */
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const path = require("path");
 
-export const NEWS_CATEGORIES = [
-  { id: "All", label: "All Updates", icon: "📢" },
-  { id: "Admit Card", label: "Admit Card", icon: "🎫" },
-  { id: "Exam Date", label: "Exam Dates", icon: "📅" },
-  { id: "Answer Key", label: "Answer Key", icon: "🔑" },
-  { id: "Result", label: "Results", icon: "🏆" },
-  { id: "Recruitment", label: "Govt Jobs", icon: "💼" },
-];
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
-export const NEWS_ARTICLES = [
+const Article = require("../src/models/Article");
+
+const initialArticles = [
   {
     slug: "iocl-engineer-officer-admit-card-2026",
-    title: "IOCL Admit Card 2026 Out, Direct Download Link for Engineer & Officer Posts Active at iocl.com",
+    title:
+      "IOCL Admit Card 2026 Out, Direct Download Link for Engineer & Officer Posts Active at iocl.com",
     shortTitle: "IOCL Engineer & Officer Admit Card 2026 Released",
-    seoTitle: "IOCL Admit Card 2026 Out: Direct Download Link for Engineer & Officer Posts",
+    seoTitle:
+      "IOCL Admit Card 2026 Out: Direct Download Link for Engineer & Officer Posts",
     metaDescription:
       "IOCL Admit Card 2026 has been released on 17th September 2026 for 470 Executive Engineer & Officer vacancies. Download IOCL hall ticket, check exam date (24 September 2026), shift timings, exam pattern, and guidelines.",
     category: "Admit Card",
     categorySlug: "admit-card",
-    status: "Active",
+    status: "Published",
     badge: "🔴 Out Now",
     author: {
       name: "Prayaas Portal Exam Desk",
       role: "Senior Exam Analyst",
       avatar: "/logo.png",
     },
-    publishDate: "2026-09-17T10:30:00+05:30",
-    lastUpdated: "2026-09-18T11:00:00+05:30",
+    publishDate: new Date("2026-09-17T10:30:00+05:30"),
+    lastUpdated: new Date("2026-09-18T11:00:00+05:30"),
     readingTime: "5 min read",
     advtNumber: "IOCL/CO-HR/RECTT/2026/01",
     organization: "Indian Oil Corporation Limited (IOCL)",
@@ -42,19 +38,22 @@ export const NEWS_ARTICLES = [
     officialWebsite: "https://iocl.com",
     directAdmitCardLink:
       "https://ibpsreg.ibps.in/iocljun26/oecla_sep26/login.php?appid=bb744299b15aea20f763a9455e9893b8",
-    overview: {
-      "Conducting Body": "Indian Oil Corporation Limited (IOCL)",
-      "Advt. No.": "IOCL/CO-HR/RECTT/2026/01",
-      "Post Names": "Engineer, Officer, Law Officer, AQCO & Diploma Executives",
-      "Total Vacancies": "470 Posts",
-      "Admit Card Status": "Released (Live Now)",
-      "Admit Card Release Date": "17 September 2026",
-      "Exam Date": "24 September 2026 (Thursday)",
-      "Exam Mode": "Computer Based Test (CBT - Online)",
-      "Negative Marking": "0.25 Mark (1/4th mark deduction)",
-      "Selection Process": "CBT Exam -> Group Discussion (GD) / Group Task (GT) -> Personal Interview (PI)",
-      "Official Portal": "iocl.com",
-    },
+    overview: [
+      { label: "Conducting Body", value: "Indian Oil Corporation Limited (IOCL)" },
+      { label: "Advt. No.", value: "IOCL/CO-HR/RECTT/2026/01" },
+      { label: "Post Names", value: "Engineer, Officer, Law Officer, AQCO & Diploma Executives" },
+      { label: "Total Vacancies", value: "470 Posts" },
+      { label: "Admit Card Status", value: "Released (Live Now)" },
+      { label: "Admit Card Release Date", value: "17 September 2026" },
+      { label: "Exam Date", value: "24 September 2026 (Thursday)" },
+      { label: "Exam Mode", value: "Computer Based Test (CBT - Online)" },
+      { label: "Negative Marking", value: "0.25 Mark (1/4th mark deduction)" },
+      {
+        label: "Selection Process",
+        value: "CBT Exam -> Group Discussion (GD) / Group Task (GT) -> Personal Interview (PI)",
+      },
+      { label: "Official Portal", value: "iocl.com" },
+    ],
     loginCredentialsRequired: [
       "Registration Number / Roll Number (received during online application)",
       "Password / Date of Birth (DD-MM-YYYY)",
@@ -105,7 +104,8 @@ export const NEWS_ARTICLES = [
       sections: [
         {
           sectionName: "Section A: General Aptitude",
-          topics: "Quantitative Aptitude (20 Qs), Logical Reasoning (15 Qs), Verbal English (15 Qs)",
+          topics:
+            "Quantitative Aptitude (20 Qs), Logical Reasoning (15 Qs), Verbal English (15 Qs)",
           questions: 50,
           marks: 50,
           duration: "60 Minutes",
@@ -127,7 +127,7 @@ export const NEWS_ARTICLES = [
       "Gurugram", "Guwahati", "Gwalior", "Hooghly", "Hyderabad", "Indore", "Jabalpur", "Jaipur",
       "Jammu", "Jamshedpur", "Jhansi", "Jodhpur", "Jorhat", "Kanpur", "Kolkata", "Kota", "Kozhikode",
       "Lucknow", "Madurai", "Mangalore", "Mumbai", "Muzaffarpur", "Nagpur", "Noida", "Patna",
-      "Prayagraj", "Pune", "Raipur", "Ranchi", "Surat", "Thiruvananthapuram", "Varanasi", "Visakhapatnam"
+      "Prayagraj", "Pune", "Raipur", "Ranchi", "Surat", "Thiruvananthapuram", "Varanasi", "Visakhapatnam",
     ],
     faqs: [
       {
@@ -183,58 +183,29 @@ export const NEWS_ARTICLES = [
   },
 ];
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
-
-export async function getAllNewsArticles() {
+async function seedArticles() {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/articles?limit=100`, {
-      next: { revalidate: 60 },
-    });
-    if (!res.ok) throw new Error(`API returned ${res.status}`);
-    const data = await res.json();
-    if (data && Array.isArray(data.articles) && data.articles.length > 0) {
-      return data.articles;
-    }
-  } catch (err) {
-    console.warn("[newsData] Falling back to static NEWS_ARTICLES:", err.message);
-  }
-  return NEWS_ARTICLES;
-}
+    const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/prayaas_portal";
+    console.log("Connecting to MongoDB for seeding articles...");
+    await mongoose.connect(mongoUri);
 
-export async function getNewsArticleBySlug(slug) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/articles/${slug}`, {
-      next: { revalidate: 60 },
-    });
-    if (res.status === 404) {
-      // Check static fallback just in case
-      return NEWS_ARTICLES.find((article) => article.slug === slug) || null;
+    for (const articleData of initialArticles) {
+      const existing = await Article.findOne({ slug: articleData.slug });
+      if (existing) {
+        console.log(`Article already exists with slug: ${articleData.slug}. Updating...`);
+        await Article.findOneAndUpdate({ slug: articleData.slug }, articleData, { new: true });
+      } else {
+        console.log(`Inserting article with slug: ${articleData.slug}...`);
+        await Article.create(articleData);
+      }
     }
-    if (!res.ok) throw new Error(`API returned ${res.status}`);
-    const data = await res.json();
-    if (data && data.article) {
-      return data.article;
-    }
-  } catch (err) {
-    console.warn(
-      `[newsData] Falling back to static article for slug "${slug}":`,
-      err.message
-    );
-  }
-  return NEWS_ARTICLES.find((article) => article.slug === slug) || null;
-}
 
-export function getNewsCategories() {
-  return NEWS_CATEGORIES;
-}
-
-export async function getRelatedNews(currentSlug, limit = 3) {
-  try {
-    const all = await getAllNewsArticles();
-    return all.filter((article) => article.slug !== currentSlug).slice(0, limit);
-  } catch (e) {
-    return NEWS_ARTICLES.filter((article) => article.slug !== currentSlug).slice(0, limit);
+    console.log("Articles seed completed successfully!");
+    process.exit(0);
+  } catch (error) {
+    console.error("Error seeding articles:", error);
+    process.exit(1);
   }
 }
 
+seedArticles();

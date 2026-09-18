@@ -15,6 +15,8 @@ const examRoutes = require("./routes/examRoutes");
 const attemptRoutes = require("./routes/attemptRoutes");
 const userRoutes = require("./routes/userRoutes");
 const rankCalculatorRoutes = require("./routes/rankCalculatorRoutes");
+const articleRoutes = require("./routes/articleRoutes");
+const adminArticleRoutes = require("./routes/adminArticleRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
 // Connect to MongoDB
@@ -64,6 +66,8 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminAuthRoutes);
 app.use("/api/admin/exams", adminExamRoutes);
+app.use("/api/admin/articles", adminArticleRoutes);
+app.use("/api/articles", articleRoutes);
 app.use("/api/exams", examRoutes);
 app.use("/api/attempts", attemptRoutes);
 app.use("/api/users", userRoutes);

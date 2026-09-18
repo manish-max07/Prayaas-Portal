@@ -58,6 +58,13 @@ export default function AdminNavbar() {
             <span>Rank Leaderboards</span>
           </Link>
           <Link
+            href="/admin/articles"
+            className="font-medium text-emerald-300 hover:text-white transition-colors flex items-center gap-1 bg-gray-800/80 px-2.5 py-1 rounded-md border border-gray-700"
+          >
+            <span>📰</span>
+            <span>Articles / News</span>
+          </Link>
+          <Link
             href="/admin/exams/new"
             className="font-medium text-gray-300 hover:text-white transition-colors"
           >
@@ -117,6 +124,13 @@ export default function AdminNavbar() {
             className="block py-1.5 text-indigo-300 hover:text-white font-bold"
           >
             ⚡ Rank Predictor & Leaderboards
+          </Link>
+          <Link
+            href="/admin/articles"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block py-1.5 text-emerald-300 hover:text-white font-bold"
+          >
+            📰 Articles / News CMS
           </Link>
           <Link
             href="/admin/exams/new"

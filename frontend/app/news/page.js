@@ -20,8 +20,10 @@ export const metadata = {
   },
 };
 
-export default function NewsPage() {
-  const articles = getAllNewsArticles();
+export const revalidate = 60;
+
+export default async function NewsPage() {
+  const articles = await getAllNewsArticles();
   const categories = getNewsCategories();
 
   return (
