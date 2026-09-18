@@ -36,11 +36,8 @@ function toIsoStringSafe(dateVal) {
   return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
 }
 
-export async function generateStaticParams() {
-  const articles = await getAllNewsArticles();
-  return articles.map((article) => ({
-    slug: article.slug,
-  }));
+export function generateStaticParams() {
+  return [{ slug: "iocl-engineer-officer-admit-card-2026" }];
 }
 
 export async function generateMetadata({ params }) {

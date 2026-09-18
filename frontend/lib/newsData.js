@@ -186,10 +186,30 @@ export const NEWS_ARTICLES = [
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
 
+// Check if we should attempt fetching (avoids hanging on localhost during Vercel builds)
+function canFetchFromApi() {
+  if (typeof window === "undefined") {
+    const isLocal =
+      !process.env.NEXT_PUBLIC_API_BASE_URL ||
+      process.env.NEXT_PUBLIC_API_BASE_URL.includes("localhost") ||
+      process.env.NEXT_PUBLIC_API_BASE_URL.includes("127.0.0.1");
+
+    if (process.env.VERCEL || (process.env.NODE_ENV === "production" && isLocal)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export async function getAllNewsArticles() {
+  if (!canFetchFromApi()) {
+    return NEWS_ARTICLES;
+  }
+
   try {
     const res = await fetch(`${API_BASE_URL}/api/articles?limit=100`, {
       next: { revalidate: 60 },
+      signal: AbortSignal.timeout(2500),
     });
     if (!res.ok) throw new Error(`API returned ${res.status}`);
     const data = await res.json();
@@ -203,12 +223,16 @@ export async function getAllNewsArticles() {
 }
 
 export async function getNewsArticleBySlug(slug) {
+  if (!canFetchFromApi()) {
+    return NEWS_ARTICLES.find((article) => article.slug === slug) || null;
+  }
+
   try {
     const res = await fetch(`${API_BASE_URL}/api/articles/${slug}`, {
       next: { revalidate: 60 },
+      signal: AbortSignal.timeout(2500),
     });
     if (res.status === 404) {
-      // Check static fallback just in case
       return NEWS_ARTICLES.find((article) => article.slug === slug) || null;
     }
     if (!res.ok) throw new Error(`API returned ${res.status}`);
