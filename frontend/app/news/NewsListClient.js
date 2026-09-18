@@ -3,6 +3,25 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 
+function formatCardDate(dateVal) {
+  if (!dateVal) return "";
+  const d = new Date(dateVal);
+  if (isNaN(d.getTime())) return "";
+  return (
+    d
+      .toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })
+      .replace(/\b(am|pm)\b/i, (m) => m.toUpperCase()) + " IST"
+  );
+}
+
 export default function NewsListClient({ articles, categories }) {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -134,12 +153,8 @@ export default function NewsListClient({ articles, categories }) {
                 {/* Card Footer */}
                 <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-slate-500">
-                      {new Date(article.publishDate).toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
+                    <span className="font-medium text-slate-600">
+                      🕒 {formatCardDate(article.lastUpdated || article.publishDate)}
                     </span>
                     <span>•</span>
                     <span>{article.readingTime}</span>

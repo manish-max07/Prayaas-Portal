@@ -254,14 +254,42 @@ export default function AdminArticlesPage() {
                       👁️ {item.views || 0}
                     </td>
 
-                    <td className="py-3.5 px-4 text-slate-500 text-[11px]">
-                      {item.publishDate
-                        ? new Date(item.publishDate).toLocaleDateString("en-IN", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })
-                        : "—"}
+                    <td className="py-3.5 px-4 text-slate-500 text-[11px] whitespace-nowrap">
+                      {item.publishDate ? (
+                        <div>
+                          <div className="font-semibold text-slate-700">
+                            {new Date(item.publishDate)
+                              .toLocaleString("en-IN", {
+                                timeZone: "Asia/Kolkata",
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true,
+                              })
+                              .replace(/\b(am|pm)\b/i, (m) => m.toUpperCase())}{" "}
+                            IST
+                          </div>
+                          {item.lastUpdated && (
+                            <div className="text-[10px] text-emerald-600 font-medium mt-0.5">
+                              Updated:{" "}
+                              {new Date(item.lastUpdated)
+                                .toLocaleString("en-IN", {
+                                  timeZone: "Asia/Kolkata",
+                                  day: "numeric",
+                                  month: "short",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: true,
+                                })
+                                .replace(/\b(am|pm)\b/i, (m) => m.toUpperCase())}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        "—"
+                      )}
                     </td>
 
                     <td className="py-3.5 px-4 text-right">

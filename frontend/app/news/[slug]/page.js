@@ -11,6 +11,31 @@ import ArticleClient from "./ArticleClient";
 export const dynamicParams = true;
 export const revalidate = 60;
 
+function formatIndianDateTime(dateVal) {
+  if (!dateVal) return "";
+  const d = new Date(dateVal);
+  if (isNaN(d.getTime())) return String(dateVal);
+  return (
+    d
+      .toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })
+      .replace(/\b(am|pm)\b/i, (m) => m.toUpperCase()) + " IST"
+  );
+}
+
+function toIsoStringSafe(dateVal) {
+  if (!dateVal) return new Date().toISOString();
+  const d = new Date(dateVal);
+  return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+}
+
 export async function generateStaticParams() {
   const articles = await getAllNewsArticles();
   return articles.map((article) => ({
@@ -43,8 +68,8 @@ export async function generateMetadata({ params }) {
       url: pageUrl,
       siteName: "Prayaas Portal",
       type: "article",
-      publishedTime: article.publishDate,
-      modifiedTime: article.lastUpdated,
+      publishedTime: toIsoStringSafe(article.publishDate),
+      modifiedTime: toIsoStringSafe(article.lastUpdated || article.publishDate),
       authors: [article.author?.name || "Prayaas Portal Exam Desk"],
       tags: article.tags || [],
       images: [
@@ -82,8 +107,8 @@ export default async function NewsArticlePage({ params }) {
     "@type": "NewsArticle",
     headline: article.title,
     description: article.metaDescription,
-    datePublished: article.publishDate,
-    dateModified: article.lastUpdated,
+    datePublished: toIsoStringSafe(article.publishDate),
+    dateModified: toIsoStringSafe(article.lastUpdated || article.publishDate),
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": pageUrl,
@@ -219,33 +244,41 @@ export default async function NewsArticlePage({ params }) {
                   PP
                 </div>
                 <div>
-                  <span className="font-bold text-slate-800 block">{article.author.name}</span>
-                  <span className="text-slate-400 text-[11px]">{article.author.role}</span>
+                  <span className="font-bold text-slate-800 block">
+                    {article.author?.name || "Prayaas Portal Exam Desk"}
+                  </span>
+                  <span className="text-slate-400 text-[11px]">
+                    {article.author?.role || "Senior Exam Analyst"}
+                  </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div>
-                  <span>Published: </span>
-                  <time dateTime={article.publishDate} className="font-semibold text-slate-700">
-                    {new Date(article.publishDate).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-[11px] sm:text-xs">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-slate-500 font-medium">Published:</span>
+                  <time
+                    dateTime={toIsoStringSafe(article.publishDate)}
+                    itemProp="datePublished"
+                    className="font-bold text-slate-800 bg-slate-100/90 px-2 py-0.5 rounded-md"
+                  >
+                    {formatIndianDateTime(article.publishDate)}
                   </time>
                 </div>
-                <span>•</span>
-                <div>
-                  <span>Updated: </span>
-                  <time dateTime={article.lastUpdated} className="font-semibold text-emerald-700">
-                    {new Date(article.lastUpdated).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </time>
-                </div>
+                {article.lastUpdated && (
+                  <>
+                    <span className="hidden sm:inline text-slate-300">•</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-slate-500 font-medium">Updated:</span>
+                      <time
+                        dateTime={toIsoStringSafe(article.lastUpdated)}
+                        itemProp="dateModified"
+                        className="font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/70"
+                      >
+                        {formatIndianDateTime(article.lastUpdated)}
+                      </time>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
