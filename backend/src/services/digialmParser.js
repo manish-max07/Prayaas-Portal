@@ -618,8 +618,229 @@ function parseDigialmQuestionPaper(html, baseUrl = "https://cdn.digialm.com", de
   };
 }
 
+/**
+ * Extracts structured examination metadata from official Digialm / TCS iON Response Sheet HTML
+ * Used to auto-fill Create Exam Paper fields (Date, Year, Shift, Duration, Trade, Category, etc.)
+ */
+function extractResponseSheetMetadata(html, url = "") {
+  if (!html || typeof html !== "string") {
+    throw new Error("Invalid HTML content provided.");
+  }
+
+  // 1. Extract 2-cell table rows
+  const tableData = {};
+  const rowMatches = html.matchAll(/<tr[^>]*>\s*<td[^>]*>([\s\S]*?)<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>\s*<\/tr>/gi);
+  for (const m of rowMatches) {
+    const rawKey = m[1].replace(/<[^>]+>/g, "").replace(/&nbsp;/gi, " ").trim();
+    const rawVal = m[2].replace(/<[^>]+>/g, "").replace(/&nbsp;/gi, " ").trim();
+    if (rawKey && rawVal && !tableData[rawKey.toLowerCase()]) {
+      tableData[rawKey.toLowerCase()] = rawVal;
+    }
+  }
+
+  const findVal = (regex) => {
+    for (const [k, v] of Object.entries(tableData)) {
+      if (regex.test(k)) return v;
+    }
+    return "";
+  };
+
+  let rawTestDate = findVal(/test\s*date|exam\s*date|date\s*of\s*exam/i);
+  let rawTestTime = findVal(/test\s*time|exam\s*time|shift/i);
+  let rawSubject = findVal(/subject|discipline|trade|post\s*applied/i);
+
+  // Fallbacks if not inside <tr>
+  if (!rawTestDate) {
+    const dm = html.match(/Test\s*Date[\s\S]*?<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>/i);
+    if (dm) rawTestDate = dm[1].replace(/<[^>]+>/g, "").trim();
+  }
+  if (!rawTestTime) {
+    const tm = html.match(/Test\s*Time[\s\S]*?<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>/i);
+    if (tm) rawTestTime = tm[1].replace(/<[^>]+>/g, "").trim();
+  }
+  if (!rawSubject) {
+    const sm = html.match(/Subject[\s\S]*?<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>/i);
+    if (sm) rawSubject = sm[1].replace(/<[^>]+>/g, "").trim();
+  }
+
+  // 2. Parse Date & Year
+  let examDate = "";
+  let examYear = new Date().getFullYear().toString();
+  if (rawTestDate) {
+    const dmyMatch = rawTestDate.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if (dmyMatch) {
+      examDate = `${dmyMatch[3]}-${dmyMatch[2].padStart(2, "0")}-${dmyMatch[1].padStart(2, "0")}`;
+      examYear = dmyMatch[3];
+    } else {
+      const ymdMatch = rawTestDate.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+      if (ymdMatch) {
+        examDate = `${ymdMatch[1]}-${ymdMatch[2].padStart(2, "0")}-${ymdMatch[3].padStart(2, "0")}`;
+        examYear = ymdMatch[1];
+      }
+    }
+  }
+
+  // 3. Parse Time, Duration & Shift
+  let duration = 60;
+  let shift = "Shift 1";
+
+  // Check URL for explicit shift pattern (e.g. S1D353 -> Shift 1, S2D... -> Shift 2)
+  if (url) {
+    const sMatch = url.match(/[A-Z0-9]S([1-9])D[0-9]/i);
+    if (sMatch) {
+      shift = `Shift ${sMatch[1]}`;
+    }
+  }
+
+  if (rawTestTime) {
+    const rangeMatch = rawTestTime.match(/(\d{1,2}):(\d{2})\s*(AM|PM)\s*-\s*(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (rangeMatch) {
+      let [_, h1, m1, p1, h2, m2, p2] = rangeMatch;
+      h1 = parseInt(h1, 10);
+      m1 = parseInt(m1, 10);
+      h2 = parseInt(h2, 10);
+      m2 = parseInt(m2, 10);
+
+      if (p1.toUpperCase() === "PM" && h1 < 12) h1 += 12;
+      if (p1.toUpperCase() === "AM" && h1 === 12) h1 = 0;
+      if (p2.toUpperCase() === "PM" && h2 < 12) h2 += 12;
+      if (p2.toUpperCase() === "AM" && h2 === 12) h2 = 0;
+
+      const startMinutes = h1 * 60 + m1;
+      const endMinutes = h2 * 60 + m2;
+      const diff = endMinutes - startMinutes;
+      if (diff > 0 && diff <= 360) {
+        duration = diff;
+      }
+
+      // If shift not in URL, calculate by hour
+      if (!url || !url.match(/[A-Z0-9]S([1-9])D[0-9]/i)) {
+        if (h1 < 11) shift = "Shift 1";
+        else if (h1 < 15) shift = "Shift 2";
+        else shift = "Shift 3";
+      }
+    }
+  }
+
+  // 4. Parse Position & Trade / Subject
+  let position = "";
+  let subject = "";
+  if (rawSubject) {
+    const prefixes = [
+      "Junior Technician",
+      "Senior Technician",
+      "Junior Manager",
+      "Senior Manager",
+      "Assistant Manager",
+      "Junior Engineer",
+      "Senior Engineer",
+      "Executive Trainee",
+      "Management Trainee",
+      "Graduate Engineer Trainee",
+      "Junior Fitter",
+      "Technician Grade I",
+      "Technician Grade II",
+      "Technician Grade III",
+      "Technician Gr I",
+      "Technician Gr II",
+      "Technician Gr III",
+      "Assistant Loco Pilot",
+      "Sub Inspector",
+      "Head Constable",
+      "Constable",
+      "Trade Apprentice",
+      "Security Assistant",
+      "Technical Assistant",
+      "Scientific Assistant",
+      "Lab Assistant"
+    ];
+
+    let matched = false;
+    for (const prefix of prefixes) {
+      const reg = new RegExp(`^${prefix}\\s*[-–:]?\\s*(.*)$`, "i");
+      const match = rawSubject.match(reg);
+      if (match) {
+        position = prefix;
+        subject = (match[1] || "").trim() || prefix;
+        matched = true;
+        break;
+      }
+    }
+
+    if (!matched) {
+      position = rawSubject;
+      subject = rawSubject;
+    }
+  }
+
+  // 5. Detect Sections & Total Questions
+  const sectionMatches = [...html.matchAll(/<div[^>]*class=["'][^"']*section-lbl[^"']*["'][^>]*>([\s\S]*?)<\/div>/gi)];
+  const sections = sectionMatches
+    .map((m) => m[1].replace(/<[^>]+>/g, "").replace(/Section\s*:\s*/i, "").replace(/&nbsp;/gi, " ").trim())
+    .filter(Boolean);
+
+  const qIds = [...html.matchAll(/Question ID\s*:\s*<\/td>\s*<td[^>]*>(\d+)</gi)];
+  const totalQuestions = qIds.length > 0 ? qIds.length : (html.match(/class=["']question-pnl["']/g) || []).length;
+
+  // 6. Medium / Language
+  const hasHindi = /[\u0900-\u097F]/.test(html);
+  const hasEnglish = /[a-zA-Z]/.test(html);
+  let medium = "English";
+  if (hasHindi && hasEnglish) medium = "Bilingual (English / Hindi)";
+  else if (hasHindi) medium = "Hindi";
+
+  // 7. Exam Category Suggestion
+  let examCategory = "Other";
+  const fullTextContext = `${rawSubject} ${sections.join(" ")}`.toLowerCase();
+  if (/fitter|technician|engineer|mechanical|electrical|civil|trade|machinist|turner|welder/.test(fullTextContext)) {
+    examCategory = "Engineering";
+  } else if (/cgl|chsl|mts|cpo|ssc|stenographer/.test(fullTextContext)) {
+    examCategory = "SSC";
+  } else if (/bank|po|clerk|ibps|sbi|rbi/.test(fullTextContext)) {
+    examCategory = "Banking";
+  } else if (/railway|rrb|ntpc|alp|group d/.test(fullTextContext)) {
+    examCategory = "Railway";
+  } else if (/ctet|tet|teacher|ugc net|dsssb/.test(fullTextContext)) {
+    examCategory = "Teaching";
+  } else if (/police|defence|constable|si|cds|afcat/.test(fullTextContext)) {
+    examCategory = "Defence";
+  } else if (/upsc|ias|civil services|psc/.test(fullTextContext)) {
+    examCategory = "Civil Services / UPSC";
+  }
+
+  // 8. Header / Banner Image
+  let bannerImageUrl = "";
+  const imgMatches = html.matchAll(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi);
+  for (const im of imgMatches) {
+    const src = im[1].trim();
+    if (!src.includes("tick.png") && !src.includes("cross.png") && !src.includes("adcimages") && !src.includes("jplayer")) {
+      bannerImageUrl = src.startsWith("//") ? "https:" + src : src;
+      break;
+    }
+  }
+
+  return {
+    rawSubject,
+    position,
+    subject,
+    rawTestDate,
+    examDate,
+    examYear,
+    rawTestTime,
+    shift,
+    duration,
+    medium,
+    sections,
+    totalQuestions,
+    examCategory,
+    bannerImageUrl,
+  };
+}
+
 module.exports = {
   parseResponseSheetHtml,
   fetchResponseSheetUrl,
   parseDigialmQuestionPaper,
+  extractResponseSheetMetadata,
 };
+

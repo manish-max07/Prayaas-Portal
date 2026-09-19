@@ -35,6 +35,14 @@ const POPULAR_AUTHORITIES = [
 ];
 
 export default function CreateExamPage() {
+  // Response Sheet / Digialm Link State
+  const [responseSheetUrl, setResponseSheetUrl] = useState("");
+  const [fetchingMetadata, setFetchingMetadata] = useState(false);
+  const [metadataSuccess, setMetadataSuccess] = useState(null);
+  const [metadataError, setMetadataError] = useState(null);
+  const [extractedMeta, setExtractedMeta] = useState(null);
+  const [autoImportQuestions, setAutoImportQuestions] = useState(true);
+
   // Structured Exam Parameters
   const [authority, setAuthority] = useState("");
   const [position, setPosition] = useState("");
@@ -53,6 +61,7 @@ export default function CreateExamPage() {
   const [negativeMarkingEnabled, setNegativeMarkingEnabled] = useState(true);
 
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
   const [error, setError] = useState(null);
 
   const router = useRouter();
@@ -82,6 +91,59 @@ export default function CreateExamPage() {
     setTitle(parts.join(" "));
   };
 
+  // Inspect Response Sheet URL to extract metadata
+  const handleFetchMetadata = async () => {
+    if (!responseSheetUrl || !responseSheetUrl.trim()) {
+      setMetadataError("Please enter a valid Digialm / TCS iON Response Sheet URL.");
+      return;
+    }
+
+    setFetchingMetadata(true);
+    setMetadataError(null);
+    setMetadataSuccess(null);
+
+    try {
+      const res = await api.post("/api/admin/exams/inspect-response-sheet", {
+        url: responseSheetUrl.trim(),
+      });
+
+      if (res.data && res.data.metadata) {
+        const meta = res.data.metadata;
+        setExtractedMeta(meta);
+        setMetadataSuccess("Response Sheet detected! Exam parameters have been pre-filled below.");
+
+        // Pre-fill structured fields
+        if (meta.examDate) setExamDate(meta.examDate);
+        if (meta.examYear) setExamYear(meta.examYear);
+        if (meta.shift) setShift(meta.shift);
+        if (meta.position) setPosition(meta.position);
+        if (meta.subject) setSubject(meta.subject);
+        if (meta.duration && meta.duration > 0) setTotalDurationMinutes(meta.duration);
+        if (meta.medium) setMedium(meta.medium);
+        if (meta.examCategory && CATEGORIES.includes(meta.examCategory)) {
+          setExamCategory(meta.examCategory);
+        }
+
+        // Allow auto-composer to compute fresh canonical title
+        setIsTitleManual(false);
+      }
+    } catch (err) {
+      console.error("Inspect response sheet error:", err);
+      setMetadataError(
+        err.response?.data?.message || "Failed to inspect response sheet URL. Please verify the link is accessible."
+      );
+    } finally {
+      setFetchingMetadata(false);
+    }
+  };
+
+  const handleClearResponseSheet = () => {
+    setResponseSheetUrl("");
+    setExtractedMeta(null);
+    setMetadataSuccess(null);
+    setMetadataError(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -99,6 +161,8 @@ export default function CreateExamPage() {
 
     try {
       setLoading(true);
+      setLoadingMessage("Creating exam paper in database...");
+
       const res = await api.post("/api/admin/exams", {
         title: finalTitle,
         authority: authority.trim(),
@@ -116,6 +180,19 @@ export default function CreateExamPage() {
 
       if (res.data && res.data.examPaper) {
         const examId = res.data.examPaper._id;
+
+        // Auto-import questions if requested and URL was analyzed
+        if (autoImportQuestions && responseSheetUrl.trim()) {
+          setLoadingMessage(`Importing questions from response sheet into ${finalTitle}...`);
+          try {
+            await api.post(`/api/admin/exams/${examId}/import-digialm`, {
+              digialmUrl: responseSheetUrl.trim(),
+            });
+          } catch (importErr) {
+            console.warn("Question auto-import notice:", importErr);
+          }
+        }
+
         router.push(`/admin/exams/${examId}`);
       }
     } catch (err) {
@@ -125,6 +202,7 @@ export default function CreateExamPage() {
       );
     } finally {
       setLoading(false);
+      setLoadingMessage("");
     }
   };
 
@@ -142,7 +220,7 @@ export default function CreateExamPage() {
           Create New Exam Paper
         </h1>
         <p className="text-xs text-gray-500 mt-0.5">
-          Define exam parameters, trade/specialisation, shift, and year. These will automatically appear in Previous Years practice.
+          Paste the official response sheet link to auto-fill details, or configure parameters manually.
         </p>
       </div>
 
@@ -151,6 +229,126 @@ export default function CreateExamPage() {
           {error}
         </div>
       )}
+
+      {/* STEP 1: Response Sheet Link Auto-Fill Hero Card */}
+      <div className="rounded-2xl border-2 border-blue-200 bg-gradient-to-br from-blue-50/70 via-indigo-50/40 to-white p-6 shadow-xs">
+        <div className="flex items-start justify-between gap-4 mb-3">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-xs shadow-xs">
+              ⚡
+            </span>
+            <div>
+              <h2 className="text-sm font-bold text-gray-900">
+                Auto-Fill from Response Sheet Link (Recommended)
+              </h2>
+              <p className="text-xs text-gray-600">
+                Paste the official Digialm / TCS iON question paper link to auto-fill Date, Shift, Trade, Duration, and Language.
+              </p>
+            </div>
+          </div>
+          {responseSheetUrl && (
+            <button
+              type="button"
+              onClick={handleClearResponseSheet}
+              className="text-xs text-gray-500 hover:text-gray-800 underline font-semibold shrink-0 cursor-pointer"
+            >
+              Clear Link
+            </button>
+          )}
+        </div>
+
+        <div className="mt-3 flex flex-col sm:flex-row gap-2.5">
+          <input
+            type="url"
+            value={responseSheetUrl}
+            onChange={(e) => setResponseSheetUrl(e.target.value)}
+            placeholder="https://cdn.digialm.com//per/g01/pub/1258/touchstone/AssessmentQPHTMLMode1/.../assessment.html"
+            className="flex-1 rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-xs text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-xs font-mono"
+          />
+          <button
+            type="button"
+            onClick={handleFetchMetadata}
+            disabled={fetchingMetadata || !responseSheetUrl.trim()}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 disabled:opacity-50 transition-colors cursor-pointer shrink-0"
+          >
+            {fetchingMetadata ? (
+              <>
+                <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                <span>Analyzing Link...</span>
+              </>
+            ) : (
+              <>
+                <span>⚡ Fetch &amp; Auto-Fill Details</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {metadataError && (
+          <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 font-medium">
+            ⚠️ {metadataError}
+          </div>
+        )}
+
+        {metadataSuccess && extractedMeta && (
+          <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50/70 p-4 text-xs text-emerald-900 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-bold flex items-center gap-1.5 text-emerald-800">
+                ✅ Response Sheet Detected &amp; Analyzed
+              </span>
+              <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full border border-emerald-200">
+                {extractedMeta.totalQuestions} Questions · {extractedMeta.sections?.length || 0} Sections
+              </span>
+            </div>
+
+            {/* Extracted Parameter Badges */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-[11px]">
+              <div className="bg-white/80 p-2 rounded-lg border border-emerald-100">
+                <span className="text-gray-500 block text-[10px] uppercase font-bold">Exam Date</span>
+                <span className="font-bold text-gray-900">{extractedMeta.rawTestDate || extractedMeta.examDate || "N/A"}</span>
+              </div>
+              <div className="bg-white/80 p-2 rounded-lg border border-emerald-100">
+                <span className="text-gray-500 block text-[10px] uppercase font-bold">Shift &amp; Time</span>
+                <span className="font-bold text-gray-900">{extractedMeta.shift} {extractedMeta.rawTestTime ? `(${extractedMeta.rawTestTime})` : ""}</span>
+              </div>
+              <div className="bg-white/80 p-2 rounded-lg border border-emerald-100">
+                <span className="text-gray-500 block text-[10px] uppercase font-bold">Test Duration</span>
+                <span className="font-bold text-gray-900">{extractedMeta.duration} Minutes</span>
+              </div>
+              <div className="bg-white/80 p-2 rounded-lg border border-emerald-100">
+                <span className="text-gray-500 block text-[10px] uppercase font-bold">Language</span>
+                <span className="font-bold text-gray-900">{extractedMeta.medium}</span>
+              </div>
+              <div className="bg-white/80 p-2 rounded-lg border border-emerald-100 col-span-2">
+                <span className="text-gray-500 block text-[10px] uppercase font-bold">Detected Post / Vacancy</span>
+                <span className="font-bold text-gray-900">{extractedMeta.position || "N/A"}</span>
+              </div>
+              <div className="bg-white/80 p-2 rounded-lg border border-emerald-100 col-span-2">
+                <span className="text-gray-500 block text-[10px] uppercase font-bold">Trade / Specialisation</span>
+                <span className="font-bold text-gray-900">{extractedMeta.subject || "N/A"}</span>
+              </div>
+            </div>
+
+            {/* Auto-import questions toggle */}
+            <div className="pt-2 border-t border-emerald-200/60 flex items-center justify-between">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={autoImportQuestions}
+                  onChange={(e) => setAutoImportQuestions(e.target.checked)}
+                  className="h-4 w-4 rounded border-emerald-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                />
+                <span className="text-xs font-bold text-emerald-950">
+                  Auto-import all {extractedMeta.totalQuestions} questions into this exam immediately upon creation
+                </span>
+              </label>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Form Card */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 shadow-xs">
@@ -409,8 +607,13 @@ export default function CreateExamPage() {
               disabled={loading}
               className="rounded-lg bg-blue-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 disabled:opacity-50 transition-colors cursor-pointer"
             >
-              {loading ? "Creating Exam..." : "Save & Proceed to Sections →"}
+              {loading
+                ? loadingMessage || "Creating Exam..."
+                : autoImportQuestions && responseSheetUrl.trim()
+                ? "Save & Auto-Import Questions →"
+                : "Save & Proceed to Sections →"}
             </button>
+
           </div>
         </form>
       </div>

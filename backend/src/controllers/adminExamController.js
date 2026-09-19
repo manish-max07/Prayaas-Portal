@@ -2,7 +2,11 @@ const ExcelJS = require("exceljs");
 const ExamPaper = require("../models/ExamPaper");
 const Section = require("../models/Section");
 const Question = require("../models/Question");
-const { fetchResponseSheetUrl, parseDigialmQuestionPaper } = require("../services/digialmParser");
+const {
+  fetchResponseSheetUrl,
+  parseDigialmQuestionPaper,
+  extractResponseSheetMetadata
+} = require("../services/digialmParser");
 
 // Helper to convert cell value to string cleanly
 const getCellString = (cell) => {
@@ -1062,6 +1066,47 @@ const importExamQuestionsDigialm = async (req, res, next) => {
   }
 };
 
+// @desc    Inspect and extract metadata from Digialm / TCS iON Response Sheet URL or HTML
+// @route   POST /api/admin/exams/inspect-response-sheet
+// @access  Private (Admin)
+const inspectResponseSheet = async (req, res, next) => {
+  try {
+    const { url, rawHtml } = req.body;
+
+    if (!url && !rawHtml) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a valid Digialm / TCS iON Response Sheet URL or raw HTML.",
+      });
+    }
+
+    let html = rawHtml;
+    const targetUrl = url ? url.trim() : "";
+
+    if (targetUrl) {
+      try {
+        new URL(targetUrl);
+      } catch (err) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid URL format. Please provide a valid HTTP/HTTPS URL.",
+        });
+      }
+      html = await fetchResponseSheetUrl(targetUrl);
+    }
+
+    const metadata = extractResponseSheetMetadata(html, targetUrl);
+
+    res.status(200).json({
+      success: true,
+      message: "Response Sheet metadata extracted successfully!",
+      metadata,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createExamPaper,
   updateExamPaper,
@@ -1076,6 +1121,8 @@ module.exports = {
   deleteQuestion,
   uploadQuestionsExcel,
   uploadExamQuestionsExcel,
-  importExamQuestionsDigialm
+  importExamQuestionsDigialm,
+  inspectResponseSheet,
 };
+
 

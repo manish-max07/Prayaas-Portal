@@ -14,7 +14,8 @@ const {
   deleteQuestion,
   uploadQuestionsExcel,
   uploadExamQuestionsExcel,
-  importExamQuestionsDigialm
+  importExamQuestionsDigialm,
+  inspectResponseSheet
 } = require("../controllers/adminExamController");
 const { protect } = require("../middleware/authMiddleware");
 const { adminOnly } = require("../middleware/adminOnlyMiddleware");
@@ -23,12 +24,16 @@ const { uploadExcel } = require("../middleware/uploadMiddleware");
 // All admin exam routes require both JWT protection and Admin role
 router.use(protect, adminOnly);
 
+// Response Sheet Link Inspection & Metadata Extraction (Must be before /:id)
+router.post("/inspect-response-sheet", inspectResponseSheet);
+
 // Exam Paper CRUD & Status
 router.route("/")
   .post(createExamPaper)
   .get(getAllAdminExams);
 
 router.route("/:id")
+
   .get(getAdminExamById)
   .put(updateExamPaper);
 
