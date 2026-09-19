@@ -1,7 +1,29 @@
 import React from "react";
 
-export default function ExamLogoBadge({ type, className = "h-9 w-9", size = 36 }) {
-  switch (type) {
+export default function ExamLogoBadge({
+  type,
+  category,
+  examName,
+  authority,
+  examSlug,
+  className = "h-9 w-9",
+  size = 36,
+}) {
+  let resolvedType = (type || "").toLowerCase();
+  if (!resolvedType) {
+    const text = `${category || ""} ${examName || ""} ${authority || ""} ${examSlug || ""}`.toLowerCase();
+    if (text.includes("ssc")) resolvedType = "ssc";
+    else if (text.includes("police")) resolvedType = "police";
+    else if (text.includes("railway") || text.includes("rrb") || text.includes("alp") || text.includes("ntpc")) resolvedType = "railway";
+    else if (text.includes("bank") || text.includes("ibps") || text.includes("sbi")) resolvedType = "banking";
+    else if (text.includes("teach") || text.includes("ctet") || text.includes("tet")) resolvedType = "teaching";
+    else if (text.includes("defence") || text.includes("army") || text.includes("navy")) resolvedType = "defence";
+    else if (text.includes("upsc") || text.includes("civil") || text.includes("ias") || text.includes("ib")) resolvedType = "emblem";
+    else resolvedType = "engineering";
+  }
+
+  switch (resolvedType) {
+
     case "ssc":
       return (
         <div className={`relative flex items-center justify-center rounded-full bg-gradient-to-br from-amber-50 to-red-50 border border-amber-200 shadow-2xs shrink-0 ${className}`}>

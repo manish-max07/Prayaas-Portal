@@ -162,7 +162,9 @@ export default function ExamYearSelectionPage({ params }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
           {exam.years.map((year) => {
             const shiftList = exam.shiftsByYear?.[year] || [];
-            const shiftCount = shiftList.length || Math.floor(exam.totalShiftsCount / exam.years.length) || 12;
+            const yearsCount = exam.years?.length || 1;
+            const shiftCount = shiftList.length || Math.floor((exam.totalShiftsCount || 0) / yearsCount) || 1;
+
 
             return (
               <Link

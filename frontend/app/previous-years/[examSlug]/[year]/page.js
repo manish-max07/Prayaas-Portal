@@ -3,8 +3,8 @@
 import React, { use, useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { notFound } from "next/navigation";
 import api from "@/lib/api";
+
 import { useAuth } from "@/context/AuthContext";
 import ExamLogoBadge from "@/components/ExamLogoBadge";
 import { getExamBySlug } from "@/lib/previousYearsData";
@@ -14,64 +14,107 @@ export default function ExamShiftsListPage({ params }) {
   const examSlug = resolvedParams.examSlug;
   const year = resolvedParams.year;
 
-  const exam = getExamBySlug(examSlug);
+  const staticExam = getExamBySlug(examSlug);
+  const [exam, setExam] = useState(staticExam);
+  const [loading, setLoading] = useState(true);
+  const [notFoundState, setNotFoundState] = useState(false);
+  const [shiftSearch, setShiftSearch] = useState("");
+  const [liveExams, setLiveExams] = useState([]);
+
   const router = useRouter();
   const { isAuthenticated } = useAuth();
 
-  const [shiftSearch, setShiftSearch] = useState("");
-  const [liveExams, setLiveExams] = useState([]);
-  const [loadingLive, setLoadingLive] = useState(true);
-
   useEffect(() => {
-    async function loadLiveExams() {
+    async function loadData() {
       try {
-        setLoadingLive(true);
-        const res = await api.get(`/api/exams?year=${encodeURIComponent(year)}`);
-        if (res.data && res.data.exams) {
-          setLiveExams(res.data.exams);
+        setLoading(true);
+        const res = await api.get("/api/exams");
+        const allExams = res.data?.exams || [];
+
+        // Normalize matching logic for examSlug (e.g. avnl-junior-manager)
+        const examSlugClean = examSlug.toLowerCase();
+        const matching = allExams.filter((le) => {
+          const auth = (le.authority || "").toLowerCase();
+          const pos = (le.position || "").toLowerCase();
+          const slug = (
+            le.examSlug ||
+            `${auth} ${pos}`.replace(/[^\w\s-]/g, "").replace(/\s+/g, "-")
+          ).toLowerCase();
+          const title = (le.title || "").toLowerCase();
+
+          return (
+            slug === examSlugClean ||
+            examSlugClean.includes(slug) ||
+            slug.includes(examSlugClean) ||
+            (auth && pos && title.includes(auth) && title.includes(pos))
+          );
+        });
+
+        // Filter by the year requested
+        const yearMatching = matching.filter(
+          (m) => String(m.examYear || "2026") === String(year)
+        );
+
+        setLiveExams(yearMatching.length > 0 ? yearMatching : matching);
+
+        if (staticExam) {
+          setExam(staticExam);
+        } else if (matching.length > 0) {
+          const first = matching[0];
+          const examName =
+            first.authority && first.position
+              ? `${first.authority} ${first.position}`
+              : first.title;
+          const dynamicExam = {
+            slug: examSlug,
+            name: examName,
+            fullName: `${examName} Examination`,
+            category: (first.examCategory || "engineering").toLowerCase(),
+            categoryLabel: `${first.examCategory || "Engineering"} Exams`,
+            organization: first.authority || "Exam Board",
+            logoType: "defence",
+            description:
+              first.description ||
+              `Official previous year question papers and shift practice for ${examName}.`,
+            totalShiftsCount: matching.length,
+            years: [year],
+            conductingBody: first.authority || "Exam Board",
+            shiftsByYear: {},
+          };
+          setExam(dynamicExam);
+        } else {
+          setNotFoundState(true);
         }
       } catch (err) {
-        console.warn("Could not load dynamic live exams:", err.message);
+        console.warn("Could not load dynamic exam data:", err.message);
+        if (!staticExam) setNotFoundState(true);
       } finally {
-        setLoadingLive(false);
+        setLoading(false);
       }
     }
-    loadLiveExams();
-  }, [year]);
 
-  if (!exam || !exam.years.includes(year)) {
-    notFound();
-  }
+    loadData();
+  }, [examSlug, year, staticExam]);
 
   // Merge live database exams with template shifts
   const shiftsList = useMemo(() => {
+    if (!exam) return [];
     const rawShifts = exam.shiftsByYear?.[year] || [];
-    
-    // Find live exams in DB matching this exam authority / position / slug / name
-    const matchingLive = liveExams.filter((le) => {
-      const examName = exam.name.toLowerCase();
-      const examSlugClean = exam.slug.toLowerCase();
-      const auth = (le.authority || "").toLowerCase();
-      const pos = (le.position || "").toLowerCase();
-      const slug = (le.examSlug || "").toLowerCase();
-      const title = (le.title || "").toLowerCase();
 
-      return (
-        (slug && (slug === examSlugClean || examSlugClean.includes(slug) || slug.includes(examSlugClean))) ||
-        (auth && pos && (examName.includes(auth) || examName.includes(pos))) ||
-        title.includes(examName) ||
-        (auth && examName.includes(auth))
-      );
-    });
-
-    const liveFormatted = matchingLive.map((le) => ({
+    const liveFormatted = liveExams.map((le) => ({
       id: le._id,
       title: le.title,
       tier: le.position || "CBT",
-      date: le.examDate || `Official ${year}`,
+      date: le.examDate
+        ? new Date(le.examDate).toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })
+        : `Official ${year}`,
       shift: le.shift || "Official Shift",
       totalQuestions: le.totalQuestions || 100,
-      totalDurationMinutes: le.totalDurationMinutes || 60,
+      totalDurationMinutes: le.totalDurationMinutes || 120,
       totalMarks: le.totalMarks || 100,
       negativeMarking: le.negativeMarkingEnabled ? 0.25 : 0.0,
       language: le.medium || "Bilingual (English / Hindi)",
@@ -87,7 +130,6 @@ export default function ExamShiftsListPage({ params }) {
     );
 
     const combined = [...liveFormatted, ...filteredRaw];
-
     if (combined.length > 0) return combined;
 
     // Fallback template shifts so candidates can always practice shifts for any year
@@ -97,47 +139,20 @@ export default function ExamShiftsListPage({ params }) {
         title: `${exam.name} ${year} Tier-1 (Official Shift 1)`,
         tier: "Tier-1",
         date: `Official ${year} Shift 1`,
-        shift: "Shift 1 (09:00 AM - 10:00 AM)",
+        shift: "Shift 1 (09:00 AM - 11:00 AM)",
         totalQuestions: 100,
-        totalDurationMinutes: 60,
-        totalMarks: 200,
-        negativeMarking: 0.50,
-        language: "English / Hindi",
+        totalDurationMinutes: 120,
+        totalMarks: 100,
+        negativeMarking: 0.25,
+        language: "Bilingual (English / Hindi)",
         status: "Available",
-        liveExamId: "6aa5798a6d95008aa13f4884"
+        liveExamId: "6aa5798a6d95008aa13f4884",
       },
-      {
-        id: `${exam.slug}-${year}-shift2`,
-        title: `${exam.name} ${year} Tier-1 (Official Shift 2)`,
-        tier: "Tier-1",
-        date: `Official ${year} Shift 2`,
-        shift: "Shift 2 (12:30 PM - 01:30 PM)",
-        totalQuestions: 100,
-        totalDurationMinutes: 60,
-        totalMarks: 200,
-        negativeMarking: 0.50,
-        language: "English / Hindi",
-        status: "Available",
-        liveExamId: "6aa8f204f5b4b3603df83380"
-      },
-      {
-        id: `${exam.slug}-${year}-shift3`,
-        title: `${exam.name} ${year} Tier-1 (Official Shift 3)`,
-        tier: "Tier-1",
-        date: `Official ${year} Shift 3`,
-        shift: "Shift 3 (04:00 PM - 05:00 PM)",
-        totalQuestions: 100,
-        totalDurationMinutes: 60,
-        totalMarks: 200,
-        negativeMarking: 0.50,
-        language: "English / Hindi",
-        status: "Available",
-        liveExamId: "6aa5798a6d95008aa13f4884"
-      }
     ];
-  }, [rawShifts, liveExams, exam, year]);
+  }, [liveExams, exam, year]);
 
   const filteredShifts = useMemo(() => {
+
     if (!shiftSearch.trim()) return shiftsList;
     const q = shiftSearch.toLowerCase();
     return shiftsList.filter(
@@ -155,8 +170,36 @@ export default function ExamShiftsListPage({ params }) {
     router.push(`/exam/${examTargetId}`);
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3 bg-[#F8FAFC]">
+        <div className="w-8 h-8 rounded-full border-4 border-blue-600 border-t-transparent animate-spin" />
+        <p className="text-xs font-semibold text-slate-600">Loading shift question papers...</p>
+      </div>
+    );
+  }
+
+  if (notFoundState || !exam) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-16 text-center">
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-xs">
+          <h2 className="text-lg font-bold text-slate-900">Examination Papers Not Found</h2>
+          <p className="text-xs text-slate-500 mt-1">
+            Could not locate question papers for &ldquo;{examSlug}&rdquo; ({year}).
+          </p>
+          <Link
+            href="/previous-years"
+            className="mt-4 inline-block rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-blue-700 transition-colors"
+          >
+            &larr; Back to Popular Exams
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
+
     <div className="min-h-screen bg-[#F8FAFC] py-8 sm:py-12">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Breadcrumbs */}
