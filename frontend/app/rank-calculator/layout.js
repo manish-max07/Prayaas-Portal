@@ -18,20 +18,20 @@ export const metadata = {
     "Smart Score Card download",
   ],
   alternates: {
-    canonical: "https://prayaas-portal.vercel.app/rank-calculator",
+    canonical: "https://prayaaskaro.in/rank-calculator",
   },
   openGraph: {
     title: "AVNL Rank Calculator, Answer Key 2026 & Cutoff | CIL MT 2026 Scorecard",
     description:
       "Check AVNL cutoff 2026, AVNL trade wise cutoff, CIL MT 2026 cutoff, and evaluate your response sheet for instant All India Rank and Smart Scorecard.",
-    url: "https://prayaas-portal.vercel.app/rank-calculator",
-    siteName: "Prayaas Portal",
+    url: "https://prayaaskaro.in/rank-calculator",
+    siteName: "PrayaasKaro",
     locale: "en_IN",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AVNL Rank Calculator & Answer Key 2026 Cutoff | Prayaas Portal",
+    title: "AVNL Rank Calculator & Answer Key 2026 Cutoff | PrayaasKaro",
     description:
       "Calculate your AVNL response sheet score, check AVNL trade wise cutoff & CIL MT 2026 cutoff with All India Ranks.",
   },
@@ -41,8 +41,8 @@ export default function RankCalculatorLayout({ children }) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: "Prayaas Portal Exam Rank Predictor",
-    url: "https://prayaas-portal.vercel.app/rank-calculator",
+    name: "PrayaasKaro Exam Rank Predictor",
+    url: "https://prayaaskaro.in/rank-calculator",
     applicationCategory: "EducationalApplication",
     operatingSystem: "All",
     description:

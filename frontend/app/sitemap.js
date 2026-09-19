@@ -1,7 +1,7 @@
 import { getAllNewsArticles } from "@/lib/newsData";
 
 export default async function sitemap() {
-  const baseUrl = "https://prayaas-portal.vercel.app";
+  const baseUrl = "https://prayaaskaro.in";
   const newsArticles = await getAllNewsArticles();
 
   const newsEntries = newsArticles.map((article) => ({

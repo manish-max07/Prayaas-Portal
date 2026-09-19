@@ -8,14 +8,14 @@ export const metadata = {
   description:
     "Get instant official updates on latest competitive exams, admit card release dates, answer key downloads, scorecards, and government job recruitments 2026.",
   alternates: {
-    canonical: "https://prayaas-portal.vercel.app/news",
+    canonical: "https://prayaaskaro.in/news",
   },
   openGraph: {
-    title: "Exam News & Admit Card Updates | Prayaas Portal",
+    title: "Exam News & Admit Card Updates | PrayaasKaro",
     description:
       "Latest government exam notifications, hall tickets, exam dates, answer keys, and syllabus.",
-    url: "https://prayaas-portal.vercel.app/news",
-    siteName: "Prayaas Portal",
+    url: "https://prayaaskaro.in/news",
+    siteName: "PrayaasKaro",
     type: "website",
   },
 };

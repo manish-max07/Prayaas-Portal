@@ -1,5 +1,5 @@
 export default function robots() {
-  const baseUrl = "https://prayaas-portal.vercel.app";
+  const baseUrl = "https://prayaaskaro.in";
 
   return {
     rules: [

@@ -50,7 +50,7 @@ export async function generateMetadata({ params }) {
     };
   }
 
-  const pageUrl = `https://prayaas-portal.vercel.app/news/${article.slug}`;
+  const pageUrl = `https://prayaaskaro.in/news/${article.slug}`;
 
   return {
     title: article.seoTitle || article.title,
@@ -63,7 +63,7 @@ export async function generateMetadata({ params }) {
       title: article.seoTitle || article.title,
       description: article.metaDescription,
       url: pageUrl,
-      siteName: "Prayaas Portal",
+      siteName: "PrayaasKaro",
       type: "article",
       publishedTime: toIsoStringSafe(article.publishDate),
       modifiedTime: toIsoStringSafe(article.lastUpdated || article.publishDate),
@@ -71,7 +71,7 @@ export async function generateMetadata({ params }) {
       tags: article.tags || [],
       images: [
         {
-          url: "https://prayaas-portal.vercel.app/PrayaasKaroBgremoved.png",
+          url: "https://prayaaskaro.in/PrayaasKaroBgremoved.png",
           width: 800,
           height: 250,
           alt: article.shortTitle || article.title,
@@ -82,7 +82,7 @@ export async function generateMetadata({ params }) {
       card: "summary_large_image",
       title: article.seoTitle || article.title,
       description: article.metaDescription,
-      images: ["https://prayaas-portal.vercel.app/PrayaasKaroBgremoved.png"],
+      images: ["https://prayaaskaro.in/PrayaasKaroBgremoved.png"],
     },
   };
 }
@@ -96,7 +96,7 @@ export default async function NewsArticlePage({ params }) {
   }
 
   const relatedArticles = await getRelatedNews(article.slug);
-  const pageUrl = `https://prayaas-portal.vercel.app/news/${article.slug}`;
+  const pageUrl = `https://prayaaskaro.in/news/${article.slug}`;
 
   // Structured Data (Schema.org JSON-LD)
   const newsArticleSchema = {
@@ -120,10 +120,10 @@ export default async function NewsArticlePage({ params }) {
       name: "Prayaas Karo",
       logo: {
         "@type": "ImageObject",
-        url: "https://prayaas-portal.vercel.app/PrayaasKaroBgremoved.png",
+        url: "https://prayaaskaro.in/PrayaasKaroBgremoved.png",
       },
     },
-    image: "https://prayaas-portal.vercel.app/PrayaasKaroBgremoved.png",
+    image: "https://prayaaskaro.in/PrayaasKaroBgremoved.png",
   };
 
   const faqSchema = article.faqs && article.faqs.length > 0 ? {
@@ -147,19 +147,19 @@ export default async function NewsArticlePage({ params }) {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://prayaas-portal.vercel.app",
+        item: "https://prayaaskaro.in",
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Exam News",
-        item: "https://prayaas-portal.vercel.app/news",
+        item: "https://prayaaskaro.in/news",
       },
       {
         "@type": "ListItem",
         position: 3,
         name: article.category,
-        item: "https://prayaas-portal.vercel.app/news",
+        item: "https://prayaaskaro.in/news",
       },
       {
         "@type": "ListItem",

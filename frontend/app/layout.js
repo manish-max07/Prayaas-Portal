@@ -21,13 +21,43 @@ export const viewport = {
 };
 
 export const metadata = {
-  metadataBase: new URL("https://prayaas-portal.vercel.app"),
+  metadataBase: new URL("https://prayaaskaro.in"),
   title: {
-    default: "Prayaas Portal | Online Exam Practice & Rank Predictor",
-    template: "%s | Prayaas Portal",
+    default:
+      "PrayaasKaro | Free Test Series & Exam Practice with All India Rank Calculator and Latest Exam Updates and news",
+    template: "%s | PrayaasKaro",
   },
   description:
-    "Official examination portal for CBT practice, TCS iON response sheet evaluation, real-time rank predictions, and smart scorecards.",
+    "Official examination portal for CBT practice, TCS iON response sheet evaluation, real-time rank predictions, free test series, and latest exam updates.",
+  alternates: {
+    canonical: "https://prayaaskaro.in",
+  },
+  openGraph: {
+    title:
+      "PrayaasKaro | Free Test Series & Exam Practice with All India Rank Calculator and Latest Exam Updates and news",
+    description:
+      "Official examination portal for CBT practice, TCS iON response sheet evaluation, real-time rank predictions, and latest exam updates.",
+    url: "https://prayaaskaro.in",
+    siteName: "PrayaasKaro",
+    images: [
+      {
+        url: "/PrayaasKaroBgremoved.png",
+        width: 800,
+        height: 600,
+        alt: "PrayaasKaro",
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title:
+      "PrayaasKaro | Free Test Series & Exam Practice with All India Rank Calculator and Latest Exam Updates and news",
+    description:
+      "Official examination portal for CBT practice, TCS iON response sheet evaluation, real-time rank predictions, and latest exam updates.",
+    images: ["/PrayaasKaroBgremoved.png"],
+  },
   icons: {
     icon: "/PrayaasKaroLogoWithoutText.png",
     shortcut: "/PrayaasKaroLogoWithoutText.png",
