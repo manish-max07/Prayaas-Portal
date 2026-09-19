@@ -19,6 +19,18 @@ export default async function sitemap() {
       priority: 1.0,
     },
     {
+      url: `${baseUrl}/rank-calculator`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/rank-predictor`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.95,
+    },
+    {
       url: `${baseUrl}/news`,
       lastModified: new Date(),
       changeFrequency: "hourly",
@@ -26,16 +38,22 @@ export default async function sitemap() {
     },
     ...newsEntries,
     {
-      url: `${baseUrl}/rank-calculator`,
-      lastModified: new Date(),
-      changeFrequency: "always",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/terms-conditions`,
+      url: `${baseUrl}/signup`,
       lastModified: new Date(),
       changeFrequency: "monthly",
-      priority: 0.6,
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/login`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/contact-us`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
     },
     {
       url: `${baseUrl}/privacy-policy`,
@@ -44,10 +62,10 @@ export default async function sitemap() {
       priority: 0.6,
     },
     {
-      url: `${baseUrl}/contact-us`,
+      url: `${baseUrl}/terms-conditions`,
       lastModified: new Date(),
       changeFrequency: "monthly",
-      priority: 0.7,
+      priority: 0.6,
     },
     {
       url: `${baseUrl}/rank-calculator/terms-conditions`,
