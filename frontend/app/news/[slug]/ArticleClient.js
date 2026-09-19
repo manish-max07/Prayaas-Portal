@@ -181,15 +181,17 @@ export default function ArticleClient({ article }) {
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-blue-900 font-bold text-xs sm:text-sm transition cursor-pointer shadow-xs"
                 >
-                  <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  <svg className="w-4 h-4 text-rose-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
                   </svg>
                   <span>
-                    {article.category === "Answer Key"
+                    {article.directAdmitCardLink.toLowerCase().includes(".pdf")
+                      ? `Download ${article.category === "Admit Card" ? "Admit Card" : article.category === "Notification" ? "Notification" : article.category} (PDF)`
+                      : article.category === "Answer Key"
                       ? "Check Answer Key"
                       : article.category === "Result"
                       ? "Check Result"
-                      : "Direct Download Link"}
+                      : "Download Official Document"}
                   </span>
                   <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -240,10 +242,10 @@ export default function ArticleClient({ article }) {
               </a>
             </li>
           )}
-          {hasCredentials && (
+          {hasContent && (
             <li>
-              <a href="#login-credentials" className="hover:text-blue-600 flex items-center gap-1.5 py-1 transition">
-                <span className="text-blue-600">•</span> Login Credentials Required
+              <a href="#article-body" className="hover:text-blue-600 flex items-center gap-1.5 py-1 transition">
+                <span className="text-blue-600">•</span> Detailed Guide &amp; Vacancy Tables
               </a>
             </li>
           )}
@@ -251,6 +253,13 @@ export default function ArticleClient({ article }) {
             <li>
               <a href="#steps-to-download" className="hover:text-blue-600 flex items-center gap-1.5 py-1 transition">
                 <span className="text-blue-600">•</span> Step-by-Step Guide
+              </a>
+            </li>
+          )}
+          {hasCredentials && (
+            <li>
+              <a href="#login-credentials" className="hover:text-blue-600 flex items-center gap-1.5 py-1 transition">
+                <span className="text-blue-600">•</span> Login Credentials Required
               </a>
             </li>
           )}
@@ -279,13 +288,6 @@ export default function ArticleClient({ article }) {
             <li>
               <a href="#exam-centres" className="hover:text-blue-600 flex items-center gap-1.5 py-1 transition">
                 <span className="text-blue-600">•</span> Examination Cities
-              </a>
-            </li>
-          )}
-          {hasContent && (
-            <li>
-              <a href="#article-body" className="hover:text-blue-600 flex items-center gap-1.5 py-1 transition">
-                <span className="text-blue-600">•</span> Detailed Information
               </a>
             </li>
           )}
@@ -334,7 +336,20 @@ export default function ArticleClient({ article }) {
         </section>
       )}
 
-      {/* 5. CBT MOCK TEST CTA BANNER */}
+      {/* 5. FREEFORM ARTICLE CONTENT (RICH TABLES, VACANCIES, ELIGIBILITY, ETC.) */}
+      {hasContent && (
+        <section id="article-body" className="scroll-mt-24 space-y-3">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900 border-l-4 border-blue-600 pl-3">
+            Detailed Guide &amp; Information
+          </h2>
+          <div
+            className="article-prose text-xs sm:text-sm text-slate-800 leading-relaxed bg-white p-5 sm:p-7 rounded-xl border border-slate-200 overflow-hidden"
+            dangerouslySetInnerHTML={{ __html: article.content }}
+          />
+        </section>
+      )}
+
+      {/* 6. CBT MOCK TEST CTA BANNER */}
       <div className="p-4 sm:p-5 rounded-xl bg-blue-50/60 border border-blue-200 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-700 shrink-0 border border-blue-200">
@@ -362,7 +377,7 @@ export default function ArticleClient({ article }) {
         </Link>
       </div>
 
-      {/* 6. LOGIN CREDENTIALS SECTION */}
+      {/* 7. LOGIN CREDENTIALS SECTION */}
       {hasCredentials && (
         <section id="login-credentials" className="scroll-mt-24 space-y-3">
           <h2 className="text-lg sm:text-xl font-bold text-slate-900 border-l-4 border-blue-600 pl-3">
@@ -385,7 +400,7 @@ export default function ArticleClient({ article }) {
         </section>
       )}
 
-      {/* 7. STEPS TO DOWNLOAD */}
+      {/* 8. STEPS TO DOWNLOAD */}
       {hasSteps && (
         <section id="steps-to-download" className="scroll-mt-24 space-y-3">
           <h2 className="text-lg sm:text-xl font-bold text-slate-900 border-l-4 border-blue-600 pl-3">
@@ -408,19 +423,6 @@ export default function ArticleClient({ article }) {
               </div>
             ))}
           </div>
-        </section>
-      )}
-
-      {/* 8. FREEFORM ARTICLE CONTENT (MARKDOWN / BODY) */}
-      {hasContent && (
-        <section id="article-body" className="scroll-mt-24 space-y-3">
-          <h2 className="text-lg sm:text-xl font-bold text-slate-900 border-l-4 border-blue-600 pl-3">
-            Detailed Guide &amp; Information
-          </h2>
-          <div
-            className="prose prose-slate max-w-none text-xs sm:text-sm text-slate-800 leading-relaxed bg-white p-6 rounded-xl border border-slate-200"
-            dangerouslySetInnerHTML={{ __html: article.content }}
-          />
         </section>
       )}
 

@@ -101,7 +101,7 @@ function detectSector(text) {
     t.includes("psu")
   )
     return "Engineering & PSU";
-  if (t.includes("upsc") || t.includes("civil services") || t.includes("ias") || t.includes("ips") || t.includes("ifs"))
+  if (t.includes("upsc") || t.includes("civil services") || t.includes("ias") || t.includes("ips") || t.includes("ifs") || t.includes("ese"))
     return "Civil Services / UPSC";
   if (
     t.includes("dsssb") ||
@@ -148,7 +148,6 @@ function generateTopicKey(title) {
     .replace(/\b(recruitment|vacancy|vacancies|notification|apply online)\b/g, "recruitment")
     .replace(/\b(download|direct link|active|out now|released|published|live)\b/g, "");
 
-  // Extract key tokens (words longer than 2 characters)
   const tokens = clean
     .split(" ")
     .filter((w) => w.length > 2)
@@ -166,6 +165,194 @@ function cleanTitle(raw) {
     .replace(/\|\s*Adda247/gi, "")
     .replace(/\|\s*Physics Wallah/gi, "")
     .trim();
+}
+
+/**
+ * Scrapes full article details, rich tables, direct CDN PDF link, real overview table, and FAQs from source article URL
+ */
+async function scrapeArticleDetails(url, fallbackTitle = "") {
+  const result = {
+    directPdfLink: "",
+    officialWebsite: "",
+    overview: [],
+    faqs: [],
+    featuredImage: "",
+    content: "",
+    totalVacancies: "",
+  };
+
+  if (!url || !url.startsWith("http")) return result;
+
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      },
+    });
+
+    if (!res.ok) return result;
+    const html = await res.text();
+    const $ = cheerio.load(html);
+
+    // 1. Direct PDF Link extraction
+    $("a").each((_, a) => {
+      let href = $(a).attr("href") || "";
+      const linkText = $(a).text().trim().toLowerCase();
+
+      // If it's a testbook pdf-viewer URL, decode it
+      if (href.includes("pdf-viewer?u=")) {
+        const encoded = href.split("pdf-viewer?u=")[1];
+        if (encoded) {
+          try {
+            href = decodeURIComponent(encoded);
+          } catch (e) {}
+        }
+      }
+
+      // Check if link points directly to CDN PDF
+      if (href.includes("cdn.testbook.com") && href.includes(".pdf")) {
+        if (
+          !result.directPdfLink ||
+          linkText.includes("notification") ||
+          linkText.includes("admit card") ||
+          linkText.includes("click to download") ||
+          linkText.includes("pdf")
+        ) {
+          result.directPdfLink = href;
+        }
+      } else if (href.endsWith(".pdf") && !result.directPdfLink) {
+        result.directPdfLink = href;
+      }
+
+      // Detect official website
+      if (
+        (href.includes(".gov.in") ||
+          href.includes(".nic.in") ||
+          href.includes(".ac.in") ||
+          href.includes("iocl.com") ||
+          href.includes("ibps.in") ||
+          href.includes("sbi.co.in")) &&
+        !href.includes("google.com")
+      ) {
+        if (!result.officialWebsite) {
+          result.officialWebsite = href;
+        }
+      }
+    });
+
+    // 2. FAQs from Schema
+    $('script[type="application/ld+json"]').each((_, el) => {
+      try {
+        const json = JSON.parse($(el).html());
+        if (json["@type"] === "FAQPage" && Array.isArray(json.mainEntity)) {
+          result.faqs = json.mainEntity
+            .map((item) => ({
+              question: item.name ? item.name.trim() : "",
+              answer: item.acceptedAnswer?.text ? item.acceptedAnswer.text.trim() : "",
+            }))
+            .filter((f) => f.question && f.answer);
+        }
+      } catch (e) {}
+    });
+
+    // 3. Featured Image
+    result.featuredImage =
+      $('meta[property="og:image"]').attr("content") ||
+      $(".post-thumbnail img, .entry-image img").attr("src") ||
+      "";
+
+    // 4. Real Overview Table Extraction
+    const entryContent = $(".entry-content, article, .post-content, main");
+    entryContent.find("table").each((_, table) => {
+      const headerText = $(table).find("th, tr:first-child").text();
+      if (
+        (headerText.includes("Particulars") && headerText.includes("Details")) ||
+        headerText.includes("Conducting Body") ||
+        headerText.includes("Exam Name")
+      ) {
+        $(table).find("tr").each((__, tr) => {
+          const cells = $(tr).find("td");
+          if (cells.length >= 2) {
+            const label = $(cells[0]).text().trim();
+            const value = $(cells[1]).text().trim();
+            if (label && value && label !== "Particulars") {
+              result.overview.push({ label, value });
+              if (label.toLowerCase().includes("vacanc") && !result.totalVacancies) {
+                result.totalVacancies = value;
+              }
+              if (label.toLowerCase().includes("official website") && !result.officialWebsite) {
+                const websiteLink = $(cells[1]).find("a").attr("href") || value;
+                result.officialWebsite = websiteLink.startsWith("http") ? websiteLink : `https://${websiteLink}`;
+              }
+            }
+          }
+        });
+      }
+    });
+
+    // 5. Full Content and Tables Sanitization
+    const contentClone = $(".entry-content").first().clone();
+    if (contentClone.length > 0) {
+      // Remove junk, tracking, and promotional clutter
+      contentClone.find("script, style, noscript, iframe, link").remove();
+      contentClone.find("#shareBtnWrap, .heading-share, .share-btn").remove();
+      contentClone.find("#downloadAppBtn, #getStartedBtn").remove();
+      contentClone.find(".code-block").remove();
+      contentClone.find("div").each((_, div) => {
+        const text = $(div).text() || "";
+        if (
+          text.includes("Add Testbook as Preferred Source") ||
+          text.includes("Download App") ||
+          text.includes("Get Started for Free")
+        ) {
+          $(div).remove();
+        }
+      });
+      contentClone.find("a[href*='link.testbook.com']").remove();
+      contentClone.find("a[href*='testbook.com/login']").remove();
+
+      // Style all tables so they look great and are horizontally scrollable on mobile
+      contentClone.find("table").each((_, table) => {
+        $(table).removeAttr("style");
+        $(table).removeAttr("border");
+        $(table).removeAttr("width");
+        $(table).removeAttr("height");
+        $(table).addClass("min-w-full border-collapse border border-slate-200 text-xs sm:text-sm my-3");
+        $(table).wrap('<div class="overflow-x-auto my-4 rounded-xl border border-slate-200 shadow-2xs"></div>');
+        $(table).find("th").addClass("bg-slate-50 font-bold p-3 border border-slate-200 text-slate-800 text-left");
+        $(table).find("td").addClass("p-3 border border-slate-200 text-slate-700");
+      });
+
+      // Style headings
+      contentClone.find("h2").each((_, h2) => {
+        $(h2).addClass("text-lg sm:text-xl font-bold text-slate-900 border-l-4 border-blue-600 pl-3 mt-8 mb-3");
+      });
+      contentClone.find("h3").each((_, h3) => {
+        $(h3).addClass("text-base sm:text-lg font-bold text-slate-800 mt-6 mb-2");
+      });
+      contentClone.find("p").each((_, p) => {
+        $(p).addClass("text-xs sm:text-sm text-slate-700 leading-relaxed my-2.5");
+      });
+      contentClone.find("ul").addClass("list-disc list-inside text-xs sm:text-sm text-slate-700 space-y-1 my-2.5 pl-2");
+      contentClone.find("ol").addClass("list-decimal list-inside text-xs sm:text-sm text-slate-700 space-y-1 my-2.5 pl-2");
+
+      // Style download/action buttons
+      contentClone.find("a.tb-auto-button, a[class*='button']").each((_, btn) => {
+        $(btn).removeClass();
+        $(btn).addClass("inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm transition my-3 shadow-xs");
+        $(btn).attr("target", "_blank");
+        $(btn).attr("rel", "noopener noreferrer");
+      });
+
+      result.content = contentClone.html()?.trim() || "";
+    }
+  } catch (err) {
+    console.warn(`[ScraperService] Warning scraping detail page ${url}:`, err.message);
+  }
+
+  return result;
 }
 
 /**
@@ -228,7 +415,6 @@ async function scrapeSarkariResult() {
 async function scrapeExamFeeds() {
   const items = [];
 
-  // 1. Testbook / Adda public news listing
   const targetUrls = [
     "https://testbook.com/news",
     "https://www.adda247.com/jobs/",
@@ -272,7 +458,7 @@ async function scrapeExamFeeds() {
 }
 
 /**
- * Main ingestion routine with intelligent deduplication & auto-categorization
+ * Main ingestion routine with intelligent deduplication, full detail scraping & rich tables
  */
 async function runAutoArticleIngestion() {
   const stats = {
@@ -296,7 +482,7 @@ async function runAutoArticleIngestion() {
     const allItems = [...sarkariItems, ...feedItems];
     stats.scanned = allItems.length;
 
-    // Filter out obvious noise and limit to top 40 freshest candidates
+    // Filter out obvious noise and limit to top 40 candidates
     const candidates = allItems
       .filter((it) => it.title && it.title.length > 12)
       .slice(0, 40);
@@ -309,12 +495,24 @@ async function runAutoArticleIngestion() {
         // 1. Check exact URL deduplication
         const urlMatch = await Article.findOne({ sourceUrl: item.sourceUrl });
         if (urlMatch) {
+          // If already existing but lacks content or CDN PDF link, re-enrich it
+          if (!urlMatch.content || !urlMatch.directAdmitCardLink || urlMatch.directAdmitCardLink.includes("testbook.com/news")) {
+            const details = await scrapeArticleDetails(item.sourceUrl, item.title);
+            if (details.content) urlMatch.content = details.content;
+            if (details.directPdfLink) urlMatch.directAdmitCardLink = details.directPdfLink;
+            if (details.overview.length > 0) urlMatch.overview = details.overview;
+            if (details.faqs.length > 0) urlMatch.faqs = details.faqs;
+            if (details.officialWebsite) urlMatch.officialWebsite = details.officialWebsite;
+            if (details.featuredImage) urlMatch.featuredImage = details.featuredImage;
+            urlMatch.lastUpdated = new Date();
+            await urlMatch.save();
+            stats.updated++;
+          }
           stats.duplicatesSkipped++;
           continue;
         }
 
         // 2. Cross-Source Deduplication Check:
-        // Does an article with the same topicKey already exist within the last 45 days?
         const fortyFiveDaysAgo = new Date(Date.now() - 45 * 24 * 60 * 60 * 1000);
         const topicMatch = await Article.findOne({
           topicKey,
@@ -322,12 +520,16 @@ async function runAutoArticleIngestion() {
         });
 
         if (topicMatch) {
-          // It's the same topic from another website!
-          // We DO NOT create a duplicate article.
-          // Instead, update the existing article if it lacks direct link or refresh lastUpdated timestamp.
           let wasUpdated = false;
-          if (!topicMatch.directAdmitCardLink && item.sourceUrl) {
-            topicMatch.directAdmitCardLink = item.sourceUrl;
+          // If existing topic lacks rich content, re-enrich it from this source
+          if (!topicMatch.content || topicMatch.directAdmitCardLink?.includes("testbook.com/news")) {
+            const details = await scrapeArticleDetails(item.sourceUrl, item.title);
+            if (details.content) topicMatch.content = details.content;
+            if (details.directPdfLink) topicMatch.directAdmitCardLink = details.directPdfLink;
+            if (details.overview.length > 0) topicMatch.overview = details.overview;
+            if (details.faqs.length > 0) topicMatch.faqs = details.faqs;
+            if (details.officialWebsite) topicMatch.officialWebsite = details.officialWebsite;
+            if (details.featuredImage) topicMatch.featuredImage = details.featuredImage;
             wasUpdated = true;
           }
           topicMatch.lastUpdated = new Date();
@@ -338,7 +540,11 @@ async function runAutoArticleIngestion() {
           continue;
         }
 
-        // 3. Extract & Auto-Categorize
+        // 3. Scrape Full Article Details from Source URL!
+        console.log(`[AutoArticleService]: Scraping full details for "${item.title}"...`);
+        const details = await scrapeArticleDetails(item.sourceUrl, item.title);
+
+        // 4. Extract & Auto-Categorize
         const category = detectCategory(item.title);
         const sector = detectSector(item.title);
         const state = detectState(item.title);
@@ -348,9 +554,8 @@ async function runAutoArticleIngestion() {
           .replace(/[^\w\s-]/g, "")
           .replace(/\s+/g, "-")
           .slice(0, 80);
-        const slug = `${slugBase}-${new Date().getFullYear()}`;
 
-        // Ensure slug uniqueness
+        const slug = `${slugBase}-${new Date().getFullYear()}`;
         const slugExists = await Article.findOne({ slug });
         const finalSlug = slugExists ? `${slug}-${Math.floor(1000 + Math.random() * 9000)}` : slug;
 
@@ -363,31 +568,38 @@ async function runAutoArticleIngestion() {
             ? "🔑 Released"
             : "⚡ Live Notification";
 
-        // Build rich auto-overview table
-        const overview = [
-          { label: "Notification Title", value: item.title },
-          { label: "Category", value: category },
-          { label: "Sector / Exam Body", value: sector },
-          { label: "Region / State", value: state },
-          { label: "Status", value: "Active / Official Link Active" },
-          { label: "Last Verified", value: "Verified on Prayaas Portal Desk" },
-        ];
+        // Use real extracted overview or fallback
+        const overview =
+          details.overview.length > 0
+            ? details.overview
+            : [
+                { label: "Notification Title", value: item.title },
+                { label: "Category", value: category },
+                { label: "Sector / Exam Body", value: sector },
+                { label: "Region / State", value: state },
+                { label: "Status", value: "Active / Official Link Active" },
+              ];
 
-        // Build auto FAQs for SEO
-        const faqs = [
-          {
-            question: `Is the ${item.title} officially released?`,
-            answer: `Yes, official notification and direct link for ${item.title} is now active. Candidates can verify and access the link directly on Prayaas Portal.`,
-          },
-          {
-            question: `Where can I access ${item.title}?`,
-            answer: `You can access and check official updates directly using the verified links provided in this article.`,
-          },
-        ];
+        // Use real extracted FAQs or fallback
+        const faqs =
+          details.faqs.length > 0
+            ? details.faqs
+            : [
+                {
+                  question: `Is the ${item.title} officially released?`,
+                  answer: `Yes, official notification for ${item.title} is active. Candidates can verify and download the official notification PDF directly on Prayaas Portal.`,
+                },
+                {
+                  question: `Where can I access ${item.title}?`,
+                  answer: `You can access and check official updates directly using the verified links provided in this article.`,
+                },
+              ];
 
-        const metaDescription = `${item.title} has been released. Check official dates, direct download link, step-by-step download guide, and exam rules. Verified by Prayaas Portal Exam Desk.`;
+        const metaDescription = `${item.title} has been released. Check vacancies, eligibility, official notification PDF download link, and exam dates. Verified by Prayaas Portal Exam Desk.`;
 
-        // Create the clean article in MongoDB
+        const directLink = details.directPdfLink || details.officialWebsite || item.sourceUrl;
+
+        // Create the rich article in MongoDB
         await Article.create({
           title: item.title,
           slug: finalSlug,
@@ -400,7 +612,7 @@ async function runAutoArticleIngestion() {
           state,
           status: "Published",
           badge,
-          readingTime: "4 min read",
+          readingTime: "5 min read",
           author: {
             name: "Prayaas Portal Exam Desk",
             role: "Senior Exam Analyst",
@@ -408,11 +620,14 @@ async function runAutoArticleIngestion() {
           },
           publishDate: new Date(),
           lastUpdated: new Date(),
-          directAdmitCardLink: item.sourceUrl,
-          officialWebsite: item.sourceUrl,
+          directAdmitCardLink: directLink,
+          officialWebsite: details.officialWebsite || directLink,
           organization: sector,
+          totalVacancies: details.totalVacancies,
+          featuredImage: details.featuredImage,
           overview,
           faqs,
+          content: details.content,
           topicKey,
           sourceUrl: item.sourceUrl,
           isAutoGenerated: true,
@@ -424,12 +639,6 @@ async function runAutoArticleIngestion() {
             "Sarkari Result 2026",
             "Govt Job Alert",
           ],
-          stepsToDownload: [
-            "Click on the direct official link provided on this page.",
-            "Enter your login credentials (Application / Roll No. & Password / DOB).",
-            "Submit the verification captcha code.",
-            "Download and save a copy of your document for future reference.",
-          ],
         });
 
         stats.created++;
@@ -439,7 +648,7 @@ async function runAutoArticleIngestion() {
     }
 
     console.log(
-      `[AutoArticleService]: Completed! Scanned: ${stats.scanned}, Created: ${stats.created}, Duplicates Skipped: ${stats.duplicatesSkipped}`
+      `[AutoArticleService]: Completed! Scanned: ${stats.scanned}, Created: ${stats.created}, Updated: ${stats.updated}, Duplicates Skipped: ${stats.duplicatesSkipped}`
     );
   } catch (err) {
     console.error("[AutoArticleService] Ingestion failed:", err);
@@ -451,6 +660,7 @@ async function runAutoArticleIngestion() {
 
 module.exports = {
   runAutoArticleIngestion,
+  scrapeArticleDetails,
   SECTORS,
   STATES,
   detectSector,
