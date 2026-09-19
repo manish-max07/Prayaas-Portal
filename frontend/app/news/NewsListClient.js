@@ -64,16 +64,25 @@ const ORG_LOGO_MAP = {
   // ── Railways ─────────────────────────────────────────────────────────────
   RRB: {
     abbr: "RRB", bg: "#1a6b3a", text: "#fff",
-    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Indian_Railways.svg/120px-Indian_Railways.svg.png",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/hi/7/7b/Indian_Railways_logo.png",
   },
   RAILWAY: {
     abbr: "IR", bg: "#1a6b3a", text: "#fff",
-    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Indian_Railways.svg/120px-Indian_Railways.svg.png",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/hi/7/7b/Indian_Railways_logo.png",
   },
   // ── PSUs / Engineering ────────────────────────────────────────────────────
   IOCL: {
     abbr: "IOCL", bg: "#e67e22", text: "#fff",
-    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Indian_Oil_Corporation_logo.svg/120px-Indian_Oil_Corporation_logo.svg.png",
+    imgUrl: "https://iocl.com/images/static/indianoil_logo.jpg",
+  },
+  // Central Govt
+  "CENTRAL GOVT": {
+    abbr: "GOI", bg: "#2c3e50", text: "#fff",
+    imgUrl: "https://www.logopeople.in/wp-content/uploads/2013/01/government-of-india.jpg",
+  },
+  "CENTRAL": {
+    abbr: "GOI", bg: "#2c3e50", text: "#fff",
+    imgUrl: "https://www.logopeople.in/wp-content/uploads/2013/01/government-of-india.jpg",
   },
   ONGC: {
     abbr: "ONGC", bg: "#2e4057", text: "#fff",
@@ -85,7 +94,7 @@ const ORG_LOGO_MAP = {
   },
   ISRO: {
     abbr: "ISRO", bg: "#2c3e50", text: "#fff",
-    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/ISRO_Logo.svg/120px-ISRO_Logo.svg.png",
+    imgUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2zdVcdAOv3RcexNOIYCCql0V5cLnzkRoFE9tuZaxLOA&s=10",
   },
   BARC: {
     abbr: "BARC", bg: "#c0392b", text: "#fff",
@@ -136,6 +145,17 @@ function getOrgLogo(article) {
   const org = (article.organization || "").toUpperCase();
   const sector = (article.sector || "").toUpperCase();
   const title = (article.title || "").toUpperCase();
+
+  // Check "Central Govt" sector first (special multi-word key)
+  if (sector.includes("CENTRAL") || org.includes("GOVERNMENT OF INDIA") || org.includes("CENTRAL GOVT")) {
+    // But only if no more-specific org match exists below
+    const specificMatch = ["SSC","IBPS","SBI","RBI","LIC","RRB","IOCL","ONGC","NTPC","ISRO","BARC","DRDO","BEL","BHEL","HAL","AAI","COAL","NDA","CDS","CAPF","UPSC","CTET","CBSE","KVS"].some(
+      (key) => org.includes(key) || title.includes(key)
+    );
+    if (!specificMatch) {
+      return ORG_LOGO_MAP["CENTRAL"];
+    }
+  }
 
   // Try to match known organizations by keyword
   for (const key of Object.keys(ORG_LOGO_MAP)) {
