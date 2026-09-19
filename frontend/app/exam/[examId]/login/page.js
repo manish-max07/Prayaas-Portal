@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
@@ -71,7 +71,7 @@ export default function ExamLoginGate({ params }) {
 
   return (
     <div style={s.page}>
-      {/* TOP HEADER — matches TCS iON exactly */}
+      {/* TOP HEADER - matches TCS iON exactly */}
       <div style={s.topBar}>
         <div style={s.topLeft}>
           <div style={s.systemLabel}>System Name :</div>

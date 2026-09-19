@@ -338,7 +338,7 @@ export default function AdminExamDetailPage({ params }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1">
-                Total Duration (Minutes) — Editable Anytime
+                Total Duration (Minutes) - Editable Anytime
               </label>
               <input
                 type="number"

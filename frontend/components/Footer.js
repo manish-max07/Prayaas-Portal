@@ -23,7 +23,7 @@ export default function Footer() {
               />
             </Link>
             <p className="text-xs text-gray-500 leading-relaxed max-w-xs">
-              India&apos;s trusted competitive exam practice platform. Real papers, real conditions — right after the official exam.
+              India&apos;s trusted competitive exam practice platform. Real papers, real conditions, right after the official exam.
             </p>
           </div>
 

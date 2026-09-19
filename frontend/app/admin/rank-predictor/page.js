@@ -487,7 +487,7 @@ export default function AdminRankPredictorPage() {
                   </span>
                 </div>
                 <h2 className="mt-1 text-xl font-bold text-gray-900">
-                  {currentExam.name} — All-India Leaderboard
+                  {currentExam.name} - All-India Leaderboard
                 </h2>
                 <p className="text-xs text-gray-600 mt-0.5">
                   Marking: +{currentExam.marksForCorrect} per correct, -{currentExam.negativeMarks} per wrong • Total Questions: {currentExam.totalExpectedQuestions}

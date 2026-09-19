@@ -172,7 +172,7 @@ export default function AdminRankLeaderboardPage({ params }) {
           </div>
 
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-gray-900">
-            {data?.exam?.name ? `${data.exam.name} — All-India Leaderboard` : "Official All-India Leaderboard & Applicant Database"}
+            {data?.exam?.name ? `${data.exam.name} - All-India Leaderboard` : "Official All-India Leaderboard & Applicant Database"}
           </h1>
           <p className="mt-0.5 text-xs text-gray-500">
             {data?.exam?.marksForCorrect !== undefined

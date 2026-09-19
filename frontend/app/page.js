@@ -297,7 +297,7 @@ export default function HomePage() {
                 { label: "Post-Exam Release", sub: "Papers live within hours", highlight: true },
                 { label: "100% CBT Simulation", sub: "Authentic TCS iON interface", highlight: false },
                 {
-                  label: `${totalExamsCount || "—"} Papers`,
+                  label: `${totalExamsCount || "-"} Papers`,
                   sub: "Live mock tests available",
                   highlight: false,
                 },
@@ -337,7 +337,7 @@ export default function HomePage() {
                 icon: MonitorIcon,
                 color: "indigo",
                 title: "Authentic TCS iON Interface",
-                desc: "Question palette, section switching, timer, and negative scoring — exactly as in the real exam.",
+                desc: "Question palette, section switching, timer, and negative scoring, exactly as in the real exam.",
               },
               {
                 icon: ArchiveIcon,
@@ -378,7 +378,7 @@ export default function HomePage() {
                 Latest Alert · Sep 17, 2026
               </span>
               <p className="text-sm font-semibold text-gray-800 mt-0.5">
-                IOCL Admit Card 2026 Released — Direct Download Link Active for 470 Engineer &amp; Officer Posts
+                IOCL Admit Card 2026 Released: Direct Download Link Active for 470 Engineer &amp; Officer Posts
               </p>
             </div>
           </div>
@@ -408,7 +408,7 @@ export default function HomePage() {
             <div>
               <p className="text-sm font-bold text-gray-900">TCS iON Response Sheet Rank Predictor</p>
               <p className="text-xs text-gray-500 mt-0.5">
-                Paste your Digialm response URL — get exact marks, negative deductions, and All India Rank instantly.
+                Paste your Digialm response URL to get exact marks, negative deductions, and All India Rank instantly.
               </p>
             </div>
           </div>

@@ -402,7 +402,7 @@ export default function AdminArticlesPage() {
                           </div>
                         </div>
                       ) : (
-                        "—"
+                        "-"
                       )}
                     </td>
 

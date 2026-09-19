@@ -214,7 +214,7 @@ export default function ContactUsPage() {
             {/* Location & Address footer note */}
             <div className="text-center text-[11px] text-slate-500 pt-4 border-t border-blue-200/60">
               <p><strong>Operational Address:</strong> New Delhi, India 110012</p>
-              <p className="mt-0.5 text-slate-400">Prayaas Karo — Making Every Attempt Count</p>
+              <p className="mt-0.5 text-slate-400">Prayaas Karo · Making Every Attempt Count</p>
             </div>
           </div>
         </section>
