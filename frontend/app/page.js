@@ -244,12 +244,9 @@ export default function HomePage() {
   }, [filteredExams]);
 
   const handleStartPractice = (examId) => {
-    if (!isAuthenticated) {
-      router.push(`/login?redirect=/exam/${examId}/login`);
-    } else {
-      router.push(`/exam/${examId}/login`);
-    }
+    router.push(`/exam/${examId}`);
   };
+
 
   const totalExamsCount = exams.length;
   const totalQuestionsSum = useMemo(() => {

@@ -11,16 +11,17 @@ export default function LayoutWrapper({ children }) {
   // Hide portal Navbar & Footer on:
   // 1. Live CBT test attempt pages: /exam/[examId]/attempt/[attemptId]
   // 2. Exam login gate: /exam/[examId]/login
-  // 3. Exam instructions page: /exam/[examId]
+  // 3. In-CBT terminal instructions: /exam/[examId]/instructions
   // 4. Admin console and admin secret login (which have dedicated admin navigation)
   const isExamAttempt = pathname ? /\/exam\/[^/]+\/attempt(\/|$)/.test(pathname) : false;
   const isExamLogin = pathname ? /\/exam\/[^/]+\/login(\/|$)/.test(pathname) : false;
-  const isExamInstructions = pathname ? /^\/exam\/[^/]+$/.test(pathname) : false;
+  const isExamInstructions = pathname ? /\/exam\/[^/]+\/instructions(\/|$)/.test(pathname) : false;
   const isAdmin = pathname ? pathname.startsWith("/admin") : false;
   const isAdminSecret = pathname === "/admin-secret-login";
 
   const hideNavbarAndFooter =
     isExamAttempt || isExamLogin || isExamInstructions || isAdmin || isAdminSecret;
+
 
   return (
     <>

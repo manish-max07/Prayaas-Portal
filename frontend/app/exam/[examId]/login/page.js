@@ -56,8 +56,9 @@ export default function ExamLoginGate({ params }) {
       return;
     }
     setSigningIn(true);
-    setTimeout(() => router.push(`/exam/${examId}`), 1200);
+    setTimeout(() => router.push(`/exam/${examId}/instructions`), 1200);
   };
+
 
   const rollNumber = user?.id
     ? "C" + user.id.slice(-3).toUpperCase().padStart(3, "0")

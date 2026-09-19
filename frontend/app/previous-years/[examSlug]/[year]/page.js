@@ -150,17 +150,11 @@ export default function ExamShiftsListPage({ params }) {
   }, [shiftsList, shiftSearch]);
 
   const handleStartPractice = (paper) => {
-    // Connect to live CBT simulation exam
+    // Open dedicated Exam Details & Instructions page
     const examTargetId = paper.liveExamId || "6aa5798a6d95008aa13f4884";
-    const destination = `/exam/${examTargetId}/login`;
-
-    if (!isAuthenticated) {
-      // Prompt user and redirect to login
-      router.push(`/login?redirect=${encodeURIComponent(destination)}`);
-    } else {
-      router.push(destination);
-    }
+    router.push(`/exam/${examTargetId}`);
   };
+
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] py-8 sm:py-12">
