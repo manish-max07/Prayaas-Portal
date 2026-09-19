@@ -49,21 +49,21 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Legal & Compliance */}
+          {/* Legal & Support */}
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Legal</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Legal &amp; Support</h4>
             <ul className="space-y-2">
               <li><Link href="/terms-conditions" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Terms of Service</Link></li>
               <li><Link href="/privacy-policy" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Privacy Policy</Link></li>
               <li><Link href="/privacy-policy#cookies-adsense" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Cookie &amp; Ad Policy</Link></li>
-              <li><a href="mailto:contact@prayaaskaro.in" className="text-sm text-blue-600 hover:text-blue-800 transition-colors font-medium">contact@prayaaskaro.in</a></li>
+              <li><Link href="/contact-us" className="text-sm text-gray-600 hover:text-blue-600 transition-colors font-medium">Contact Us</Link></li>
             </ul>
           </div>
         </div>
 
         {/* Bottom bar */}
         <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-500">
-          <p>&copy; {year} Prayaas Portal. All Rights Reserved. New Delhi, India 110012.</p>
+          <p>&copy; {year} Prayaas Karo. All Rights Reserved. New Delhi, India 110012.</p>
           <p className="text-gray-400">Powered by TCS iON Simulation Engine</p>
         </div>
       </div>

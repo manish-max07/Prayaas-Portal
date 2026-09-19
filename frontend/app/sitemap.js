@@ -44,6 +44,12 @@ export default async function sitemap() {
       priority: 0.6,
     },
     {
+      url: `${baseUrl}/contact-us`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/rank-calculator/terms-conditions`,
       lastModified: new Date(),
       changeFrequency: "monthly",
