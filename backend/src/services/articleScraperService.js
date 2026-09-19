@@ -342,6 +342,7 @@ async function scrapeArticleDetails(url, fallbackTitle = "") {
       contentClone.find("a.tb-auto-button, a[class*='button']").each((_, btn) => {
         $(btn).removeClass();
         $(btn).addClass("inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm transition my-3 shadow-xs");
+        $(btn).attr("style", "color: #ffffff !important; text-decoration: none !important; font-weight: 700;");
         $(btn).attr("target", "_blank");
         $(btn).attr("rel", "noopener noreferrer");
       });

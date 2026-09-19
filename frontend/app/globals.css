@@ -95,3 +95,28 @@ body {
   color: #1d4ed8;
 }
 
+/* Download, action, and CTA buttons inside article content */
+.article-prose a.inline-flex,
+.article-prose a[class*="bg-"],
+.article-prose a[class*="button"],
+.article-prose a[class*="btn"],
+.article-prose a.tb-auto-button,
+.article-prose .btn,
+.article-prose button {
+  color: #ffffff !important;
+  text-decoration: none !important;
+  font-weight: 700 !important;
+}
+
+.article-prose a.inline-flex:hover,
+.article-prose a[class*="bg-"]:hover,
+.article-prose a[class*="button"]:hover,
+.article-prose a[class*="btn"]:hover,
+.article-prose a.tb-auto-button:hover,
+.article-prose .btn:hover,
+.article-prose button:hover {
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
+
