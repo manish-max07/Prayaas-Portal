@@ -11,6 +11,7 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const adminAuthRoutes = require("./routes/adminAuthRoutes");
 const adminExamRoutes = require("./routes/adminExamRoutes");
+const adminSecurityRoutes = require("./routes/adminSecurityRoutes");
 const examRoutes = require("./routes/examRoutes");
 const attemptRoutes = require("./routes/attemptRoutes");
 const userRoutes = require("./routes/userRoutes");
@@ -19,9 +20,15 @@ const articleRoutes = require("./routes/articleRoutes");
 const adminArticleRoutes = require("./routes/adminArticleRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
+const { seedDefaultDisposableDomains } = require("./services/securityBlocklistService");
 
 // Connect to MongoDB
-connectDB();
+connectDB().then(() => {
+  // Seed high-confidence disposable domains if DB is empty
+  seedDefaultDisposableDomains().catch((err) =>
+    console.error("[SecurityBlocklist Seed Error]:", err.message)
+  );
+});
 
 const app = express();
 
@@ -89,6 +96,7 @@ app.get("/api/health", (req, res) => {
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminAuthRoutes);
+app.use("/api/admin/security", adminSecurityRoutes);
 app.use("/api/admin/exams", adminExamRoutes);
 app.use("/api/admin/articles", adminArticleRoutes);
 app.use("/api/articles", articleRoutes);

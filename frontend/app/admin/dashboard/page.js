@@ -128,7 +128,14 @@ export default function AdminDashboardPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <Link
+            href="/admin/security"
+            className="rounded-lg border border-red-200 bg-red-50 text-red-700 px-3.5 py-2 text-xs font-bold hover:bg-red-100 transition-colors flex items-center gap-1.5"
+          >
+            <span>🛡️</span>
+            <span>Security Dashboard</span>
+          </Link>
           <button
             onClick={fetchAllData}
             className="rounded-lg border border-gray-300 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"

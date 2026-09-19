@@ -43,7 +43,9 @@ function LoginForm() {
       console.error("Login error:", err);
       const msg =
         err.response?.data?.message ||
-        "Login failed. Please verify your email and password.";
+        (err.response?.status === 429
+          ? "Too many login attempts. Please wait a few minutes before trying again."
+          : "Login failed. Please verify your email and password.");
       setError(msg);
     } finally {
       setLoading(false);

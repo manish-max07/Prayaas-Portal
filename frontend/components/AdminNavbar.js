@@ -65,6 +65,13 @@ export default function AdminNavbar() {
             <span>Articles / News</span>
           </Link>
           <Link
+            href="/admin/security"
+            className="font-medium text-rose-300 hover:text-white transition-colors flex items-center gap-1 bg-gray-800/80 px-2.5 py-1 rounded-md border border-gray-700"
+          >
+            <span>🛡️</span>
+            <span>Security Dashboard</span>
+          </Link>
+          <Link
             href="/admin/exams/new"
             className="font-medium text-gray-300 hover:text-white transition-colors"
           >
@@ -74,7 +81,7 @@ export default function AdminNavbar() {
             href="/admin/change-password"
             className="font-medium text-gray-300 hover:text-white transition-colors"
           >
-            Security / Password
+            Password
           </Link>
 
           <div className="h-4 w-px bg-gray-700" />
@@ -131,6 +138,13 @@ export default function AdminNavbar() {
             className="block py-1.5 text-emerald-300 hover:text-white font-bold"
           >
             📰 Articles / News CMS
+          </Link>
+          <Link
+            href="/admin/security"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block py-1.5 text-rose-300 hover:text-white font-bold"
+          >
+            🛡️ Security & Blocklists
           </Link>
           <Link
             href="/admin/exams/new"
