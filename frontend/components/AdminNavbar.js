@@ -23,11 +23,11 @@ export default function AdminNavbar() {
         {/* Admin Brand */}
         <div className="flex items-center gap-2.5">
           <Image
-            src="/logo.png"
-            alt="Prayaas Portal"
-            width={30}
-            height={30}
-            className="h-7 w-7 sm:h-8 sm:w-8 object-contain rounded-full"
+            src="/PrayaasKaroLogoWithoutText.png"
+            alt="Prayaas Karo"
+            width={32}
+            height={32}
+            className="h-7 w-7 sm:h-8 sm:w-8 object-contain rounded-lg"
           />
           <div className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded bg-gray-800 text-gray-300 font-mono font-bold text-[9px] sm:text-[10px] border border-gray-700">
             ADM
@@ -37,7 +37,7 @@ export default function AdminNavbar() {
               href="/admin/dashboard"
               className="text-xs sm:text-sm font-bold tracking-wider text-gray-100 uppercase hover:text-white"
             >
-              Prayaas <span className="text-gray-400 font-normal">| Admin</span>
+              Prayaas Karo <span className="text-gray-400 font-normal">| Admin</span>
             </Link>
           </div>
         </div>

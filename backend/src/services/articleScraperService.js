@@ -614,9 +614,9 @@ async function runAutoArticleIngestion() {
           badge,
           readingTime: "5 min read",
           author: {
-            name: "Prayaas Portal Exam Desk",
+            name: "Prayaas Karo Exam Desk",
             role: "Senior Exam Analyst",
-            avatar: "/logo.png",
+            avatar: "/PrayaasKaroLogoWithoutText.png",
           },
           publishDate: new Date(),
           lastUpdated: new Date(),

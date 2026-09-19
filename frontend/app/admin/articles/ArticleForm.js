@@ -254,7 +254,7 @@ export default function ArticleForm({ initialData = {}, isEdit = false, articleI
         author: {
           name: formData.authorName.trim(),
           role: formData.authorRole.trim(),
-          avatar: "/logo.png",
+          avatar: "/PrayaasKaroLogoWithoutText.png",
         },
         organization: formData.organization.trim(),
         postName: formData.postName.trim(),

@@ -70,11 +70,11 @@ function LoginForm() {
             <Link
               href="/"
               className="inline-flex items-center justify-center p-1.5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-blue-400 transition shadow-2xs group"
-              title="Return to Prayaas Portal Home"
+              title="Return to Prayaas Karo Home"
             >
               <Image
-                src="/logo.png"
-                alt="Prayaas Portal"
+                src="/PrayaasKaroLogoWithoutText.png"
+                alt="Prayaas Karo"
                 width={56}
                 height={56}
                 className="h-14 w-14 object-contain rounded-xl group-hover:scale-105 transition-transform"

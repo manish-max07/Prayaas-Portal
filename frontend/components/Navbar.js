@@ -105,23 +105,15 @@ export default function Navbar() {
       <div className="mx-auto flex h-15 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8" style={{ height: "60px" }}>
 
         {/* Brand / Logo */}
-        <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+        <Link href="/" className="flex items-center group shrink-0" title="Prayaas Karo - Making Every Attempt Count">
           <Image
-            src="/logo.png"
-            alt="Prayaas Portal Logo"
-            width={36}
-            height={36}
-            className="h-8 w-8 object-contain rounded-full"
+            src="/PrayaasKaroBgremoved.png"
+            alt="Prayaas Karo"
+            width={180}
+            height={46}
+            className="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-[1.02]"
             priority
           />
-          <div className="flex flex-col leading-none">
-            <span className="text-lg font-bold tracking-tight text-gray-900">
-              Prayaas<span className="text-blue-600">Portal</span>
-            </span>
-            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium hidden sm:block">
-              Exam Practice Suite
-            </span>
-          </div>
         </Link>
 
         {/* Desktop Navigation */}

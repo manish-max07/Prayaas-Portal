@@ -13,17 +13,14 @@ export default function Footer() {
 
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2.5 mb-3">
+            <Link href="/" className="inline-block mb-3" title="Prayaas Karo - Making Every Attempt Count">
               <Image
-                src="/logo.png"
-                alt="Prayaas Portal Logo"
-                width={32}
-                height={32}
-                className="h-8 w-8 object-contain rounded-full"
+                src="/PrayaasKaroBgremoved.png"
+                alt="Prayaas Karo"
+                width={170}
+                height={44}
+                className="h-9 w-auto object-contain"
               />
-              <span className="text-base font-bold text-gray-900">
-                Prayaas<span className="text-blue-600">Portal</span>
-              </span>
             </Link>
             <p className="text-xs text-gray-500 leading-relaxed max-w-xs">
               India&apos;s trusted competitive exam practice platform. Real papers, real conditions — right after the official exam.

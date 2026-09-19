@@ -134,9 +134,9 @@ const ArticleSchema = new mongoose.Schema(
       default: "",
     },
     author: {
-      name: { type: String, default: "Prayaas Portal Exam Desk" },
+      name: { type: String, default: "Prayaas Karo Exam Desk" },
       role: { type: String, default: "Senior Exam Analyst" },
-      avatar: { type: String, default: "/logo.png" },
+      avatar: { type: String, default: "/PrayaasKaroLogoWithoutText.png" },
     },
     readingTime: {
       type: String,

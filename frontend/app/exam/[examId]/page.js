@@ -105,11 +105,11 @@ function ExamInstructionsContent({ params }) {
         <div className="border-b border-gray-200 bg-blue-900 px-6 py-4 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center gap-3">
             <Image
-              src="/logo.png"
-              alt="Prayaas Portal"
+              src="/PrayaasKaroLogoWithoutText.png"
+              alt="Prayaas Karo"
               width={42}
               height={42}
-              className="h-10 w-10 object-contain rounded-full bg-white/10 p-0.5 shrink-0"
+              className="h-10 w-10 object-contain rounded-xl bg-white/10 p-0.5 shrink-0"
               priority
             />
             <div>

@@ -29,9 +29,9 @@ export const metadata = {
   description:
     "Official examination portal for CBT practice, TCS iON response sheet evaluation, real-time rank predictions, and smart scorecards.",
   icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
+    icon: "/PrayaasKaroLogoWithoutText.png",
+    shortcut: "/PrayaasKaroLogoWithoutText.png",
+    apple: "/PrayaasKaroLogoWithoutText.png",
   },
   verification: {
     google: "google4b8e84a058fc3ad4",

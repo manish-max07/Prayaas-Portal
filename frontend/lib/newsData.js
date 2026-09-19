@@ -25,9 +25,9 @@ export const NEWS_ARTICLES = [
     status: "Active",
     badge: "🔴 Out Now",
     author: {
-      name: "Prayaas Portal Exam Desk",
+      name: "Prayaas Karo Exam Desk",
       role: "Senior Exam Analyst",
-      avatar: "/logo.png",
+      avatar: "/PrayaasKaroLogoWithoutText.png",
     },
     publishDate: "2026-09-17T10:30:00+05:30",
     lastUpdated: "2026-09-18T11:00:00+05:30",

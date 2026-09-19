@@ -67,13 +67,13 @@ export async function generateMetadata({ params }) {
       type: "article",
       publishedTime: toIsoStringSafe(article.publishDate),
       modifiedTime: toIsoStringSafe(article.lastUpdated || article.publishDate),
-      authors: [article.author?.name || "Prayaas Portal Exam Desk"],
+      authors: [article.author?.name || "Prayaas Karo Exam Desk"],
       tags: article.tags || [],
       images: [
         {
-          url: "https://prayaas-portal.vercel.app/logo.png",
-          width: 512,
-          height: 512,
+          url: "https://prayaas-portal.vercel.app/PrayaasKaroBgremoved.png",
+          width: 800,
+          height: 250,
           alt: article.shortTitle || article.title,
         },
       ],
@@ -82,7 +82,7 @@ export async function generateMetadata({ params }) {
       card: "summary_large_image",
       title: article.seoTitle || article.title,
       description: article.metaDescription,
-      images: ["https://prayaas-portal.vercel.app/logo.png"],
+      images: ["https://prayaas-portal.vercel.app/PrayaasKaroBgremoved.png"],
     },
   };
 }
@@ -112,18 +112,18 @@ export default async function NewsArticlePage({ params }) {
     },
     author: {
       "@type": "Person",
-      name: article.author?.name || "Prayaas Portal Exam Desk",
+      name: article.author?.name || "Prayaas Karo Exam Desk",
       jobTitle: article.author?.role || "Senior Exam Analyst",
     },
     publisher: {
       "@type": "Organization",
-      name: "Prayaas Portal",
+      name: "Prayaas Karo",
       logo: {
         "@type": "ImageObject",
-        url: "https://prayaas-portal.vercel.app/logo.png",
+        url: "https://prayaas-portal.vercel.app/PrayaasKaroBgremoved.png",
       },
     },
-    image: "https://prayaas-portal.vercel.app/logo.png",
+    image: "https://prayaas-portal.vercel.app/PrayaasKaroBgremoved.png",
   };
 
   const faqSchema = article.faqs && article.faqs.length > 0 ? {

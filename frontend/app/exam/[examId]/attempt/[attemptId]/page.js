@@ -346,11 +346,11 @@ function LiveExamContent({ params }) {
       <header className="sticky top-0 z-30 border-b border-gray-300 bg-blue-900 px-4 py-2.5 text-white shadow-sm flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Image
-            src="/logo.png"
-            alt="Prayaas Portal"
+            src="/PrayaasKaroLogoWithoutText.png"
+            alt="Prayaas Karo"
             width={34}
             height={34}
-            className="h-8.5 w-8.5 object-contain rounded-full bg-white/10 p-0.5"
+            className="h-8.5 w-8.5 object-contain rounded-lg bg-white/10 p-0.5"
             priority
           />
           <div>
