@@ -37,38 +37,98 @@ const FilterIcon = () => (
 // ─── Organization Logo Badge ───────────────────────────────────────────────────
 // Maps known organizations/sectors to a styled initials badge with brand colors
 // This mimics how Testbook shows exam logos next to each exam name
+// Each entry: abbr + bg color (fallback) + optional imgUrl (real logo)
 const ORG_LOGO_MAP = {
-  // SSC
-  SSC: { abbr: "SSC", bg: "#c0392b", text: "#fff" },
-  // Banking
-  IBPS: { abbr: "IBPS", bg: "#1a5276", text: "#fff" },
-  SBI: { abbr: "SBI", bg: "#0d4f8b", text: "#fff" },
-  RBI: { abbr: "RBI", bg: "#1a3a6b", text: "#fff" },
-  LIC: { abbr: "LIC", bg: "#8e44ad", text: "#fff" },
-  // Railways
-  RRB: { abbr: "RRB", bg: "#1a6b3a", text: "#fff" },
-  // PSUs / Engineering
-  IOCL: { abbr: "IOCL", bg: "#e67e22", text: "#fff" },
-  ONGC: { abbr: "ONGC", bg: "#2e4057", text: "#fff" },
-  NTPC: { abbr: "NTPC", bg: "#16a085", text: "#fff" },
-  ISRO: { abbr: "ISRO", bg: "#2c3e50", text: "#fff" },
-  BARC: { abbr: "BARC", bg: "#c0392b", text: "#fff" },
-  DRDO: { abbr: "DRDO", bg: "#2c3e50", text: "#fff" },
+  // ── SSC ──────────────────────────────────────────────────────────────────
+  SSC: {
+    abbr: "SSC", bg: "#c0392b", text: "#fff",
+    imgUrl: "https://cdn.testbook.com/resources/productionimages/SSC_All_1594144442.png",
+  },
+  // ── Banking ───────────────────────────────────────────────────────────────
+  IBPS: {
+    abbr: "IBPS", bg: "#1a5276", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/IBPS_Logo.png/120px-IBPS_Logo.png",
+  },
+  SBI: {
+    abbr: "SBI", bg: "#0d4f8b", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/SBI-logo.svg/120px-SBI-logo.svg.png",
+  },
+  RBI: {
+    abbr: "RBI", bg: "#1a3a6b", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Reserve_Bank_of_India.svg/120px-Reserve_Bank_of_India.svg.png",
+  },
+  LIC: {
+    abbr: "LIC", bg: "#8e44ad", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Life_Insurance_Corporation_of_India_logo.svg/120px-Life_Insurance_Corporation_of_India_logo.svg.png",
+  },
+  // ── Railways ─────────────────────────────────────────────────────────────
+  RRB: {
+    abbr: "RRB", bg: "#1a6b3a", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Indian_Railways.svg/120px-Indian_Railways.svg.png",
+  },
+  RAILWAY: {
+    abbr: "IR", bg: "#1a6b3a", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Indian_Railways.svg/120px-Indian_Railways.svg.png",
+  },
+  // ── PSUs / Engineering ────────────────────────────────────────────────────
+  IOCL: {
+    abbr: "IOCL", bg: "#e67e22", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Indian_Oil_Corporation_logo.svg/120px-Indian_Oil_Corporation_logo.svg.png",
+  },
+  ONGC: {
+    abbr: "ONGC", bg: "#2e4057", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/ONGC_Logo.svg/120px-ONGC_Logo.svg.png",
+  },
+  NTPC: {
+    abbr: "NTPC", bg: "#16a085", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/NTPC_Logo.svg/120px-NTPC_Logo.svg.png",
+  },
+  ISRO: {
+    abbr: "ISRO", bg: "#2c3e50", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/ISRO_Logo.svg/120px-ISRO_Logo.svg.png",
+  },
+  BARC: {
+    abbr: "BARC", bg: "#c0392b", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Bhabha_Atomic_Research_Centre_Logo.png/120px-Bhabha_Atomic_Research_Centre_Logo.png",
+  },
+  DRDO: {
+    abbr: "DRDO", bg: "#2c3e50", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/DRDO_Logo.png/120px-DRDO_Logo.png",
+  },
   BEL: { abbr: "BEL", bg: "#1e8449", text: "#fff" },
-  BHEL: { abbr: "BHEL", bg: "#1f618d", text: "#fff" },
-  HAL: { abbr: "HAL", bg: "#76448a", text: "#fff" },
+  BHEL: {
+    abbr: "BHEL", bg: "#1f618d", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Bharat_Heavy_Electricals_Limited_Logo.svg/120px-Bharat_Heavy_Electricals_Limited_Logo.svg.png",
+  },
+  HAL: {
+    abbr: "HAL", bg: "#76448a", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Hindustan_Aeronautics_Limited_Logo.svg/120px-Hindustan_Aeronautics_Limited_Logo.svg.png",
+  },
   AAI: { abbr: "AAI", bg: "#2471a3", text: "#fff" },
-  COAL: { abbr: "CIL", bg: "#6e2f1a", text: "#fff" },
-  // Defence
+  COAL: {
+    abbr: "CIL", bg: "#6e2f1a", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Coal_India_logo.svg/120px-Coal_India_logo.svg.png",
+  },
+  // ── Defence ───────────────────────────────────────────────────────────────
   NDA: { abbr: "NDA", bg: "#1b4f72", text: "#fff" },
   CDS: { abbr: "CDS", bg: "#154360", text: "#fff" },
   CAPF: { abbr: "CAPF", bg: "#1e8449", text: "#fff" },
-  // Civil Services
-  UPSC: { abbr: "UPSC", bg: "#7d6608", text: "#fff" },
-  // Teaching
-  CTET: { abbr: "CTET", bg: "#6c3483", text: "#fff" },
+  // ── Civil Services ────────────────────────────────────────────────────────
+  UPSC: {
+    abbr: "UPSC", bg: "#7d6608", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Emblem_of_India.svg/120px-Emblem_of_India.svg.png",
+  },
+  // ── Teaching ─────────────────────────────────────────────────────────────
+  CTET: {
+    abbr: "CTET", bg: "#6c3483", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Emblem_of_India.svg/120px-Emblem_of_India.svg.png",
+  },
+  CBSE: {
+    abbr: "CBSE", bg: "#6c3483", text: "#fff",
+    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/CBSE_new_logo.svg/120px-CBSE_new_logo.svg.png",
+  },
   KVS: { abbr: "KVS", bg: "#145a32", text: "#fff" },
-  // Default
+  // ── Default ───────────────────────────────────────────────────────────────
   DEFAULT: { abbr: "GOV", bg: "#5d6d7e", text: "#fff" },
 };
 
@@ -77,7 +137,7 @@ function getOrgLogo(article) {
   const sector = (article.sector || "").toUpperCase();
   const title = (article.title || "").toUpperCase();
 
-  // Try to match by key in the order of priority
+  // Try to match known organizations by keyword
   for (const key of Object.keys(ORG_LOGO_MAP)) {
     if (key === "DEFAULT") continue;
     if (org.includes(key) || title.includes(key) || sector.includes(key)) {
@@ -85,7 +145,7 @@ function getOrgLogo(article) {
     }
   }
 
-  // Auto-generate from first letters of organization name
+  // Auto-generate initials from organization name
   if (article.organization) {
     const words = article.organization.trim().split(/\s+/);
     const abbr = words.length >= 2
@@ -99,9 +159,29 @@ function getOrgLogo(article) {
 
 function OrgLogoBadge({ article }) {
   const logo = getOrgLogo(article);
+  const [imgFailed, setImgFailed] = React.useState(false);
+
+  // If a real logo image URL exists and hasn't failed, show it
+  if (logo.imgUrl && !imgFailed) {
+    return (
+      <div
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden"
+      >
+        <img
+          src={logo.imgUrl}
+          alt={logo.abbr}
+          onError={() => setImgFailed(true)}
+          className="h-8 w-8 object-contain"
+          loading="lazy"
+        />
+      </div>
+    );
+  }
+
+  // Fallback: colored initials badge
   return (
     <div
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[11px] font-extrabold tracking-wide shadow-sm border border-white/20"
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[10px] font-extrabold tracking-wide shadow-sm"
       style={{ backgroundColor: logo.bg, color: logo.text }}
     >
       {logo.abbr.length > 4 ? logo.abbr.slice(0, 4) : logo.abbr}
