@@ -66,10 +66,10 @@ function LoginForm() {
         {/* Main Card */}
         <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-xs">
           {/* Header */}
-          <div className="text-center space-y-3">
+          <div className="flex flex-col items-center text-center">
             <Link
               href="/"
-              className="inline-flex items-center justify-center p-1.5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-blue-400 transition shadow-2xs group"
+              className="inline-flex items-center justify-center p-2 rounded-2xl bg-slate-50 border border-slate-200 hover:border-blue-400 transition shadow-2xs group mb-3"
               title="Return to Prayaas Karo Home"
             >
               <Image
@@ -82,7 +82,7 @@ function LoginForm() {
               />
             </Link>
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200/60">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200/60 mb-3">
               <svg
                 className="w-3.5 h-3.5 text-blue-600 shrink-0"
                 fill="none"
@@ -102,7 +102,7 @@ function LoginForm() {
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
               Sign in to your account
             </h1>
-            <p className="text-xs text-slate-500 max-w-xs mx-auto">
+            <p className="mt-1 text-xs text-slate-500 max-w-xs mx-auto">
               Access your timed CBT tests, response sheet calculations, and rank prediction reports.
             </p>
           </div>

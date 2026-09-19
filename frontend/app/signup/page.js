@@ -75,10 +75,10 @@ function SignupForm() {
         {/* Main Card */}
         <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-xs">
           {/* Header */}
-          <div className="text-center space-y-3">
+          <div className="flex flex-col items-center text-center">
             <Link
               href="/"
-              className="inline-flex items-center justify-center p-1.5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-blue-400 transition shadow-2xs group"
+              className="inline-flex items-center justify-center p-2 rounded-2xl bg-slate-50 border border-slate-200 hover:border-emerald-400 transition shadow-2xs group mb-3"
               title="Return to Prayaas Karo Home"
             >
               <Image
@@ -91,7 +91,7 @@ function SignupForm() {
               />
             </Link>
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60 mb-3">
               <svg
                 className="w-3.5 h-3.5 text-emerald-600 shrink-0"
                 fill="none"
@@ -111,7 +111,7 @@ function SignupForm() {
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
               Create your account
             </h1>
-            <p className="text-xs text-slate-500 max-w-xs mx-auto">
+            <p className="mt-1 text-xs text-slate-500 max-w-xs mx-auto">
               Join thousands of aspirants preparing for competitive examinations with CBT mock tests and instant rank predictors.
             </p>
           </div>
