@@ -12,7 +12,7 @@ export default function TermsAndConditionsPage() {
 
         <div className="relative mx-auto max-w-4xl text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-500/10 px-3.5 py-1 text-xs font-semibold text-indigo-200 backdrop-blur-md mb-4">
-            <span>🛡️ Legal &amp; User Privacy Compliance</span>
+            <span>Legal &amp; User Privacy Compliance</span>
           </div>
 
           <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
@@ -82,7 +82,7 @@ export default function TermsAndConditionsPage() {
               <li>Permanent / Shareable Result Link</li>
             </ul>
             <div className="mt-4 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900 font-medium">
-              ⚠️ <strong>महत्वपूर्ण सूचना:</strong> Prayaas Portal किसी सरकारी विभाग, Staff Selection Commission (SSC), Railway Recruitment Board (RRB), Coal India Limited (CIL), AVNL, परीक्षा संस्था या Answer Key जारी करने वाली official agency की आधिकारिक वेबसाइट नहीं है।
+              <strong>महत्वपूर्ण सूचना:</strong> Prayaas Portal किसी सरकारी विभाग, Staff Selection Commission (SSC), Railway Recruitment Board (RRB), Coal India Limited (CIL), AVNL, परीक्षा संस्था या Answer Key जारी करने वाली official agency की आधिकारिक वेबसाइट नहीं है।
             </div>
           </section>
 
@@ -200,7 +200,7 @@ export default function TermsAndConditionsPage() {
               <li>High Traffic के दौरान server को सुरक्षित रखने और service reliability सुधारने के लिए।</li>
             </ul>
             <div className="mt-3 rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-900 font-semibold">
-              🔒 <strong>डेटा सुरक्षा प्रतिज्ञा:</strong> Prayaas Portal user data को बेचने का कोई उद्देश्य नहीं रखता और किसी भी personal data को third-party advertisers या telemarketers को नहीं बेचता।
+              <strong>डेटा सुरक्षा प्रतिज्ञा:</strong> Prayaas Portal user data को बेचने का कोई उद्देश्य नहीं रखता और किसी भी personal data को third-party advertisers या telemarketers को नहीं बेचता।
             </div>
           </section>
 
@@ -214,7 +214,7 @@ export default function TermsAndConditionsPage() {
               User द्वारा Answer Sheet URL submit करने से पहले स्पष्ट सहमति (affirmative consent) प्राप्त की जाती है। भारत के <strong>Digital Personal Data Protection Act, 2023</strong> के अनुसार consent informed, specific, unambiguous और clear affirmative action पर आधारित है।
             </p>
             <div className="rounded-xl border border-indigo-200 bg-indigo-50/70 p-3.5 text-xs text-indigo-950 font-medium">
-              ✅ <strong>अनिवार्य सहमति चेकबॉक्स:</strong> &ldquo;मैं Prayaas Portal की Terms &amp; Conditions और User Data Policy से सहमत हूँ 🤩 तथा Score और Exam Analysis तैयार करने के लिए अपनी Answer Sheet और संबंधित data को process करने की अनुमति देता/देती हूँ। 👍&rdquo;
+              <strong>अनिवार्य सहमति चेकबॉक्स:</strong> &ldquo;मैं Prayaas Portal की Terms &amp; Conditions और User Data Policy से सहमत हूँ तथा Score और Exam Analysis तैयार करने के लिए अपनी Answer Sheet और संबंधित data को process करने की अनुमति देता/देती हूँ।&rdquo;
             </div>
             <p className="mt-2 text-xs text-slate-500">
               Consent (सहमति) न देने पर Answer Sheet analysis service उपलब्ध नहीं कराई जा सकती।
@@ -384,8 +384,9 @@ export default function TermsAndConditionsPage() {
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs space-y-1.5 text-slate-700">
               <p><strong>Service:</strong> Prayaas Portal Answer Key Score Calculator</p>
               <p><strong>Platform:</strong> Prayaas Education Portal</p>
-              <p><strong>Website:</strong> <Link href="/" className="text-blue-600 underline">prayaas-portal.in</Link></p>
-              <p><strong>Grievance Email:</strong> <span className="font-mono text-indigo-700 font-semibold">support@prayaas.org.in</span></p>
+              <p><strong>Address:</strong> New Delhi, India 110012</p>
+              <p><strong>Website:</strong> <Link href="/" className="text-blue-600 underline">https://prayaas-portal.vercel.app</Link> | <Link href="https://prayaaskaro.in" className="text-blue-600 underline">https://prayaaskaro.in</Link></p>
+              <p><strong>Grievance Email:</strong> <a href="mailto:contact@prayaaskaro.in" className="font-mono text-indigo-700 font-semibold underline">contact@prayaaskaro.in</a></p>
               <p><strong>Response Timeline:</strong> Within 7 working days (Digital Personal Data Protection Act compliance)</p>
             </div>
           </section>
@@ -393,7 +394,6 @@ export default function TermsAndConditionsPage() {
           {/* Section 25: User Acceptance */}
           <section className="rounded-2xl border-2 border-emerald-500 bg-gradient-to-r from-emerald-50 to-teal-50 p-6 shadow-sm">
             <h2 className="text-base sm:text-lg font-bold text-emerald-950 flex items-center gap-2 mb-2">
-              <span className="text-emerald-600 text-xl">✅</span>
               <span>25. User Acceptance (उपयोगकर्ता स्वीकृति)</span>
             </h2>
             <p className="text-xs sm:text-sm text-emerald-900 leading-relaxed mb-3">
@@ -408,8 +408,7 @@ export default function TermsAndConditionsPage() {
               <li>वह परीक्षा संस्था द्वारा जारी आधिकारिक परिणाम को ही अंतिम और मान्य मानेगा।</li>
             </ul>
             <div className="flex items-center gap-2 text-xs font-bold text-emerald-800 bg-white/80 rounded-xl p-3 border border-emerald-300">
-              <span>🌟</span>
-              <span>&ldquo;मैं Prayaas Portal की Terms &amp; Conditions और User Data Policy से सहमत हूँ।&rdquo; 🤩</span>
+              <span>&ldquo;मैं Prayaas Portal की Terms &amp; Conditions और User Data Policy से सहमत हूँ।&rdquo;</span>
             </div>
           </section>
         </div>

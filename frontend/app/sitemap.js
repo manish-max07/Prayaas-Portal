@@ -32,6 +32,18 @@ export default async function sitemap() {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/terms-conditions`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/privacy-policy`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
       url: `${baseUrl}/rank-calculator/terms-conditions`,
       lastModified: new Date(),
       changeFrequency: "monthly",
