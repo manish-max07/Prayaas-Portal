@@ -124,7 +124,11 @@ export default function RankResultPage({ params }) {
     return (
       <div className="mx-auto max-w-xl px-4 py-16 text-center">
         <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-red-700 shadow-xs">
-          <div className="text-3xl mb-2">⚠️</div>
+          <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 text-red-600 mx-auto mb-3">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
           <h2 className="font-bold text-base">{error || "Scorecard unavailable"}</h2>
           <p className="text-xs text-red-600 mt-1">
             Could not locate or calculate ranks for this submission ID.
@@ -166,7 +170,9 @@ export default function RankResultPage({ params }) {
             href="/rank-calculator"
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
           >
-            <span>&larr;</span>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
             <span>Check Another Response Sheet</span>
           </Link>
 
@@ -175,9 +181,11 @@ export default function RankResultPage({ params }) {
               <Link
                 href={`/admin/rank-predictor/leaderboard/${submission.rankExam._id || submission.rankExam}`}
                 target="_blank"
-                className="rounded-lg bg-indigo-50 border border-indigo-200 px-3.5 py-2 text-xs font-bold text-indigo-700 hover:bg-indigo-100 transition-colors flex items-center gap-1.5 shadow-2xs"
+                className="rounded-lg bg-blue-50 border border-blue-200 px-3.5 py-2 text-xs font-bold text-blue-700 hover:bg-blue-100 transition-colors flex items-center gap-1.5 shadow-2xs"
               >
-                <span>🏆</span>
+                <svg className="w-3.5 h-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
                 <span>Admin Leaderboard ↗</span>
               </Link>
             )}
@@ -185,9 +193,11 @@ export default function RankResultPage({ params }) {
             <button
               onClick={handleDownloadPng}
               disabled={downloading}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-indigo-700 transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+              className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
             >
-              <span>📥</span>
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
               <span>{downloading ? "Generating PNG..." : "Download Scorecard (PNG)"}</span>
             </button>
 
@@ -195,15 +205,17 @@ export default function RankResultPage({ params }) {
               onClick={handlePrint}
               className="rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition-colors cursor-pointer flex items-center gap-1.5"
             >
-              <span>🖨️</span>
+              <svg className="w-3.5 h-3.5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
               <span>Print</span>
             </button>
           </div>
         </div>
 
         {/* Mobile Horizontal View Wrapper with gentle hint */}
-        <div className="block md:hidden text-[11px] text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-xl px-3 py-2 text-center font-medium shadow-2xs">
-          👆 <strong>Mobile View:</strong> Swipe horizontally on the scorecard below to inspect all columns, or tap <strong>Download Scorecard (PNG)</strong> to get the high-res image.
+        <div className="block md:hidden text-[11px] text-blue-800 bg-blue-50 border border-blue-200 rounded-xl px-3 py-2 text-center font-medium shadow-2xs">
+          <strong>Mobile View:</strong> Swipe horizontally on the scorecard below to inspect all columns, or tap <strong>Download Scorecard (PNG)</strong> to get the high-res image.
         </div>
 
         {/* Scrollable Container for Mobile Viewports */}
@@ -224,8 +236,12 @@ export default function RankResultPage({ params }) {
                   className="max-h-16 max-w-full object-contain rounded"
                 />
               ) : (
-                <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2 text-left">
-                  <span className="text-2xl">🏛️</span>
+                <div className="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-slate-50 p-2 text-left">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-50 text-blue-600 border border-blue-200">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
                   <div>
                     <div className="text-[11px] font-bold uppercase tracking-wider text-slate-800 leading-tight">
                       {submission.examName}
@@ -260,10 +276,17 @@ export default function RankResultPage({ params }) {
                 {submission.subject}
               </div>
               <div className="mt-1 flex items-center justify-center sm:justify-end gap-2 text-[10px] font-bold">
-                <span className="text-amber-600">RANK READY 🏆</span>
+                <span className="inline-flex items-center gap-1 text-blue-600">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  <span>RANK READY</span>
+                </span>
                 <span>•</span>
                 <span className="inline-flex items-center gap-1 text-emerald-600">
-                  <span>✔</span>
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
                   <span>QR VERIFIED</span>
                 </span>
               </div>
@@ -360,7 +383,7 @@ export default function RankResultPage({ params }) {
               {/* Far Right: Royal Purple "YOUR RANK" Highlight Box */}
               <div className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-b from-[#342478] via-[#3E2B92] to-[#452FA0] text-white p-4 text-center w-[150px] shrink-0 shadow-sm">
                 <div className="text-[10px] font-extrabold uppercase tracking-wider text-amber-300">
-                  ALL INDIA RANK 🏆
+                  ALL INDIA RANK
                 </div>
                 <div className="text-3xl sm:text-4xl font-black text-white mt-1 leading-none">
                   #{ranks.air.rank}
@@ -381,69 +404,80 @@ export default function RankResultPage({ params }) {
           <div>
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-xs font-black uppercase tracking-wider text-slate-900">
-                OFFICIAL RANKINGS & COMPARATIVE STANDINGS
+                OFFICIAL RANKINGS &amp; COMPARATIVE STANDINGS
               </h2>
-              <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full">
-                ⚡ Real-time Dynamic Standings
+              <span className="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
+                <svg className="w-3 h-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span>Real-time Dynamic Standings</span>
               </span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {/* Card 1: All India Rank */}
-              <div className="rounded-xl border border-indigo-200 bg-gradient-to-b from-indigo-50/80 to-white p-3.5 text-center shadow-2xs">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-indigo-900 flex items-center justify-center gap-1">
-                  <span>🏆</span>
+              <div className="rounded-xl border border-blue-200 bg-gradient-to-b from-blue-50/50 to-white p-3.5 text-center shadow-2xs">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-blue-900 flex items-center justify-center gap-1">
+                  <svg className="w-3.5 h-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
                   <span>All India Rank</span>
                 </div>
-                <div className="mt-1 text-2xl sm:text-3xl font-black text-indigo-950 font-mono">
+                <div className="mt-1 text-2xl sm:text-3xl font-black text-blue-950 font-mono">
                   #{ranks.air?.rank || 1}
                 </div>
-                <div className="mt-1 text-[11px] font-semibold text-indigo-700">
+                <div className="mt-1 text-[11px] font-semibold text-blue-700">
                   Out of {ranks.air?.total || 1} candidates
                 </div>
-                <div className="mt-1 text-[9px] font-bold text-indigo-500 uppercase">
+                <div className="mt-1 text-[9px] font-bold text-blue-500 uppercase">
                   National Standing
                 </div>
               </div>
 
               {/* Card 2: Category Rank */}
-              <div className="rounded-xl border border-purple-200 bg-gradient-to-b from-purple-50/80 to-white p-3.5 text-center shadow-2xs">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-purple-900 flex items-center justify-center gap-1">
-                  <span>🏷️</span>
+              <div className="rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50/70 to-white p-3.5 text-center shadow-2xs">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-800 flex items-center justify-center gap-1">
+                  <svg className="w-3.5 h-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
                   <span>Category Rank</span>
                 </div>
-                <div className="mt-1 text-2xl sm:text-3xl font-black text-purple-950 font-mono">
+                <div className="mt-1 text-2xl sm:text-3xl font-black text-slate-900 font-mono">
                   #{ranks.category?.rank || 1}
                 </div>
-                <div className="mt-1 text-[11px] font-semibold text-purple-700">
+                <div className="mt-1 text-[11px] font-semibold text-slate-700">
                   Out of {ranks.category?.total || 1} in {ranks.category?.name || submission.category}
                 </div>
-                <div className="mt-1 text-[9px] font-bold text-purple-500 uppercase">
+                <div className="mt-1 text-[9px] font-bold text-slate-500 uppercase">
                   Category Quota
                 </div>
               </div>
 
               {/* Card 3: Trade / Subject Rank */}
-              <div className="rounded-xl border border-blue-200 bg-gradient-to-b from-blue-50/80 to-white p-3.5 text-center shadow-2xs">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-blue-900 flex items-center justify-center gap-1">
-                  <span>🎓</span>
+              <div className="rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50/70 to-white p-3.5 text-center shadow-2xs">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-800 flex items-center justify-center gap-1">
+                  <svg className="w-3.5 h-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+                  </svg>
                   <span className="truncate max-w-[130px]">Trade Rank</span>
                 </div>
-                <div className="mt-1 text-2xl sm:text-3xl font-black text-blue-950 font-mono">
+                <div className="mt-1 text-2xl sm:text-3xl font-black text-slate-900 font-mono">
                   #{ranks.trade?.rank || 1}
                 </div>
-                <div className="mt-1 text-[11px] font-semibold text-blue-700 truncate" title={submission.subject}>
+                <div className="mt-1 text-[11px] font-semibold text-slate-700 truncate" title={submission.subject}>
                   Out of {ranks.trade?.total || 1} in Trade
                 </div>
-                <div className="mt-1 text-[9px] font-bold text-blue-500 uppercase truncate" title={submission.subject}>
+                <div className="mt-1 text-[9px] font-bold text-slate-500 uppercase truncate" title={submission.subject}>
                   {submission.subject}
                 </div>
               </div>
 
               {/* Card 4: Shift Rank & Percentile */}
-              <div className="rounded-xl border border-emerald-200 bg-gradient-to-b from-emerald-50/80 to-white p-3.5 text-center shadow-2xs">
+              <div className="rounded-xl border border-emerald-200 bg-gradient-to-b from-emerald-50/70 to-white p-3.5 text-center shadow-2xs">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-900 flex items-center justify-center gap-1">
-                  <span>⚡</span>
+                  <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
                   <span>Shift Standing</span>
                 </div>
                 <div className="mt-1 text-2xl sm:text-3xl font-black text-emerald-950 font-mono">
@@ -592,7 +626,9 @@ export default function RankResultPage({ params }) {
               {/* QR Code Verification */}
               <div className="flex flex-col items-center justify-center shrink-0">
                 <div className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 mb-1 flex items-center gap-1">
-                  <span>✔</span>
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
                   <span>SCAN TO VERIFY - v2.1</span>
                 </div>
                 {qrCodeDataUrl ? (

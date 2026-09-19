@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import api from "@/lib/api";
 
 const INDIAN_STATES = [
@@ -57,7 +56,6 @@ export default function RankCalculatorPage() {
             e.name?.toLowerCase() !== "avnl recruitment 2026"
         );
         setExams(filtered);
-        // Default stays on '-- Select Your Examination --' with standard +1 / 0 marking scheme
         setMarksForCorrect(1.0);
         setNegativeMarks(0.0);
       }
@@ -126,7 +124,6 @@ export default function RankCalculatorPage() {
       return;
     }
 
-    // Open confirmation modal for candidate to recheck exam name, category, and marking scheme
     setShowConfirmModal(true);
   };
 
@@ -149,7 +146,7 @@ export default function RankCalculatorPage() {
         securityPin,
       };
 
-      setStatusMessage("Parsing 100+ questions, marking schemes and negative penalties...");
+      setStatusMessage("Parsing questions, marking schemes and negative penalties...");
       const res = await api.post("/api/rank-calculator/calculate", payload);
 
       if (res.data && res.data.success && res.data.submission) {
@@ -171,49 +168,58 @@ export default function RankCalculatorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/70 pb-20">
-      {/* Header Banner */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950 text-white border-b border-slate-800 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(99,102,241,0.2),transparent_65%)]" />
-
-        <div className="relative mx-auto max-w-4xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold text-indigo-200 backdrop-blur-md shadow-xs mb-4">
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
+      {/* Clean White Hero Header */}
+      <section className="border-b border-slate-200 bg-white py-10 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1 text-xs font-semibold text-blue-700 mb-3">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
             </span>
-            <span>AVNL &amp; CIL MT 2026 Response Sheet Evaluation &amp; Cutoff</span>
+            <span>TCS iON &amp; Digialm Response Sheet Evaluation</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
-            AVNL Rank Calculator &amp; <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300 bg-clip-text text-transparent">CIL MT 2026 Cutoff</span>
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
+            All India Rank Predictor &amp; <span className="text-blue-600">Smart Scorecard</span>
           </h1>
 
-          <p className="mt-4 text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Paste your official <strong>AVNL response sheet</strong> or <strong>CIL MT</strong> link to calculate marks from the <strong>AVNL answer key 2026</strong>, check <strong>AVNL cutoff 2026</strong>, <strong>AVNL trade wise cutoff</strong>, and evaluate your expected <strong>AVNL result 2026</strong> position.
+          <p className="mt-2.5 text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Evaluate your official response sheet to calculate accurate raw marks, negative deductions, All India Rank (AIR), category standing, and shift difficulty analysis.
           </p>
 
-          {/* Quick Pillars */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-300">
-            <span className="inline-flex items-center gap-1 bg-slate-800/80 px-3 py-1 rounded-full border border-slate-700">
-              🏆 Real-time All India Rank (AIR)
-            </span>
-            <span className="inline-flex items-center gap-1 bg-slate-800/80 px-3 py-1 rounded-full border border-slate-700">
-              🏷️ Category & Trade/Subject Rank
-            </span>
-            <span className="inline-flex items-center gap-1 bg-slate-800/80 px-3 py-1 rounded-full border border-slate-700">
-              📊 Shift Difficulty Analyzer
-            </span>
+          {/* Quick Feature Pillars with Professional SVG Icons */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-xs text-slate-600">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-medium">
+              <svg className="w-3.5 h-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span>Real-Time All India Rank (AIR)</span>
+            </div>
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-medium">
+              <svg className="w-3.5 h-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              <span>Category &amp; Trade Rank</span>
+            </div>
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-medium">
+              <svg className="w-3.5 h-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              <span>Shift Difficulty Analyzer</span>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Main Form Container */}
-      <main className="mx-auto max-w-3xl px-4 -mt-6 sm:px-6 lg:px-8 relative z-10">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-xl">
+      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-8 shadow-xs">
           {error && (
             <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-xs text-red-700 flex items-start gap-3">
-              <span className="text-base">⚠️</span>
+              <svg className="w-5 h-5 text-red-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
               <div>
                 <div className="font-bold text-red-800">Calculation Error</div>
                 <div className="mt-0.5">{error}</div>
@@ -223,8 +229,8 @@ export default function RankCalculatorPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* STEP 1: RESPONSE SHEET INPUT */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-3">
+            <div className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
                     1
@@ -235,29 +241,33 @@ export default function RankCalculatorPage() {
                 </div>
 
                 {/* Input Mode Selector Tabs */}
-                <div className="inline-flex rounded-xl bg-slate-100 p-1 text-xs font-semibold self-start sm:self-auto">
+                <div className="inline-flex rounded-lg bg-slate-100 p-1 text-xs font-medium self-start sm:self-auto">
                   <button
                     type="button"
                     onClick={() => setInputMode("url")}
-                    className={`rounded-lg px-3 py-1.5 transition-all cursor-pointer flex items-center gap-1.5 ${
+                    className={`rounded-md px-3 py-1.5 transition-all cursor-pointer flex items-center gap-1.5 ${
                       inputMode === "url"
-                        ? "bg-white text-blue-700 shadow-xs font-bold"
+                        ? "bg-white text-blue-600 shadow-xs font-bold"
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
-                    <span>🔗</span>
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
                     <span>Response Sheet URL</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setInputMode("html")}
-                    className={`rounded-lg px-3 py-1.5 transition-all cursor-pointer flex items-center gap-1.5 ${
+                    className={`rounded-md px-3 py-1.5 transition-all cursor-pointer flex items-center gap-1.5 ${
                       inputMode === "html"
-                        ? "bg-white text-blue-700 shadow-xs font-bold"
+                        ? "bg-white text-blue-600 shadow-xs font-bold"
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
-                    <span>📄</span>
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
                     <span>Paste HTML Source</span>
                   </button>
                 </div>
@@ -275,18 +285,20 @@ export default function RankCalculatorPage() {
                       value={responseUrl}
                       onChange={(e) => setResponseUrl(e.target.value)}
                       required
-                      className="w-full rounded-xl border border-slate-300 py-3 pl-3.5 pr-28 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                      className="w-full rounded-xl border border-slate-300 py-2.5 pl-3.5 pr-28 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
                     />
                     <button
                       type="button"
                       onClick={handlePasteDemoLink}
-                      className="absolute right-2 top-2 rounded-lg bg-blue-50 border border-blue-200 px-3 py-1.5 text-[11px] font-bold text-blue-700 hover:bg-blue-100 transition-colors cursor-pointer"
+                      className="absolute right-1.5 top-1.5 rounded-lg bg-blue-50 border border-blue-200 px-3 py-1 text-[11px] font-semibold text-blue-700 hover:bg-blue-100 transition-colors cursor-pointer"
                     >
                       Sample Link
                     </button>
                   </div>
-                  <p className="text-[11px] text-slate-500 flex items-center gap-1">
-                    <span>💡</span>
+                  <p className="text-[11px] text-slate-500 flex items-center gap-1.5">
+                    <svg className="w-3.5 h-3.5 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                     <span>Copy the response sheet URL from your browser address bar or click Sample Link to test.</span>
                   </p>
                 </div>
@@ -311,13 +323,13 @@ export default function RankCalculatorPage() {
             </div>
 
             {/* STEP 2: TARGET EXAM & MARKING SCHEME */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-4">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
                   2
                 </span>
                 <h2 className="text-sm font-bold text-slate-900">
-                  Target Examination & Scoring Rules
+                  Target Examination &amp; Scoring Rules
                 </h2>
               </div>
 
@@ -329,7 +341,7 @@ export default function RankCalculatorPage() {
                 <select
                   value={selectedExamId}
                   onChange={(e) => handleExamChange(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-xl border border-slate-300 bg-white py-2.5 px-3.5 text-xs sm:text-sm font-medium text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 >
                   <option value="">-- Select Your Examination --</option>
                   {exams.map((ex) => (
@@ -337,18 +349,18 @@ export default function RankCalculatorPage() {
                       {ex.name}
                     </option>
                   ))}
-                  <option value="other">➕ Other (Enter New Exam Name)</option>
+                  <option value="other">+ Other (Enter New Exam Name)</option>
                 </select>
 
                 {/* Custom Exam Name Field when 'Other' is selected */}
                 {selectedExamId === "other" && (
-                  <div className="mt-3 space-y-1.5 rounded-xl border border-blue-200 bg-blue-50/60 p-3.5 animate-in fade-in duration-200">
+                  <div className="mt-3 space-y-1.5 rounded-xl border border-blue-200 bg-blue-50/50 p-3.5">
                     <div className="flex items-center justify-between">
-                      <label className="block text-xs font-bold text-blue-950">
+                      <label className="block text-xs font-bold text-blue-900">
                         Enter Examination Name *
                       </label>
-                      <span className="text-[10px] font-semibold text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-full">
-                        Will be added to dropdown
+                      <span className="text-[10px] font-semibold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">
+                        Will be added to platform
                       </span>
                     </div>
                     <input
@@ -357,24 +369,24 @@ export default function RankCalculatorPage() {
                       value={customExamName}
                       onChange={(e) => setCustomExamName(e.target.value)}
                       required
-                      className="w-full rounded-xl border border-blue-300 bg-white py-2 px-3 text-xs sm:text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                      className="w-full rounded-xl border border-blue-300 bg-white py-2 px-3 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     />
-                    <p className="text-[11px] text-blue-800/80">
-                      Once your marks are calculated, this exam will automatically be added to the dropdown for you and all other aspirants.
+                    <p className="text-[11px] text-blue-800">
+                      Once your marks are calculated, this exam will automatically be added to the dropdown for future scorecards.
                     </p>
                   </div>
                 )}
               </div>
 
               {/* Custom Marking Scheme */}
-              <div className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 space-y-3">
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-950">
-                      Scoring & Negative Penalty Scheme
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+                      Scoring &amp; Negative Penalty Scheme
                     </h3>
                     <p className="text-[11px] text-slate-600">
-                      Default is <strong>+1</strong> for correct & <strong>0</strong> negative penalty. Click a preset or edit numbers.
+                      Default is <strong>+1</strong> for correct &amp; <strong>0</strong> negative penalty. Click a preset or edit numbers.
                     </p>
                   </div>
                   {/* Preset Pills */}
@@ -387,7 +399,7 @@ export default function RankCalculatorPage() {
                       }}
                       className={`rounded-lg px-2.5 py-1 text-[11px] font-bold border transition-colors cursor-pointer ${
                         marksForCorrect === 1.0 && negativeMarks === 0.0
-                          ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                          ? "bg-blue-600 text-white border-blue-600 shadow-xs"
                           : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
                       }`}
                     >
@@ -401,7 +413,7 @@ export default function RankCalculatorPage() {
                       }}
                       className={`rounded-lg px-2.5 py-1 text-[11px] font-bold border transition-colors cursor-pointer ${
                         marksForCorrect === 1.0 && negativeMarks === 0.25
-                          ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                          ? "bg-blue-600 text-white border-blue-600 shadow-xs"
                           : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
                       }`}
                     >
@@ -415,7 +427,7 @@ export default function RankCalculatorPage() {
                       }}
                       className={`rounded-lg px-2.5 py-1 text-[11px] font-bold border transition-colors cursor-pointer ${
                         marksForCorrect === 2.0 && negativeMarks === 0.5
-                          ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                          ? "bg-blue-600 text-white border-blue-600 shadow-xs"
                           : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
                       }`}
                     >
@@ -438,7 +450,7 @@ export default function RankCalculatorPage() {
                         value={marksForCorrect}
                         onChange={(e) => setMarksForCorrect(e.target.value)}
                         required
-                        className="w-full rounded-xl border border-slate-300 bg-white py-2 px-3 text-xs font-bold text-slate-900 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        className="w-full rounded-xl border border-slate-300 bg-white py-2 px-3 text-xs font-bold text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                       />
                       <span className="absolute right-3 top-2 text-xs font-bold text-emerald-600">
                         +pts
@@ -459,9 +471,9 @@ export default function RankCalculatorPage() {
                         value={negativeMarks}
                         onChange={(e) => setNegativeMarks(e.target.value)}
                         required
-                        className="w-full rounded-xl border border-slate-300 bg-white py-2 px-3 text-xs font-bold text-slate-900 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        className="w-full rounded-xl border border-slate-300 bg-white py-2 px-3 text-xs font-bold text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                       />
-                      <span className="absolute right-3 top-2 text-xs font-bold text-red-600">
+                      <span className="absolute right-3 top-2 text-xs font-bold text-rose-600">
                         -pts
                       </span>
                     </div>
@@ -471,17 +483,17 @@ export default function RankCalculatorPage() {
             </div>
 
             {/* STEP 3: CANDIDATE DEMOGRAPHICS */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-4">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
                   3
                 </span>
                 <h2 className="text-sm font-bold text-slate-900">
-                  Candidate Profile & Category
+                  Candidate Profile &amp; Category
                 </h2>
               </div>
 
-              {/* Reservation Category - Interactive Visual Pills */}
+              {/* Reservation Category */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-2">
                   Social Category (Used for Category Rank calculation)
@@ -494,8 +506,8 @@ export default function RankCalculatorPage() {
                       onClick={() => setCategory(cat)}
                       className={`rounded-xl py-2.5 text-center text-xs font-bold transition-all cursor-pointer border ${
                         category === cat
-                          ? "bg-blue-600 text-white border-blue-600 shadow-sm scale-[1.02]"
-                          : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                          ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                          : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                       }`}
                     >
                       {cat}
@@ -519,8 +531,8 @@ export default function RankCalculatorPage() {
                         onClick={() => setGender(gen)}
                         className={`rounded-xl py-2 text-center text-xs font-bold transition-all cursor-pointer border ${
                           gender === gen
-                            ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
-                            : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                            ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                            : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                         }`}
                       >
                         {gen}
@@ -549,7 +561,7 @@ export default function RankCalculatorPage() {
                 </div>
               </div>
 
-              {/* Horizontal Category (Clearly Marked Optional) */}
+              {/* Horizontal Category */}
               <div className="pt-2 border-t border-slate-100">
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-xs font-semibold text-slate-700">
@@ -572,15 +584,17 @@ export default function RankCalculatorPage() {
                 </select>
               </div>
 
-              {/* 4-Digit Security PIN (Optional with Clear Explanation) */}
+              {/* 4-Digit Security PIN */}
               <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs">🔒</span>
+                    <svg className="w-3.5 h-3.5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
                     <span className="text-xs font-bold text-slate-800">
                       4-Digit Security PIN
                     </span>
-                    <span className="rounded bg-slate-200 px-1.5 py-0.2 text-[9px] font-bold text-slate-600 uppercase">
+                    <span className="rounded bg-slate-200 px-1.5 py-0.5 text-[9px] font-bold text-slate-600 uppercase">
                       Optional (Default: 1234)
                     </span>
                   </div>
@@ -601,7 +615,7 @@ export default function RankCalculatorPage() {
 
             {/* TERMS & CONDITIONS & PRIVACY POLICY CONSENT */}
             <div
-              className={`rounded-2xl border p-4 transition-all ${
+              className={`rounded-xl border p-4 transition-all ${
                 !agreedToTerms && error && error.includes("Terms")
                   ? "border-rose-400 bg-rose-50/90 ring-2 ring-rose-300"
                   : agreedToTerms
@@ -649,7 +663,7 @@ export default function RankCalculatorPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 py-3.5 text-sm font-black text-white shadow-md hover:from-blue-700 hover:to-indigo-800 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2"
+                className="w-full rounded-xl bg-blue-600 py-3.5 text-sm font-bold text-white shadow-xs hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <>
@@ -658,9 +672,13 @@ export default function RankCalculatorPage() {
                   </>
                 ) : (
                   <>
-                    <span>⚡</span>
-                    <span>Calculate Marks & Generate Smart Score Card</span>
-                    <span>&rarr;</span>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    <span>Calculate Marks &amp; Generate Smart Scorecard</span>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
                   </>
                 )}
               </button>
@@ -671,34 +689,55 @@ export default function RankCalculatorPage() {
         {/* Instructions Card: How to get Response Sheet URL */}
         <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
           <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <span>ℹ️</span>
+            <svg className="w-5 h-5 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             <span>How to Copy Your TCS iON / Digialm Response Sheet Link</span>
           </h2>
 
-          <ol className="mt-4 space-y-3 text-xs text-slate-600 leading-relaxed list-decimal list-inside">
-            <li>
-              Log into your official recruitment portal (e.g. <strong>TCS iON candidate login</strong>) using your credentials.
-            </li>
-            <li>
-              Go to the <strong>"Candidate Response"</strong> or <strong>"Question Paper"</strong> tab.
-            </li>
-            <li>
-              Click on the text that says: <em>"Click here to generate your Assessment Question Paper"</em>.
-            </li>
-            <li>
-              Copy the URL from your browser address bar (it starts with <code className="bg-slate-100 px-1 py-0.5 rounded text-blue-700 font-mono">https://cdn.digialm.com/...</code>).
-            </li>
-            <li>
-              Paste the link in the box above to immediately calculate your marks and see where you rank!
-            </li>
-          </ol>
+          <div className="mt-4 space-y-3">
+            {[
+              {
+                step: "1",
+                text: "Log into your official recruitment portal (e.g. TCS iON candidate login) using your credentials.",
+              },
+              {
+                step: "2",
+                text: "Navigate to the Candidate Response or Question Paper tab.",
+              },
+              {
+                step: "3",
+                text: "Click on the text that says: \"Click here to generate your Assessment Question Paper\".",
+              },
+              {
+                step: "4",
+                text: "Copy the URL from your browser address bar (it starts with https://cdn.digialm.com/...).",
+                hasCode: true,
+              },
+              {
+                step: "5",
+                text: "Paste the link in the box above to immediately calculate your marks and see where you rank!",
+              },
+            ].map((item) => (
+              <div key={item.step} className="flex items-start gap-3 text-xs text-slate-700">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[11px] font-bold text-blue-700 border border-blue-200">
+                  {item.step}
+                </span>
+                <div className="pt-0.5 leading-relaxed">
+                  {item.text}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* SEO CONTENT SECTION: AVNL & CIL EXAM INSIGHTS */}
         <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-5">
           <div className="border-b border-slate-100 pb-3">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-bold text-blue-700 border border-blue-200 mb-1.5">
-              <span>🎯</span>
+              <svg className="w-3.5 h-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
               <span>Trending Exam Cutoffs &amp; Rank Analysis</span>
             </div>
             <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
@@ -712,7 +751,9 @@ export default function RankCalculatorPage() {
           <div className="grid gap-4 sm:grid-cols-2 text-xs text-slate-600">
             <div className="space-y-2 rounded-xl border border-slate-100 bg-slate-50/70 p-4">
               <h3 className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
-                <span>🛡️</span>
+                <svg className="w-4 h-4 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
                 <span>AVNL Rank Calculator &amp; Response Sheet</span>
               </h3>
               <p className="leading-relaxed text-[11px]">
@@ -727,7 +768,9 @@ export default function RankCalculatorPage() {
 
             <div className="space-y-2 rounded-xl border border-slate-100 bg-slate-50/70 p-4">
               <h3 className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
-                <span>📊</span>
+                <svg className="w-4 h-4 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
                 <span>AVNL Cutoff 2026 &amp; Trade-Wise Cutoff</span>
               </h3>
               <p className="leading-relaxed text-[11px]">
@@ -744,7 +787,9 @@ export default function RankCalculatorPage() {
           {/* CIL MT 2026 Section */}
           <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4 space-y-1.5 text-xs text-slate-600">
             <h3 className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
-              <span>⛏️</span>
+              <svg className="w-4 h-4 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
               <span>CIL MT 2026 Cutoff &amp; Score Predictor</span>
             </h3>
             <p className="leading-relaxed text-[11px]">
@@ -772,7 +817,7 @@ export default function RankCalculatorPage() {
               ].map((kw) => (
                 <span
                   key={kw}
-                  className="rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-200 transition-colors"
+                  className="rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-200 transition-colors"
                 >
                   #{kw}
                 </span>
@@ -811,16 +856,18 @@ export default function RankCalculatorPage() {
 
       {/* RECHECK & CONFIRMATION MODAL */}
       {showConfirmModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 sm:p-7 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
+          <div className="relative w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 sm:p-7 shadow-xl space-y-5">
             {/* Modal Header */}
             <div className="flex items-start justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-100 text-blue-700 text-xl font-bold">
-                  🔍
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-200">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-black text-slate-900">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900">
                     Recheck &amp; Confirm Your Details
                   </h3>
                   <p className="text-xs text-slate-500 font-medium">
@@ -832,39 +879,41 @@ export default function RankCalculatorPage() {
                 type="button"
                 onClick={() => !submitting && setShowConfirmModal(false)}
                 disabled={submitting}
-                className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
               >
-                ✕
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
 
             {/* Candidate Details Summary Card */}
             <div className="space-y-3">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 space-y-2.5">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold text-slate-500">Target Examination:</span>
                   <span className="font-bold text-slate-900 text-right max-w-[240px] truncate">
                     {displayExamName}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs border-t border-slate-200/70 pt-2">
+                <div className="flex items-center justify-between text-xs border-t border-slate-200 pt-2">
                   <span className="font-semibold text-slate-500">Social Category:</span>
                   <span className="inline-flex items-center gap-1 font-bold text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded-md">
                     {category}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs border-t border-slate-200/70 pt-2">
+                <div className="flex items-center justify-between text-xs border-t border-slate-200 pt-2">
                   <span className="font-semibold text-slate-500">State / Domicile:</span>
                   <span className="font-bold text-slate-900">
                     {state || "Not Selected"}
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-2.5 border-t border-slate-200/70 pt-2.5">
+                <div className="grid grid-cols-2 gap-2.5 border-t border-slate-200 pt-2.5">
                   <div className="bg-white rounded-xl p-2.5 border border-slate-200 text-center shadow-2xs">
                     <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">
                       Positive Mark (Correct)
                     </span>
-                    <span className="text-lg font-black text-emerald-600">
+                    <span className="text-lg font-bold text-emerald-600">
                       +{Number(marksForCorrect)}
                     </span>
                   </div>
@@ -872,7 +921,7 @@ export default function RankCalculatorPage() {
                     <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">
                       Negative Penalty (Wrong)
                     </span>
-                    <span className="text-lg font-black text-rose-600">
+                    <span className="text-lg font-bold text-rose-600">
                       -{Number(negativeMarks)}
                     </span>
                   </div>
@@ -880,15 +929,17 @@ export default function RankCalculatorPage() {
               </div>
 
               {/* Advisory Callout */}
-              <div className="rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 p-4 text-xs text-amber-950 space-y-1.5">
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900 space-y-1.5">
                 <div className="flex items-center gap-1.5 font-bold text-amber-900">
-                  <span className="text-sm">⚠️</span>
+                  <svg className="w-4 h-4 text-amber-700 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
                   <span>Enter Marks Strictly According to Your Question Paper:</span>
                 </div>
-                <p className="text-[11px] leading-relaxed text-amber-900/90">
+                <p className="text-[11px] leading-relaxed text-amber-800">
                   Please confirm that the <strong>Positive (+{marksForCorrect})</strong> and <strong>Negative (-{negativeMarks})</strong> marks match your exam rules (e.g. <em>+1 / 0</em>, <em>+1 / -0.25</em>, <em>+2 / -0.5</em>).
                 </p>
-                <p className="text-[11px] font-semibold text-amber-950 pt-0.5">
+                <p className="text-[11px] font-semibold text-amber-900 pt-0.5">
                   यदि आपके पेपर में नेगेटिव मार्किंग है या अंक अलग हैं, तो &ldquo;Edit / Go Back&rdquo; दबाकर सही अंक भरें।
                 </p>
               </div>
@@ -900,15 +951,18 @@ export default function RankCalculatorPage() {
                 type="button"
                 onClick={() => setShowConfirmModal(false)}
                 disabled={submitting}
-                className="w-full rounded-xl border border-slate-300 bg-white py-2.5 px-4 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-all cursor-pointer disabled:opacity-50"
+                className="w-full rounded-xl border border-slate-300 bg-white py-2.5 px-4 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
               >
-                ✏️ Edit / Go Back
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+                <span>Edit / Go Back</span>
               </button>
               <button
                 type="button"
                 onClick={handleConfirmedSubmit}
                 disabled={submitting}
-                className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-2.5 px-4 text-xs font-bold text-white shadow-md hover:from-blue-700 hover:to-indigo-700 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full rounded-xl bg-blue-600 py-2.5 px-4 text-xs font-bold text-white shadow-xs hover:bg-blue-700 active:bg-blue-800 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <>
@@ -918,7 +972,9 @@ export default function RankCalculatorPage() {
                 ) : (
                   <>
                     <span>Confirm &amp; Calculate Now</span>
-                    <span>&rarr;</span>
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
                   </>
                 )}
               </button>

@@ -21,8 +21,10 @@ export default function CandidateRestrictedLeaderboardPage({ params }) {
   return (
     <div className="min-h-[75vh] flex items-center justify-center px-4 py-12 bg-slate-50/70">
       <div className="mx-auto max-w-lg w-full rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-xs">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-2xl text-amber-600 border border-amber-200 mb-4">
-          🔒
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-600 border border-amber-200 mb-4">
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
         </div>
 
         <h1 className="text-xl font-black tracking-tight text-slate-900 sm:text-2xl">
