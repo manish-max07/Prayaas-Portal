@@ -382,10 +382,10 @@ export default function TermsAndConditionsPage() {
               Terms &amp; Conditions, Data Privacy या Deletion Request से संबंधित किसी भी सहायता अथवा शिकायत के लिए आप संपर्क कर सकते हैं:
             </p>
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs space-y-1.5 text-slate-700">
-              <p><strong>Service:</strong> Prayaas Portal Answer Key Score Calculator</p>
-              <p><strong>Platform:</strong> Prayaas Education Portal</p>
+              <p><strong>Service:</strong> PrayaasKaro Answer Key Score Calculator</p>
+              <p><strong>Platform:</strong> PrayaasKaro (prayaaskaro.in)</p>
               <p><strong>Address:</strong> New Delhi, India 110012</p>
-              <p><strong>Website:</strong> <Link href="/" className="text-blue-600 underline">https://prayaas-portal.vercel.app</Link> | <Link href="https://prayaaskaro.in" className="text-blue-600 underline">https://prayaaskaro.in</Link></p>
+              <p><strong>Website:</strong> <Link href="https://prayaaskaro.in" className="text-blue-600 underline">https://prayaaskaro.in</Link></p>
               <p><strong>Grievance Email:</strong> <a href="mailto:contact@prayaaskaro.in" className="font-mono text-indigo-700 font-semibold underline">contact@prayaaskaro.in</a></p>
               <p><strong>Response Timeline:</strong> Within 7 working days (Digital Personal Data Protection Act compliance)</p>
             </div>

@@ -19,6 +19,16 @@ const getCellString = (cell) => {
   return String(cell.value).trim();
 };
 
+// Helper to slugify exam identity
+const slugifyExam = (authority, position) => {
+  const base = `${authority || ""} ${position || ""}`.trim();
+  if (!base) return "";
+  return base
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-");
+};
+
 // @desc    Create a new Exam Paper (status: draft)
 // @route   POST /api/admin/exams
 // @access  Private (Admin)
@@ -26,22 +36,46 @@ const createExamPaper = async (req, res, next) => {
   try {
     const {
       title,
+      authority,
+      position,
+      subject,
+      examYear,
+      examDate,
+      shift,
+      medium,
       description,
       examCategory,
       totalDurationMinutes,
       negativeMarkingEnabled
     } = req.body;
 
-    if (!title) {
+    const composedTitle = [authority, position, subject, examYear, shift]
+      .map((s) => (s || "").trim())
+      .filter(Boolean)
+      .join(" ");
+
+    const finalTitle = (title && title.trim()) ? title.trim() : composedTitle;
+
+    if (!finalTitle) {
       return res.status(400).json({
         success: false,
-        message: "Please provide an exam title."
+        message: "Please provide an exam title or fill in the authority, position, subject, year, and shift fields."
       });
     }
 
+    const calculatedSlug = slugifyExam(authority, position);
+
     const examPaper = await ExamPaper.create({
-      title,
-      description: description || "",
+      title: finalTitle,
+      authority: (authority || "").trim(),
+      position: (position || "").trim(),
+      subject: (subject || "").trim(),
+      examYear: (examYear || new Date().getFullYear()).toString().trim(),
+      examDate: (examDate || "").trim(),
+      shift: (shift || "").trim(),
+      medium: (medium || "Bilingual (English / Hindi)").trim(),
+      examSlug: calculatedSlug,
+      description: (description || "").trim(),
       examCategory: examCategory || "Other",
       totalDurationMinutes: Number(totalDurationMinutes) || 60,
       negativeMarkingEnabled: negativeMarkingEnabled !== false,
@@ -67,6 +101,13 @@ const updateExamPaper = async (req, res, next) => {
   try {
     const {
       title,
+      authority,
+      position,
+      subject,
+      examYear,
+      examDate,
+      shift,
+      medium,
       description,
       examCategory,
       totalDurationMinutes,
@@ -81,8 +122,28 @@ const updateExamPaper = async (req, res, next) => {
       });
     }
 
-    if (title !== undefined) examPaper.title = title;
-    if (description !== undefined) examPaper.description = description;
+    if (authority !== undefined) examPaper.authority = authority.trim();
+    if (position !== undefined) examPaper.position = position.trim();
+    if (subject !== undefined) examPaper.subject = subject.trim();
+    if (examYear !== undefined) examPaper.examYear = examYear.toString().trim();
+    if (examDate !== undefined) examPaper.examDate = examDate.trim();
+    if (shift !== undefined) examPaper.shift = shift.trim();
+    if (medium !== undefined) examPaper.medium = medium.trim();
+
+    if (authority !== undefined || position !== undefined) {
+      examPaper.examSlug = slugifyExam(examPaper.authority, examPaper.position);
+    }
+
+    if (title !== undefined) {
+      examPaper.title = title.trim();
+    } else if (authority || position || subject || examYear || shift) {
+      const composedTitle = [examPaper.authority, examPaper.position, examPaper.subject, examPaper.examYear, examPaper.shift]
+        .filter(Boolean)
+        .join(" ");
+      if (composedTitle) examPaper.title = composedTitle;
+    }
+
+    if (description !== undefined) examPaper.description = description.trim();
     if (examCategory !== undefined) examPaper.examCategory = examCategory;
     if (totalDurationMinutes !== undefined) {
       examPaper.totalDurationMinutes = Number(totalDurationMinutes);

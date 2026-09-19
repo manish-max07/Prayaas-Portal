@@ -122,10 +122,10 @@ export default function PrivacyPolicyPage() {
                 1. Overview &amp; Scope
               </h2>
               <p>
-                At <strong>Prayaas Portal</strong> (accessible from <Link href="/" className="text-blue-600 underline">https://prayaas-portal.vercel.app</Link> and <Link href="https://prayaaskaro.in" className="text-blue-600 underline">https://prayaaskaro.in</Link>), accessible via web and mobile browsers, one of our main priorities is the privacy of our visitors. This Privacy Policy document outlines the types of information collected and recorded by Prayaas Portal and how we use and safeguard it.
+                At <strong>PrayaasKaro</strong> (accessible from <Link href="https://prayaaskaro.in" className="text-blue-600 underline">https://prayaaskaro.in</Link>), accessible via web and mobile browsers, one of our main priorities is the privacy of our visitors. This Privacy Policy document outlines the types of information collected and recorded by PrayaasKaro and how we use and safeguard it.
               </p>
               <p>
-                This policy applies exclusively to our online activities and is valid for visitors to our website regarding information shared and collected through Prayaas Portal. This policy does not apply to any information collected offline or via channels other than this website.
+                This policy applies exclusively to our online activities and is valid for visitors to our website regarding information shared and collected through PrayaasKaro. This policy does not apply to any information collected offline or via channels other than this website.
               </p>
               <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-600 text-xs">
                 <strong>Consent:</strong> By using our website, you hereby consent to our Privacy Policy and agree to its terms and conditions.
@@ -212,7 +212,7 @@ export default function PrivacyPolicyPage() {
                   <span>Google DoubleClick DART Cookie Disclosure</span>
                 </h3>
                 <p className="text-xs leading-relaxed text-amber-900">
-                  Google is one of our third-party vendors. Google uses cookies, known as DART cookies, to serve ads to our site visitors based upon their visit to <span className="font-semibold">prayaas-portal.vercel.app</span>, <span className="font-semibold">prayaaskaro.in</span>, and other sites on the internet.
+                  Google is one of our third-party vendors. Google uses cookies, known as DART cookies, to serve ads to our site visitors based upon their visit to <span className="font-semibold">prayaaskaro.in</span> and other sites on the internet.
                 </p>
                 <p className="text-xs leading-relaxed text-amber-900">
                   Visitors may choose to decline the use of DART cookies by visiting the Google Ad and Content Network Privacy Policy at the following URL:{" "}
@@ -323,7 +323,7 @@ export default function PrivacyPolicyPage() {
               </p>
 
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs text-slate-700">
-                <p><strong>Platform:</strong> Prayaas Portal</p>
+                <p><strong>Platform:</strong> PrayaasKaro</p>
                 <p><strong>Operational Address:</strong> New Delhi, India 110012</p>
                 <p>
                   <strong>Email:</strong>{" "}
@@ -331,7 +331,7 @@ export default function PrivacyPolicyPage() {
                     contact@prayaaskaro.in
                   </a>
                 </p>
-                <p><strong>Website:</strong> <Link href="/" className="text-blue-600 underline">https://prayaas-portal.vercel.app</Link> | <Link href="https://prayaaskaro.in" className="text-blue-600 underline">https://prayaaskaro.in</Link></p>
+                <p><strong>Website:</strong> <Link href="https://prayaaskaro.in" className="text-blue-600 underline">https://prayaaskaro.in</Link></p>
                 <p><strong>Response Timeline:</strong> Within 7 business days</p>
               </div>
             </section>

@@ -32,6 +32,7 @@ export default function Footer() {
             <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Platform</h4>
             <ul className="space-y-2">
               <li><Link href="/" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Home</Link></li>
+              <li><Link href="/previous-years" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Previous Years</Link></li>
               <li><Link href="/news" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Exam Updates</Link></li>
               <li><Link href="/rank-calculator" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Rank Calculator</Link></li>
               <li><Link href="/my-attempts" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">My Attempts</Link></li>

@@ -257,7 +257,7 @@ export default function RankResultPage({ params }) {
             {/* Center: Title */}
             <div className="text-center">
               <div className="text-xs font-black tracking-widest text-blue-600 uppercase">
-                PRAYAAS PORTAL
+                PRAYAAS KARO
               </div>
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 mt-0.5">
                 SMART SCORE CARD
@@ -649,7 +649,7 @@ export default function RankResultPage({ params }) {
           {/* 6. SCORECARD FOOTER BAR */}
           <div className="rounded-xl bg-[#0B2559] text-white py-3 px-4 text-center text-xs space-y-0.5">
             <div className="font-bold tracking-wide">
-              Prayaas Portal (prayaas-portal.com) • Smart Score Card System
+              PrayaasKaro (prayaaskaro.in) • Smart Score Card System
             </div>
             <div className="text-[11px] text-slate-300">
               Date & Time: {currentDateTime || "14 Sept 2026, 01:04 AM (IST)"}
@@ -660,7 +660,7 @@ export default function RankResultPage({ params }) {
 
         {/* Outer Legal Links */}
         <div className="mt-8 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 max-w-4xl mx-auto">
-          <p>© 2026 Prayaas Portal. Educational &amp; Community Exam Analysis Tool.</p>
+          <p>© 2026 PrayaasKaro. Educational &amp; Community Exam Analysis Tool.</p>
           <div className="flex items-center gap-3">
             <Link
               href="/rank-calculator/terms-conditions"

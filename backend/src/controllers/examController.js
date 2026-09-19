@@ -6,11 +6,17 @@ const Attempt = require("../models/Attempt");
 // @access  Private (Authenticated User)
 const getLiveExams = async (req, res, next) => {
   try {
-    const { category, search } = req.query;
+    const { category, search, year, examSlug } = req.query;
 
     const query = { status: "live" };
     if (category && category !== "All") {
       query.examCategory = category;
+    }
+    if (year) {
+      query.examYear = year;
+    }
+    if (examSlug) {
+      query.examSlug = examSlug;
     }
     if (search) {
       query.title = { $regex: search, $options: "i" };
@@ -43,6 +49,14 @@ const getLiveExams = async (req, res, next) => {
       return {
         _id: exam._id,
         title: exam.title,
+        authority: exam.authority || "",
+        position: exam.position || "",
+        subject: exam.subject || "",
+        examYear: exam.examYear || "",
+        examDate: exam.examDate || "",
+        shift: exam.shift || "",
+        medium: exam.medium || "Bilingual (English / Hindi)",
+        examSlug: exam.examSlug || "",
         description: exam.description,
         examCategory: exam.examCategory,
         totalDurationMinutes: exam.totalDurationMinutes,

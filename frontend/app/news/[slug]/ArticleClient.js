@@ -11,7 +11,7 @@ export default function ArticleClient({ article }) {
   const pageUrl =
     typeof window !== "undefined"
       ? window.location.href
-      : `https://prayaas-portal.vercel.app/news/${article.slug}`;
+      : `https://prayaaskaro.in/news/${article.slug}`;
 
   const handleCopyLink = () => {
     if (navigator.clipboard) {

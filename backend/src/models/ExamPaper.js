@@ -7,6 +7,48 @@ const ExamPaperSchema = new mongoose.Schema(
       required: [true, "Please provide an exam title"],
       trim: true
     },
+    authority: {
+      type: String,
+      trim: true,
+      default: ""
+    },
+    position: {
+      type: String,
+      trim: true,
+      default: ""
+    },
+    subject: {
+      type: String,
+      trim: true,
+      default: ""
+    },
+    examYear: {
+      type: String,
+      trim: true,
+      index: true,
+      default: () => new Date().getFullYear().toString()
+    },
+    examDate: {
+      type: String,
+      trim: true,
+      default: ""
+    },
+    shift: {
+      type: String,
+      trim: true,
+      default: ""
+    },
+    medium: {
+      type: String,
+      trim: true,
+      default: "Bilingual (English / Hindi)"
+    },
+    examSlug: {
+      type: String,
+      trim: true,
+      index: true,
+      default: ""
+    },
     description: {
       type: String,
       default: "",
@@ -15,7 +57,7 @@ const ExamPaperSchema = new mongoose.Schema(
     examCategory: {
       type: String,
       required: [true, "Please specify an exam category"],
-      enum: ["SSC", "Banking", "Railway", "State PSC", "UPSC", "Defence", "Teaching", "Other"],
+      enum: ["SSC", "Banking", "Railway", "State PSC", "UPSC", "Defence", "Teaching", "Engineering", "Other"],
       default: "Other",
       index: true
     },

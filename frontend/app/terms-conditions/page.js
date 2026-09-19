@@ -123,10 +123,10 @@ export default function TermsConditionsPage() {
                 1. Acceptance of Terms
               </h2>
               <p>
-                These Terms and Conditions (&ldquo;Terms&rdquo;) constitute a legally binding agreement between you (&ldquo;User&rdquo;, &ldquo;Candidate&rdquo;, or &ldquo;You&rdquo;) and <strong>Prayaas Portal</strong> (accessible at <Link href="/" className="text-blue-600 underline">https://prayaas-portal.vercel.app</Link> and <Link href="https://prayaaskaro.in" className="text-blue-600 underline">https://prayaaskaro.in</Link>).
+                These Terms and Conditions (&ldquo;Terms&rdquo;) constitute a legally binding agreement between you (&ldquo;User&rdquo;, &ldquo;Candidate&rdquo;, or &ldquo;You&rdquo;) and <strong>PrayaasKaro</strong> (accessible at <Link href="https://prayaaskaro.in" className="text-blue-600 underline">https://prayaaskaro.in</Link>).
               </p>
               <p>
-                By accessing, browsing, registering on, or using any feature of Prayaas Portal, you acknowledge that you have read, understood, and agree to be bound by these Terms and our <Link href="/privacy-policy" className="text-blue-600 underline">Privacy Policy</Link>. If you do not agree to these Terms, please do not use our services.
+                By accessing, browsing, registering on, or using any feature of PrayaasKaro, you acknowledge that you have read, understood, and agree to be bound by these Terms and our <Link href="/privacy-policy" className="text-blue-600 underline">Privacy Policy</Link>. If you do not agree to these Terms, please do not use our services.
               </p>
             </section>
 
@@ -136,7 +136,7 @@ export default function TermsConditionsPage() {
                 2. Platform &amp; Services
               </h2>
               <p>
-                Prayaas Portal is an independent educational technology and exam-preparation platform designed to assist candidates preparing for competitive, central government, state government, banking, engineering, and PSU recruitment examinations across India.
+                PrayaasKaro is an independent educational technology and exam-preparation platform designed to assist candidates preparing for competitive, central government, state government, banking, engineering, and PSU recruitment examinations across India.
               </p>
               <p className="font-semibold text-slate-800">Our services include, but are not limited to:</p>
               <ul className="space-y-1.5 list-disc list-inside text-slate-700 pl-1">
@@ -281,7 +281,7 @@ export default function TermsConditionsPage() {
               </p>
 
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs text-slate-700">
-                <p><strong>Platform:</strong> Prayaas Portal</p>
+                <p><strong>Platform:</strong> PrayaasKaro</p>
                 <p><strong>Operational Address:</strong> New Delhi, India 110012</p>
                 <p>
                   <strong>Official Email:</strong>{" "}
@@ -289,7 +289,7 @@ export default function TermsConditionsPage() {
                     contact@prayaaskaro.in
                   </a>
                 </p>
-                <p><strong>Website:</strong> <Link href="/" className="text-blue-600 underline">https://prayaas-portal.vercel.app</Link> | <Link href="https://prayaaskaro.in" className="text-blue-600 underline">https://prayaaskaro.in</Link></p>
+                <p><strong>Website:</strong> <Link href="https://prayaaskaro.in" className="text-blue-600 underline">https://prayaaskaro.in</Link></p>
                 <p><strong>Response Timeline:</strong> Within 7 business days</p>
               </div>
             </section>

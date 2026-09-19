@@ -18,6 +18,13 @@ export default function AdminExamDetailPage({ params }) {
 
   // Exam-level editable form state
   const [title, setTitle] = useState("");
+  const [authority, setAuthority] = useState("");
+  const [position, setPosition] = useState("");
+  const [subject, setSubject] = useState("");
+  const [examYear, setExamYear] = useState("");
+  const [shift, setShift] = useState("");
+  const [examDate, setExamDate] = useState("");
+  const [medium, setMedium] = useState("Bilingual (English / Hindi)");
   const [description, setDescription] = useState("");
   const [examCategory, setExamCategory] = useState("SSC");
   const [totalDurationMinutes, setTotalDurationMinutes] = useState(60);
@@ -57,6 +64,13 @@ export default function AdminExamDetailPage({ params }) {
         const ep = res.data.examPaper;
         setExam(ep);
         setTitle(ep.title || "");
+        setAuthority(ep.authority || "");
+        setPosition(ep.position || "");
+        setSubject(ep.subject || "");
+        setExamYear(ep.examYear || "");
+        setShift(ep.shift || "");
+        setExamDate(ep.examDate || "");
+        setMedium(ep.medium || "Bilingual (English / Hindi)");
         setDescription(ep.description || "");
         setExamCategory(ep.examCategory || "SSC");
         setTotalDurationMinutes(ep.totalDurationMinutes || 60);
@@ -77,6 +91,13 @@ export default function AdminExamDetailPage({ params }) {
       setSavingMeta(true);
       const res = await api.put(`/api/admin/exams/${examId}`, {
         title: title.trim(),
+        authority: authority.trim(),
+        position: position.trim(),
+        subject: subject.trim(),
+        examYear: examYear.trim(),
+        shift: shift.trim(),
+        examDate: examDate.trim(),
+        medium: medium.trim(),
         description: description.trim(),
         examCategory,
         totalDurationMinutes: Number(totalDurationMinutes),
@@ -303,17 +324,116 @@ export default function AdminExamDetailPage({ params }) {
         </div>
 
         <form onSubmit={handleUpdateExamMeta} className="space-y-4">
+          {/* Structured Parameters: Authority, Position, Subject/Trade */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">
+                Authority / Organization
+              </label>
+              <input
+                type="text"
+                value={authority}
+                onChange={(e) => setAuthority(e.target.value)}
+                placeholder="e.g. AVNL, SSC, RRB"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-xs text-gray-900 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">
+                Position / Post / Vacancy
+              </label>
+              <input
+                type="text"
+                value={position}
+                onChange={(e) => setPosition(e.target.value)}
+                placeholder="e.g. Junior Manager, Junior Fitter"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-xs text-gray-900 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">
+                Subject / Trade / Specialisation
+              </label>
+              <input
+                type="text"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                placeholder="e.g. Artificial Intelligence, Mechanical"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-xs text-gray-900 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Year, Shift, Date, Medium */}
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">
+                Exam Year
+              </label>
+              <input
+                type="text"
+                value={examYear}
+                onChange={(e) => setExamYear(e.target.value)}
+                placeholder="e.g. 2026, 2024"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-xs text-gray-900 font-mono focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">
+                Shift
+              </label>
+              <input
+                type="text"
+                value={shift}
+                onChange={(e) => setShift(e.target.value)}
+                placeholder="e.g. Shift 1, Shift 2"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-xs text-gray-900 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">
+                Exam Date
+              </label>
+              <input
+                type="date"
+                value={examDate}
+                onChange={(e) => setExamDate(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-xs text-gray-900 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">
+                Medium / Language
+              </label>
+              <select
+                value={medium}
+                onChange={(e) => setMedium(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-xs text-gray-900 focus:border-blue-500 focus:outline-none bg-white"
+              >
+                <option value="Bilingual (English / Hindi)">Bilingual (English / Hindi)</option>
+                <option value="English">English</option>
+                <option value="Hindi">Hindi</option>
+                <option value="Regional / Multi-lingual">Regional / Multi-lingual</option>
+              </select>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="sm:col-span-2">
               <label className="block text-xs font-bold text-gray-700 mb-1">
-                Exam Title
+                Full Display Title
               </label>
               <input
                 type="text"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-xs text-gray-900 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-xs text-gray-900 focus:border-blue-500 focus:outline-none font-semibold"
               />
             </div>
 
