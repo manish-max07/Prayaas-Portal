@@ -31,21 +31,44 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // CORS Configuration
-// Add FRONTEND_URL in Render dashboard once Vercel URL is known
-const allowedOrigins = [
+const staticAllowedOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
-  process.env.FRONTEND_URL,   // e.g. https://prayaas-portal.vercel.app
-].filter(Boolean); // removes undefined if FRONTEND_URL is not set
+  "https://prayaas-portal.vercel.app",
+  "https://prayaaskaro.in",
+  "https://www.prayaaskaro.in",
+  "http://prayaaskaro.in",
+  "http://www.prayaaskaro.in",
+];
+
+// Combine with FRONTEND_URL environment variable (supports comma-separated list)
+const envOrigins = (process.env.FRONTEND_URL || "")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+const allowedOrigins = Array.from(new Set([...staticAllowedOrigins, ...envOrigins]));
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (mobile apps, curl, Postman)
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      // Allow requests with no origin (mobile apps, curl, Postman, server-to-server)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      const cleanOrigin = origin.replace(/\/$/, "");
+
+      // Check exact match in list or matching prayaaskaro.in / vercel preview patterns
+      const isAllowed =
+        allowedOrigins.some((o) => o.toLowerCase() === cleanOrigin.toLowerCase()) ||
+        /^https?:\/\/(?:[a-zA-Z0-9-]+\.)*prayaaskaro\.in$/.test(cleanOrigin) ||
+        /^https?:\/\/prayaas-portal.*\.vercel\.app$/.test(cleanOrigin);
+
+      if (isAllowed) {
         callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS policy"));
+        callback(new Error(`Not allowed by CORS policy: ${origin}`));
       }
     },
     credentials: true,
