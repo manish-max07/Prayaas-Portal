@@ -125,7 +125,7 @@ const ORG_LOGO_MAP = {
   // ── Civil Services ────────────────────────────────────────────────────────
   UPSC: {
     abbr: "UPSC", bg: "#7d6608", text: "#fff",
-    imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Emblem_of_India.svg/120px-Emblem_of_India.svg.png",
+    imgUrl: "https://www.logopeople.in/wp-content/uploads/2013/01/government-of-india.jpg",
   },
   // ── Teaching ─────────────────────────────────────────────────────────────
   CTET: {
