@@ -265,14 +265,14 @@ export default function HomePage() {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-10 lg:gap-12">
 
             {/* Left: Headline & CTAs */}
-            <div className="max-w-2xl">
+            <div className="max-w-2xl flex flex-col items-center lg:items-start text-center lg:text-left">
               {/* Live pill */}
-              <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1.5 text-xs font-semibold text-blue-700 mb-5">
-                <span className="flex h-1.5 w-1.5 relative">
+              <div className="inline-flex items-center text-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1.5 text-xs font-semibold text-blue-700 mb-5">
+                <span className="flex h-1.5 w-1.5 relative shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-600"></span>
                 </span>
-                Official TCS iON Exam Papers · Updated After Every Exam
+                <span>Official TCS iON Exam Papers · Updated After Every Exam</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight tracking-tight">
@@ -285,17 +285,17 @@ export default function HomePage() {
               </p>
 
               {/* CTA Buttons */}
-              <div className="mt-7 flex flex-wrap items-center gap-3">
+              <div className="mt-7 flex flex-wrap items-center justify-center lg:justify-start gap-3 w-full sm:w-auto">
                 <Link
                   href="/signup"
-                  className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-700 transition-colors shadow-sm"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-700 transition-colors shadow-sm"
                 >
                   Start Practising Free
                   <ArrowRightIcon className="h-4 w-4" style={{ width: "16px", height: "16px" }} />
                 </Link>
                 <Link
                   href="/rank-calculator"
-                  className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   <CalculatorIcon className="h-4 w-4" style={{ width: "16px", height: "16px" }} />
                   Rank Calculator
