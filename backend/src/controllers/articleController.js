@@ -359,6 +359,109 @@ const adminDeleteArticle = async (req, res) => {
   }
 };
 
+/**
+ * @desc   Update article publish status (Draft <-> Published)
+ * @route  PATCH /api/admin/articles/:id/status
+ * @access Private (Admin only)
+ */
+const adminUpdateArticleStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!["Draft", "Published", "Archived"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status. Must be Draft, Published, or Archived.",
+      });
+    }
+
+    const article = await Article.findById(id);
+    if (!article) {
+      return res.status(404).json({
+        success: false,
+        message: "Article not found",
+      });
+    }
+
+    article.status = status;
+    article.lastUpdated = new Date();
+    if (status === "Published" && (!article.publishDate || article.status === "Draft")) {
+      article.publishDate = new Date();
+    }
+
+    await article.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `Article status changed to ${status}`,
+      article: {
+        _id: article._id,
+        title: article.title,
+        slug: article.slug,
+        status: article.status,
+        publishDate: article.publishDate,
+        lastUpdated: article.lastUpdated,
+      },
+    });
+  } catch (error) {
+    console.error("Admin update article status error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update article status",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * @desc   Bulk update status for multiple articles
+ * @route  POST /api/admin/articles/bulk-status
+ * @access Private (Admin only)
+ */
+const adminBulkUpdateStatus = async (req, res) => {
+  try {
+    const { ids, status } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide an array of article IDs.",
+      });
+    }
+
+    if (!["Draft", "Published", "Archived"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status. Must be Draft, Published, or Archived.",
+      });
+    }
+
+    const updateFields = { status, lastUpdated: new Date() };
+    if (status === "Published") {
+      updateFields.publishDate = new Date();
+    }
+
+    const result = await Article.updateMany(
+      { _id: { $in: ids } },
+      { $set: updateFields }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: `Updated ${result.modifiedCount} articles to ${status}`,
+      modifiedCount: result.modifiedCount,
+    });
+  } catch (error) {
+    console.error("Admin bulk update status error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to perform bulk status update",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   getArticles,
   getArticleBySlug,
@@ -367,4 +470,6 @@ module.exports = {
   adminCreateArticle,
   adminUpdateArticle,
   adminDeleteArticle,
+  adminUpdateArticleStatus,
+  adminBulkUpdateStatus,
 };

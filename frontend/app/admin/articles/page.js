@@ -52,11 +52,16 @@ export default function AdminArticlesPage() {
   const [category, setCategory] = useState("All");
   const [sector, setSector] = useState("All");
   const [state, setState] = useState("All");
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState(""); // "" (All), "Draft", "Published"
 
   // Auto Ingest Sync State
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState(null);
+
+  // Status Toggle & Bulk Operations State
+  const [togglingId, setTogglingId] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [bulkUpdating, setBulkUpdating] = useState(false);
 
   // Delete State
   const [deletingId, setDeletingId] = useState(null);
@@ -106,11 +111,87 @@ export default function AdminArticlesPage() {
     }
   };
 
+  const handleToggleStatus = async (id, targetStatus) => {
+    try {
+      setTogglingId(id);
+      const res = await api.patch(`/api/admin/articles/${id}/status`, {
+        status: targetStatus,
+      });
+
+      if (res.data && res.data.article) {
+        setArticles((prev) =>
+          prev.map((a) =>
+            a._id === id
+              ? {
+                  ...a,
+                  status: targetStatus,
+                  publishDate:
+                    targetStatus === "Published" ? new Date() : a.publishDate,
+                  lastUpdated: new Date(),
+                }
+              : a
+          )
+        );
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to update article status");
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
+  const handleBulkStatus = async (targetStatus) => {
+    if (!selectedIds.length) return;
+    try {
+      setBulkUpdating(true);
+      const res = await api.post("/api/admin/articles/bulk-status", {
+        ids: selectedIds,
+        status: targetStatus,
+      });
+
+      if (res.data && res.data.success) {
+        setArticles((prev) =>
+          prev.map((a) =>
+            selectedIds.includes(a._id)
+              ? {
+                  ...a,
+                  status: targetStatus,
+                  publishDate:
+                    targetStatus === "Published" ? new Date() : a.publishDate,
+                  lastUpdated: new Date(),
+                }
+              : a
+          )
+        );
+        setSelectedIds([]);
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || "Bulk update failed");
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+
+  const handleToggleSelect = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedIds.length === articles.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(articles.map((a) => a._id));
+    }
+  };
+
   const handleDelete = async (id) => {
     try {
       setDeletingId(id);
       await api.delete(`/api/admin/articles/${id}`);
       setArticles((prev) => prev.filter((a) => a._id !== id));
+      setSelectedIds((prev) => prev.filter((item) => item !== id));
       setDeleteConfirm(null);
     } catch (err) {
       alert(err.response?.data?.message || "Failed to delete article");
@@ -134,16 +215,16 @@ export default function AdminArticlesPage() {
           <div className="flex items-center gap-2">
             <span className="text-2xl">📰</span>
             <h1 className="text-2xl font-black text-slate-900">
-              Exam Articles & News CMS
+              Exam Articles &amp; News CMS
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Auto-ingest real-time exam alerts or publish custom guides, admit cards, and results.
+            Auto-ingested articles enter <strong>Draft</strong> mode first for review. Inspect and make them live with one click.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
-          {/* One-Click Auto Ingest Button */}
+          {/* Auto Ingest Button */}
           <button
             onClick={handleTriggerSync}
             disabled={syncing}
@@ -156,50 +237,36 @@ export default function AdminArticlesPage() {
               </>
             ) : (
               <>
-                <span>⚡</span>
-                <span>Auto-Ingest Live Updates</span>
+                <span>⚡ Run Auto-Ingest</span>
               </>
             )}
           </button>
 
-          <button
-            onClick={fetchArticles}
-            className="px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition"
-          >
-            🔄 Refresh
-          </button>
-
+          {/* New Custom Article */}
           <Link
             href="/admin/articles/new"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm transition"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm transition"
           >
             <span>+ Write Article</span>
           </Link>
         </div>
       </div>
 
-      {/* Sync Result Notice Banner */}
+      {/* Sync Result Alert Banner */}
       {syncResult && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between shadow-xs">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🚀</span>
-            <div>
-              <strong className="block text-emerald-950 font-extrabold">
-                Auto-Crawler Sync Complete!
-              </strong>
-              <span>
-                Scanned {syncResult.scanned} candidate links from{" "}
-                {syncResult.sourcesChecked.join(", ")} |{" "}
-                <span className="font-bold text-emerald-800">
-                  +{syncResult.created} new article(s) published
-                </span>{" "}
-                | {syncResult.duplicatesSkipped} duplicates intelligently skipped.
-              </span>
-            </div>
+        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between text-xs text-emerald-900">
+          <div>
+            <span className="font-bold">Sync Completed Successfully!</span>
+            <span className="ml-2">
+              Scanned: <strong>{syncResult.scanned}</strong> | Ingested to Drafts:{" "}
+              <strong>{syncResult.created}</strong> | Enriched:{" "}
+              <strong>{syncResult.updated}</strong> | Duplicates Skipped:{" "}
+              <strong>{syncResult.duplicatesSkipped}</strong>
+            </span>
           </div>
           <button
             onClick={() => setSyncResult(null)}
-            className="text-emerald-700 hover:text-emerald-950 text-base font-bold p-1"
+            className="text-emerald-700 hover:text-emerald-950 text-base font-bold p-1 cursor-pointer"
           >
             ✕
           </button>
@@ -212,14 +279,33 @@ export default function AdminArticlesPage() {
           <span className="text-xs font-semibold text-slate-500">Total in DB</span>
           <p className="text-2xl font-black text-slate-900 mt-1">{totalArticles}</p>
         </div>
-        <div className="bg-white p-4 rounded-2xl border border-emerald-200 bg-emerald-50/20 shadow-xs">
-          <span className="text-xs font-semibold text-emerald-700">Published</span>
-          <p className="text-2xl font-black text-emerald-600 mt-1">{publishedCount}</p>
-        </div>
-        <div className="bg-white p-4 rounded-2xl border border-amber-200 bg-amber-50/20 shadow-xs">
-          <span className="text-xs font-semibold text-amber-700">Drafts</span>
+        <button
+          onClick={() => setStatus("Draft")}
+          className={`p-4 rounded-2xl border text-left transition cursor-pointer ${
+            status === "Draft"
+              ? "border-amber-400 bg-amber-100/60 ring-2 ring-amber-400/30"
+              : "border-amber-200 bg-amber-50/30 hover:bg-amber-50"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-amber-800">Drafts to Review</span>
+            {draftCount > 0 && (
+              <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+            )}
+          </div>
           <p className="text-2xl font-black text-amber-600 mt-1">{draftCount}</p>
-        </div>
+        </button>
+        <button
+          onClick={() => setStatus("Published")}
+          className={`p-4 rounded-2xl border text-left transition cursor-pointer ${
+            status === "Published"
+              ? "border-emerald-400 bg-emerald-100/60 ring-2 ring-emerald-400/30"
+              : "border-emerald-200 bg-emerald-50/30 hover:bg-emerald-50"
+          }`}
+        >
+          <span className="text-xs font-bold text-emerald-800">Live / Published</span>
+          <p className="text-2xl font-black text-emerald-600 mt-1">{publishedCount}</p>
+        </button>
         <div className="bg-white p-4 rounded-2xl border border-teal-200 bg-teal-50/20 shadow-xs">
           <span className="text-xs font-semibold text-teal-700">⚡ Auto-Ingested</span>
           <p className="text-2xl font-black text-teal-600 mt-1">{autoCount}</p>
@@ -230,60 +316,123 @@ export default function AdminArticlesPage() {
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
-        <div className="flex-1 relative">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-sm">
-            🔍
-          </span>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search articles by title, slug, sector, or organization..."
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/30 font-medium"
-          />
+      {/* Quick Filter Tabs & Search Bar */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col gap-3">
+        {/* Status Pills */}
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-1.5 overflow-x-auto">
+            <button
+              onClick={() => setStatus("")}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                status === ""
+                  ? "bg-slate-900 text-white shadow-2xs"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              }`}
+            >
+              All Articles ({totalArticles})
+            </button>
+            <button
+              onClick={() => setStatus("Draft")}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                status === "Draft"
+                  ? "bg-amber-600 text-white shadow-2xs"
+                  : "bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200"
+              }`}
+            >
+              <span>📝 Drafts Pending Review ({draftCount})</span>
+            </button>
+            <button
+              onClick={() => setStatus("Published")}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                status === "Published"
+                  ? "bg-emerald-600 text-white shadow-2xs"
+                  : "bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200"
+              }`}
+            >
+              <span>🟢 Live / Published ({publishedCount})</span>
+            </button>
+          </div>
+
+          {/* Bulk Action Bar (Visible when rows selected) */}
+          {selectedIds.length > 0 && (
+            <div className="flex items-center gap-2 bg-slate-900 text-white px-3 py-1.5 rounded-xl text-xs animate-fade-in">
+              <span className="font-bold">{selectedIds.length} Selected</span>
+              <button
+                onClick={() => handleBulkStatus("Published")}
+                disabled={bulkUpdating}
+                className="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-lg transition disabled:opacity-50 cursor-pointer"
+              >
+                {bulkUpdating ? "..." : "🚀 Publish"}
+              </button>
+              <button
+                onClick={() => handleBulkStatus("Draft")}
+                disabled={bulkUpdating}
+                className="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg transition disabled:opacity-50 cursor-pointer"
+              >
+                {bulkUpdating ? "..." : "Move to Draft"}
+              </button>
+              <button
+                onClick={() => setSelectedIds([])}
+                className="px-2 py-1 text-slate-400 hover:text-white cursor-pointer"
+              >
+                Clear
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Sector filter */}
-          <select
-            value={sector}
-            onChange={(e) => setSector(e.target.value)}
-            className="text-xs py-2 px-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/30 font-semibold"
-          >
-            {SECTORS.map((sec) => (
-              <option key={sec} value={sec}>
-                Sector: {sec}
-              </option>
-            ))}
-          </select>
+        {/* Search & Dropdown Filters */}
+        <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+          <div className="flex-1 relative">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-sm">
+              🔍
+            </span>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search articles by title, slug, sector, or organization..."
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/30 font-medium"
+            />
+          </div>
 
-          {/* State filter */}
-          <select
-            value={state}
-            onChange={(e) => setState(e.target.value)}
-            className="text-xs py-2 px-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/30 font-semibold"
-          >
-            {STATES.map((st) => (
-              <option key={st} value={st}>
-                State: {st}
-              </option>
-            ))}
-          </select>
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={sector}
+              onChange={(e) => setSector(e.target.value)}
+              className="text-xs py-2 px-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/30 font-semibold"
+            >
+              {SECTORS.map((sec) => (
+                <option key={sec} value={sec}>
+                  Sector: {sec}
+                </option>
+              ))}
+            </select>
 
-          {/* Category filter */}
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="text-xs py-2 px-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/30 font-semibold"
-          >
-            {CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>
-                Type: {cat}
-              </option>
-            ))}
-          </select>
+            <select
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              className="text-xs py-2 px-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/30 font-semibold"
+            >
+              {STATES.map((st) => (
+                <option key={st} value={st}>
+                  State: {st}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="text-xs py-2 px-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/30 font-semibold"
+            >
+              {CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>
+                  Type: {cat}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -299,7 +448,7 @@ export default function AdminArticlesPage() {
             <p className="text-sm font-bold">⚠️ {error}</p>
             <button
               onClick={fetchArticles}
-              className="px-4 py-1.5 text-xs bg-slate-100 hover:bg-slate-200 rounded-lg font-semibold"
+              className="px-4 py-1.5 text-xs bg-slate-100 hover:bg-slate-200 rounded-lg font-semibold cursor-pointer"
             >
               Try Again
             </button>
@@ -331,7 +480,18 @@ export default function AdminArticlesPage() {
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
-                  <th className="py-3.5 px-4">Article Title & Sector</th>
+                  <th className="py-3.5 px-3 text-center w-10">
+                    <input
+                      type="checkbox"
+                      checked={
+                        articles.length > 0 && selectedIds.length === articles.length
+                      }
+                      onChange={handleSelectAll}
+                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                      title="Select all"
+                    />
+                  </th>
+                  <th className="py-3.5 px-4">Article Title &amp; Sector</th>
                   <th className="py-3.5 px-4">Category</th>
                   <th className="py-3.5 px-4">State</th>
                   <th className="py-3.5 px-4">Status</th>
@@ -341,109 +501,173 @@ export default function AdminArticlesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {articles.map((item) => (
-                  <tr key={item._id} className="hover:bg-slate-50/60 transition">
-                    <td className="py-3.5 px-4 max-w-sm">
-                      <div className="font-bold text-slate-900 line-clamp-1">
-                        {item.title}
-                      </div>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[10px] text-blue-600 font-bold">
-                          🏛️ {item.sector || "Central Govt"}
+                {articles.map((item) => {
+                  const isDraft = item.status === "Draft";
+                  const isRowToggling = togglingId === item._id;
+                  const isSelected = selectedIds.includes(item._id);
+
+                  return (
+                    <tr
+                      key={item._id}
+                      className={`hover:bg-slate-50/60 transition ${
+                        isSelected ? "bg-blue-50/30" : ""
+                      }`}
+                    >
+                      {/* Checkbox */}
+                      <td className="py-3.5 px-3 text-center">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleToggleSelect(item._id)}
+                          className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        />
+                      </td>
+
+                      {/* Title & Sector */}
+                      <td className="py-3.5 px-4 max-w-sm">
+                        <div className="font-bold text-slate-900 line-clamp-1">
+                          {item.title}
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[10px] text-blue-600 font-bold">
+                            🏛️ {item.sector || "Central Govt"}
+                          </span>
+                          {item.isAutoGenerated && (
+                            <span className="text-[9px] font-bold text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200/50">
+                              ⚡ Auto-Crawled
+                            </span>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Category */}
+                      <td className="py-3.5 px-4">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                          {item.category}
                         </span>
-                        {item.isAutoGenerated && (
-                          <span className="text-[9px] font-bold text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200/50">
-                            ⚡ Auto-Crawled
+                      </td>
+
+                      {/* State */}
+                      <td className="py-3.5 px-4">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/60">
+                          {item.state || "All India"}
+                        </span>
+                      </td>
+
+                      {/* Status Badge */}
+                      <td className="py-3.5 px-4">
+                        {isDraft ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800 border border-amber-300">
+                            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                            Draft
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                            Live
                           </span>
                         )}
-                      </div>
-                    </td>
+                      </td>
 
-                    <td className="py-3.5 px-4">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                        {item.category}
-                      </span>
-                    </td>
-
-                    <td className="py-3.5 px-4">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/60">
-                        {item.state || "All India"}
-                      </span>
-                    </td>
-
-                    <td className="py-3.5 px-4">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${
-                          item.status === "Published"
-                            ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                            : "bg-amber-100 text-amber-800 border border-amber-200"
-                        }`}
-                      >
-                        {item.status === "Published" ? "● Live" : "○ Draft"}
-                      </span>
-                    </td>
-
-                    <td className="py-3.5 px-4 text-slate-500 text-[11px] whitespace-nowrap">
-                      {item.publishDate ? (
-                        <div>
-                          <div className="font-semibold text-slate-700">
-                            {new Date(item.publishDate)
-                              .toLocaleString("en-IN", {
-                                timeZone: "Asia/Kolkata",
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                hour12: true,
-                              })
-                              .replace(/\b(am|pm)\b/i, (m) => m.toUpperCase())}{" "}
-                            IST
+                      {/* Published Date */}
+                      <td className="py-3.5 px-4 text-slate-500 text-[11px] whitespace-nowrap">
+                        {item.publishDate ? (
+                          <div>
+                            <div className="font-semibold text-slate-700">
+                              {new Date(item.publishDate)
+                                .toLocaleString("en-IN", {
+                                  timeZone: "Asia/Kolkata",
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: true,
+                                })
+                                .replace(/\b(am|pm)\b/i, (m) => m.toUpperCase())}{" "}
+                              IST
+                            </div>
                           </div>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+
+                      {/* Views */}
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1 font-extrabold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-lg text-xs">
+                          👁️ {(item.views || 0).toLocaleString()}
+                        </span>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {/* Fast Make Live (Draft) / Move to Draft (Published) Button */}
+                          {isDraft ? (
+                            <button
+                              onClick={() => handleToggleStatus(item._id, "Published")}
+                              disabled={isRowToggling}
+                              className="px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-2xs transition disabled:opacity-50 cursor-pointer"
+                              title="Publish this article to make it live for candidates"
+                            >
+                              {isRowToggling ? "Publishing..." : "🚀 Make Live"}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleToggleStatus(item._id, "Draft")}
+                              disabled={isRowToggling}
+                              className="px-2 py-1 rounded-md text-[10px] font-semibold text-amber-700 hover:bg-amber-50 border border-amber-200 transition disabled:opacity-50 cursor-pointer"
+                              title="Unpublish this article and return it to Draft"
+                            >
+                              {isRowToggling ? "..." : "To Draft"}
+                            </button>
+                          )}
+
+                          {/* Preview Button */}
+                          <Link
+                            href={`/admin/articles/preview/${item._id}`}
+                            className="px-2 py-1 rounded-md text-[11px] font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition"
+                            title="Preview article as it appears to candidates"
+                          >
+                            👁️ Preview
+                          </Link>
+
+                          {/* Public Live Link (only if published) */}
+                          {!isDraft && (
+                            <Link
+                              href={`/news/${item.slug}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-2 py-1 rounded-md text-[11px] font-semibold text-blue-600 hover:bg-blue-50 border border-blue-200 transition"
+                              title="Open live URL"
+                            >
+                              Live ↗
+                            </Link>
+                          )}
+
+                          {/* Edit Button */}
+                          <Link
+                            href={`/admin/articles/edit/${item._id}`}
+                            className="px-2 py-1 rounded-md text-[11px] font-semibold text-indigo-600 hover:bg-indigo-50 border border-indigo-200 transition"
+                            title="Edit content"
+                          >
+                            ✎
+                          </Link>
+
+                          {/* Delete Button */}
+                          <button
+                            onClick={() => setDeleteConfirm(item)}
+                            className="px-2 py-1 rounded-md text-[11px] font-semibold text-red-600 hover:bg-red-50 border border-red-200 transition cursor-pointer"
+                            title="Delete article"
+                          >
+                            ✕
+                          </button>
                         </div>
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-
-                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                      <span className="inline-flex items-center gap-1 font-extrabold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-lg text-xs">
-                        👁️ {(item.views || 0).toLocaleString()}
-                      </span>
-                    </td>
-
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        {/* Live Link */}
-                        <Link
-                          href={`/news/${item.slug}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-2.5 py-1 rounded-md text-[11px] font-semibold text-blue-600 hover:bg-blue-50 border border-blue-200 transition"
-                          title="View on live website"
-                        >
-                          Live ↗
-                        </Link>
-
-                        {/* Edit Button */}
-                        <Link
-                          href={`/admin/articles/edit/${item._id}`}
-                          className="px-2.5 py-1 rounded-md text-[11px] font-semibold text-indigo-600 hover:bg-indigo-50 border border-indigo-200 transition"
-                        >
-                          Edit ✎
-                        </Link>
-
-                        {/* Delete Button */}
-                        <button
-                          onClick={() => setDeleteConfirm(item)}
-                          className="px-2.5 py-1 rounded-md text-[11px] font-semibold text-red-600 hover:bg-red-50 border border-red-200 transition cursor-pointer"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -469,14 +693,14 @@ export default function AdminArticlesPage() {
               <button
                 onClick={() => setDeleteConfirm(null)}
                 disabled={deletingId === deleteConfirm._id}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
+                className="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleDelete(deleteConfirm._id)}
                 disabled={deletingId === deleteConfirm._id}
-                className="px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-xs"
+                className="px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-xs cursor-pointer"
               >
                 {deletingId === deleteConfirm._id ? "Deleting..." : "Yes, Delete Article"}
               </button>

@@ -122,7 +122,7 @@ const ArticleSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["Draft", "Published", "Archived"],
-      default: "Published",
+      default: "Draft",
       index: true,
     },
     badge: {

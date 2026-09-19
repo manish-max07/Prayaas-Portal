@@ -611,7 +611,7 @@ async function runAutoArticleIngestion() {
           categorySlug: category.toLowerCase().replace(/\s+/g, "-"),
           sector,
           state,
-          status: "Published",
+          status: "Draft",
           badge,
           readingTime: "5 min read",
           author: {

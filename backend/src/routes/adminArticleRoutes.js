@@ -8,6 +8,8 @@ const {
   adminCreateArticle,
   adminUpdateArticle,
   adminDeleteArticle,
+  adminUpdateArticleStatus,
+  adminBulkUpdateStatus,
 } = require("../controllers/articleController");
 const {
   triggerAutoSync,
@@ -22,10 +24,14 @@ router.use(adminOnly);
 router.post("/sync", triggerAutoSync);
 router.get("/sync-status", getSyncStatus);
 
+// Bulk operations
+router.post("/bulk-status", adminBulkUpdateStatus);
+
 router.get("/", adminGetArticles);
 router.get("/:id", adminGetArticleById);
 router.post("/", adminCreateArticle);
 router.put("/:id", adminUpdateArticle);
+router.patch("/:id/status", adminUpdateArticleStatus);
 router.delete("/:id", adminDeleteArticle);
 
 module.exports = router;
