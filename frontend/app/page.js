@@ -82,6 +82,18 @@ const RefreshIcon = ({ className }) => (
   </svg>
 );
 
+const TrophyIcon = ({ className, style }) => (
+  <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 21h8m-4-4v4M7 4h10m0 0v5a5 5 0 01-10 0V4m10 0h2a2 2 0 012 2v1a4 4 0 01-4 4h0M7 4H5a2 2 0 00-2 2v1a4 4 0 004 4h0" />
+  </svg>
+);
+
+const DocumentCheckIcon = ({ className, style }) => (
+  <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+  </svg>
+);
+
 // ─── Category Icon Map ─────────────────────────────────────────────────────────
 const CategoryBadgeIcon = ({ category }) => {
   const icons = {
@@ -248,11 +260,11 @@ export default function HomePage() {
     <div className="min-h-screen bg-gray-50">
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <section className="bg-white border-b border-gray-100">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-10">
+      <section className="bg-gradient-to-b from-blue-50/40 via-white to-white border-b border-gray-100 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-10 pb-8 lg:pt-14 lg:pb-12">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-10 lg:gap-12">
 
-            {/* Left: Headline */}
+            {/* Left: Headline & CTAs */}
             <div className="max-w-2xl">
               {/* Live pill */}
               <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1.5 text-xs font-semibold text-blue-700 mb-5">
@@ -291,79 +303,68 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right: Stats grid */}
-            <div className="grid grid-cols-2 gap-3 lg:w-80 shrink-0">
-              {[
-                { label: "Post-Exam Release", sub: "Papers live within hours", highlight: true },
-                { label: "100% CBT Simulation", sub: "Authentic TCS iON interface", highlight: false },
-                {
-                  label: `${totalExamsCount || "-"} Papers`,
-                  sub: "Live mock tests available",
-                  highlight: false,
-                },
-                { label: "Real-Time Rank", sub: "All India ranking engine", highlight: false },
-              ].map((stat) => (
-                <div
-                  key={stat.label}
-                  className={`rounded-xl border p-4 ${
-                    stat.highlight
-                      ? "border-blue-200 bg-blue-50"
-                      : "border-gray-100 bg-gray-50"
-                  }`}
-                >
-                  <p className={`text-sm font-bold ${stat.highlight ? "text-blue-700" : "text-gray-900"}`}>
-                    {stat.label}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-0.5 leading-snug">{stat.sub}</p>
-                </div>
-              ))}
+            {/* Right: Cartoon Illustration (replacing the previous 4 boxes) */}
+            <div className="relative flex items-center justify-center lg:justify-end shrink-0 w-full lg:w-[480px] xl:w-[540px]">
+              <div className="relative w-full max-w-[460px] lg:max-w-none aspect-[1536/1024]">
+                <Image
+                  src="/photohomepage.png"
+                  alt="Prayaas Karo Exam Preparation"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 540px"
+                  className="object-contain drop-shadow-sm transition-transform duration-500 hover:scale-[1.02]"
+                />
+              </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ── FEATURE PILLARS ──────────────────────────────────────────────── */}
-      <section className="bg-white border-b border-gray-100">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-7">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              {
-                icon: BoltIcon,
-                color: "blue",
-                title: "Post-Exam Rapid Release",
-                desc: "Real question papers published right after official shifts conclude.",
-              },
-              {
-                icon: MonitorIcon,
-                color: "indigo",
-                title: "Authentic TCS iON Interface",
-                desc: "Question palette, section switching, timer, and negative scoring, exactly as in the real exam.",
-              },
-              {
-                icon: ArchiveIcon,
-                color: "green",
-                title: "Previous Year Archive",
-                desc: "Full access to verified previous year papers and latest exam cycles.",
-              },
-            ].map(({ icon: Icon, color, title, desc }) => (
-              <div key={title} className="flex items-start gap-3">
-                <div
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-                    color === "blue"
-                      ? "bg-blue-50 text-blue-600"
-                      : color === "indigo"
-                      ? "bg-indigo-50 text-indigo-600"
-                      : "bg-green-50 text-green-600"
-                  }`}
-                >
-                  <Icon className="h-4.5 w-4.5" style={{ width: "18px", height: "18px" }} />
+          {/* ── 4 KEY HIGHLIGHT BOXES (Relocated below hero content in Testbook-inspired style) ── */}
+          <div className="mt-10 lg:mt-12 pt-6 border-t border-gray-100">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+              {/* Box 1: Post-Exam Release */}
+              <div className="flex items-center gap-3.5 p-4 rounded-xl border border-blue-200/80 bg-blue-50/50 hover:bg-blue-50 transition-colors shadow-2xs">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+                  <BoltIcon className="h-5 w-5" style={{ width: "20px", height: "20px" }} />
                 </div>
-                <div>
-                  <h3 className="text-sm font-bold text-gray-900">{title}</h3>
-                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{desc}</p>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-blue-700">Post-Exam Release</p>
+                  <p className="text-sm font-bold text-gray-900 truncate">Papers live within hours</p>
                 </div>
               </div>
-            ))}
+
+              {/* Box 2: 100% CBT Simulation */}
+              <div className="flex items-center gap-3.5 p-4 rounded-xl border border-indigo-100 bg-white hover:border-indigo-200 hover:bg-indigo-50/30 transition-colors shadow-2xs">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                  <MonitorIcon className="h-5 w-5" style={{ width: "20px", height: "20px" }} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-gray-500">100% CBT Simulation</p>
+                  <p className="text-sm font-bold text-gray-900 truncate">Authentic TCS iON Interface</p>
+                </div>
+              </div>
+
+              {/* Box 3: Live Mock Papers */}
+              <div className="flex items-center gap-3.5 p-4 rounded-xl border border-purple-100 bg-white hover:border-purple-200 hover:bg-purple-50/30 transition-colors shadow-2xs">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
+                  <DocumentCheckIcon className="h-5 w-5" style={{ width: "20px", height: "20px" }} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-gray-500">{totalExamsCount || "2"} Live Papers</p>
+                  <p className="text-sm font-bold text-gray-900 truncate">Shift-wise mock tests</p>
+                </div>
+              </div>
+
+              {/* Box 4: Real-Time Rank */}
+              <div className="flex items-center gap-3.5 p-4 rounded-xl border border-amber-100 bg-white hover:border-amber-200 hover:bg-amber-50/30 transition-colors shadow-2xs">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                  <TrophyIcon className="h-5 w-5" style={{ width: "20px", height: "20px" }} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-gray-500">Real-Time Rank</p>
+                  <p className="text-sm font-bold text-gray-900 truncate">All-India ranking engine</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

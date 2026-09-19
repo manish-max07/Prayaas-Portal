@@ -300,14 +300,34 @@ async function scrapeArticleDetails(url, fallbackTitle = "") {
       contentClone.find("#shareBtnWrap, .heading-share, .share-btn").remove();
       contentClone.find("#downloadAppBtn, #getStartedBtn").remove();
       contentClone.find(".code-block").remove();
-      contentClone.find("div").each((_, div) => {
-        const text = $(div).text() || "";
+
+      // Remove author boxes, author bios, and external writer profiles
+      contentClone.find("[class*='author'], [id*='author']").remove();
+      contentClone.find("[class*='biography'], [id*='biography']").remove();
+      contentClone.find("[class*='about-author'], [id*='about-author']").remove();
+      contentClone.find("[class*='writer'], [id*='writer']").remove();
+      contentClone.find("a[href*='/author/'], a[href*='/writers/']").each((_, a) => {
+        const parent = $(a).closest("div, section, p");
+        if (parent.length) parent.remove();
+        else $(a).remove();
+      });
+      contentClone.find(".wp-block-post-author, .wp-block-post-author-name, .wp-block-post-author-biography").remove();
+      contentClone.find("[itemprop='author'], [itemtype*='Person']").remove();
+
+      // Remove author bio text blocks, contact footnotes, and app promotions
+      contentClone.find("div, p, section, aside").each((_, el) => {
+        const text = $(el).text() || "";
+        const lower = text.toLowerCase();
         if (
-          text.includes("Add Testbook as Preferred Source") ||
-          text.includes("Download App") ||
-          text.includes("Get Started for Free")
+          lower.includes("is a content writer") ||
+          lower.includes("content writer specialized") ||
+          lower.includes("for any information, reach out to") ||
+          (lower.includes("reach out to") && lower.includes("[email protected]")) ||
+          lower.includes("add testbook as preferred source") ||
+          lower.includes("download app") ||
+          lower.includes("get started for free")
         ) {
-          $(div).remove();
+          $(el).remove();
         }
       });
       contentClone.find("a[href*='link.testbook.com']").remove();
