@@ -194,39 +194,53 @@ export default async function NewsArticlePage({ params }) {
           <div className="mx-auto max-w-4xl">
             {/* Breadcrumbs */}
             <nav aria-label="Breadcrumb" className="text-xs font-semibold text-slate-500 mb-4">
-              <ol className="flex flex-wrap items-center gap-2">
+              <ol className="flex flex-wrap items-center gap-1.5">
                 <li>
                   <Link href="/" className="hover:text-blue-600 transition">
                     Home
                   </Link>
                 </li>
-                <li>/</li>
+                <li className="text-slate-400">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </li>
                 <li>
                   <Link href="/news" className="hover:text-blue-600 transition">
                     Exam Updates
                   </Link>
                 </li>
-                <li>/</li>
+                <li className="text-slate-400">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </li>
                 <li>
                   <span className="text-blue-600">{article.category}</span>
                 </li>
-                <li>/</li>
+                <li className="text-slate-400">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </li>
                 <li className="text-slate-800 line-clamp-1 max-w-xs">{article.shortTitle}</li>
               </ol>
             </nav>
 
             {/* Category and Status Badge */}
             <div className="flex flex-wrap items-center gap-2 mb-3">
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
                 {article.category}
               </span>
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1.5 animate-pulse">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
                 {article.badge}
               </span>
-              <span className="text-xs font-semibold text-slate-500">
-                Advt. No: {article.advtNumber}
-              </span>
+              {article.advtNumber && (
+                <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                  Advt. No: {article.advtNumber}
+                </span>
+              )}
             </div>
 
             {/* H1 Title */}
@@ -235,55 +249,58 @@ export default async function NewsArticlePage({ params }) {
             </h1>
 
             {/* Author Byline and Timestamp */}
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-200/80 text-xs text-slate-500">
-              <div className="flex items-center gap-2">
-                <div className="h-7 w-7 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[10px]">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-200 text-xs text-slate-500">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs shadow-2xs">
                   PP
                 </div>
                 <div>
-                  <span className="font-bold text-slate-800 block">
+                  <span className="font-bold text-slate-800 block leading-tight">
                     {article.author?.name || "Prayaas Portal Exam Desk"}
                   </span>
-                  <span className="text-slate-400 text-[11px]">
+                  <span className="text-slate-500 text-[11px]">
                     {article.author?.role || "Senior Exam Analyst"}
                   </span>
                 </div>
               </div>
 
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-[11px] sm:text-xs">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-500 font-medium">Published:</span>
+                <div className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-md text-slate-700">
+                  <svg className="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="font-medium text-slate-500">Published:</span>
                   <time
                     dateTime={toIsoStringSafe(article.publishDate)}
                     itemProp="datePublished"
-                    className="font-bold text-slate-800 bg-slate-100/90 px-2 py-0.5 rounded-md"
+                    className="font-bold text-slate-900"
                   >
                     {formatIndianDateTime(article.publishDate)}
                   </time>
                 </div>
                 {article.lastUpdated && (
-                  <>
-                    <span className="hidden sm:inline text-slate-300">•</span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-slate-500 font-medium">Updated:</span>
-                      <time
-                        dateTime={toIsoStringSafe(article.lastUpdated)}
-                        itemProp="dateModified"
-                        className="font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/70"
-                      >
-                        {formatIndianDateTime(article.lastUpdated)}
-                      </time>
-                    </div>
-                  </>
+                  <div className="flex items-center gap-1.5 bg-emerald-50 px-2.5 py-1 rounded-md text-emerald-800 border border-emerald-200">
+                    <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span className="font-medium text-emerald-700">Updated:</span>
+                    <time
+                      dateTime={toIsoStringSafe(article.lastUpdated)}
+                      itemProp="dateModified"
+                      className="font-bold text-emerald-900"
+                    >
+                      {formatIndianDateTime(article.lastUpdated)}
+                    </time>
+                  </div>
                 )}
                 {article.views > 0 && (
-                  <>
-                    <span className="hidden sm:inline text-slate-300">•</span>
-                    <div className="flex items-center gap-1 font-bold text-indigo-800 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
-                      <span>👁️</span>
-                      <span>{article.views.toLocaleString()} reads</span>
-                    </div>
-                  </>
+                  <div className="flex items-center gap-1.5 font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
+                    <svg className="w-3.5 h-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span>{article.views.toLocaleString()} reads</span>
+                  </div>
                 )}
               </div>
             </div>
