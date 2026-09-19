@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/api";
@@ -124,6 +124,49 @@ export default function ArticleForm({ initialData = {}, isEdit = false, articleI
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+
+  // Content Dual-View Editing Mode ("visual" or "code")
+  const [contentMode, setContentMode] = useState("visual");
+  const visualEditorRef = useRef(null);
+
+  useEffect(() => {
+    if (activeTab === "content" && contentMode === "visual" && visualEditorRef.current) {
+      if (visualEditorRef.current.innerHTML !== formData.content) {
+        visualEditorRef.current.innerHTML = formData.content || "";
+      }
+    }
+  }, [activeTab, contentMode]);
+
+  const execEditorCommand = (command, value = null) => {
+    document.execCommand(command, false, value);
+    if (visualEditorRef.current) {
+      setFormData((prev) => ({
+        ...prev,
+        content: visualEditorRef.current.innerHTML,
+      }));
+    }
+  };
+
+  const handleAddLink = () => {
+    const url = window.prompt("Enter URL (e.g. https://upsc.gov.in):");
+    if (url) {
+      execEditorCommand("createLink", url);
+    }
+  };
+
+  const handleCleanCompetitors = () => {
+    if (!formData.content) return;
+    const cleaned = formData.content
+      .replace(/Testbook/gi, "Prayaas Karo")
+      .replace(/testbook\.com/gi, "prayaaskaro.in")
+      .replace(/Adda247/gi, "Prayaas Karo")
+      .replace(/adda247\.com/gi, "prayaaskaro.in")
+      .replace(/Sarkari\s*Result/gi, "Prayaas Karo");
+    setFormData((prev) => ({ ...prev, content: cleaned }));
+    if (visualEditorRef.current) {
+      visualEditorRef.current.innerHTML = cleaned;
+    }
+  };
 
   // Auto slug generation from title
   const handleTitleChange = (e) => {
@@ -878,26 +921,213 @@ export default function ArticleForm({ initialData = {}, isEdit = false, articleI
         </div>
       )}
 
-      {/* TAB 5: BODY / CONTENT */}
+      {/* TAB 5: BODY / CONTENT DUAL-MODE EDITOR */}
       {activeTab === "content" && (
         <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200 space-y-4">
-          <div className="border-b border-slate-100 pb-2">
-            <h3 className="text-sm font-bold text-slate-800">
-              Freeform Article Body Content (Markdown / HTML)
-            </h3>
-            <p className="text-[11px] text-slate-500">
-              For articles requiring custom explanations, syllabus breakdowns, cutoff analysis, or in-depth guides.
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+            <div>
+              <h3 className="text-sm font-bold text-slate-800">
+                Article Body Content
+              </h3>
+              <p className="text-[11px] text-slate-500">
+                Switch between visual text view (edit text directly on the page) and HTML code view.
+              </p>
+            </div>
+
+            {/* Mode Switcher Buttons */}
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setContentMode("visual");
+                  setTimeout(() => {
+                    if (visualEditorRef.current) {
+                      visualEditorRef.current.innerHTML = formData.content || "";
+                    }
+                  }, 0);
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                  contentMode === "visual"
+                    ? "bg-white text-blue-600 shadow-2xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                📝 Visual Text View
+              </button>
+              <button
+                type="button"
+                onClick={() => setContentMode("code")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                  contentMode === "code"
+                    ? "bg-white text-blue-600 shadow-2xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                💻 HTML Code View
+              </button>
+            </div>
           </div>
 
-          <textarea
-            name="content"
-            rows={14}
-            value={formData.content}
-            onChange={handleChange}
-            placeholder="Write your article content here in Markdown format (supports headings ##, bold, bullet points, links, etc.)..."
-            className="w-full p-4 text-xs font-mono rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/30 leading-relaxed"
-          />
+          {/* VISUAL TEXT VIEW */}
+          {contentMode === "visual" && (
+            <div className="space-y-2">
+              {/* Formatting Toolbar */}
+              <div className="flex flex-wrap items-center gap-1 p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                <button
+                  type="button"
+                  onClick={() => execEditorCommand("bold")}
+                  className="px-2.5 py-1 rounded bg-white hover:bg-slate-100 border border-slate-200 font-black text-slate-800 cursor-pointer"
+                  title="Bold"
+                >
+                  B
+                </button>
+                <button
+                  type="button"
+                  onClick={() => execEditorCommand("italic")}
+                  className="px-2.5 py-1 rounded bg-white hover:bg-slate-100 border border-slate-200 italic font-serif text-slate-800 cursor-pointer"
+                  title="Italic"
+                >
+                  I
+                </button>
+                <button
+                  type="button"
+                  onClick={() => execEditorCommand("underline")}
+                  className="px-2.5 py-1 rounded bg-white hover:bg-slate-100 border border-slate-200 underline text-slate-800 cursor-pointer"
+                  title="Underline"
+                >
+                  U
+                </button>
+                <span className="text-slate-300 mx-1">|</span>
+                <button
+                  type="button"
+                  onClick={() => execEditorCommand("formatBlock", "<h2>")}
+                  className="px-2.5 py-1 rounded bg-white hover:bg-slate-100 border border-slate-200 font-bold text-slate-800 text-[11px] cursor-pointer"
+                  title="Heading 2"
+                >
+                  H2
+                </button>
+                <button
+                  type="button"
+                  onClick={() => execEditorCommand("formatBlock", "<h3>")}
+                  className="px-2.5 py-1 rounded bg-white hover:bg-slate-100 border border-slate-200 font-bold text-slate-800 text-[11px] cursor-pointer"
+                  title="Heading 3"
+                >
+                  H3
+                </button>
+                <button
+                  type="button"
+                  onClick={() => execEditorCommand("formatBlock", "<p>")}
+                  className="px-2 py-1 rounded bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-[11px] cursor-pointer"
+                  title="Paragraph"
+                >
+                  Paragraph
+                </button>
+                <span className="text-slate-300 mx-1">|</span>
+                <button
+                  type="button"
+                  onClick={() => execEditorCommand("insertUnorderedList")}
+                  className="px-2 py-1 rounded bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-[11px] cursor-pointer"
+                  title="Bullet List"
+                >
+                  • Bullet List
+                </button>
+                <button
+                  type="button"
+                  onClick={() => execEditorCommand("insertOrderedList")}
+                  className="px-2 py-1 rounded bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-[11px] cursor-pointer"
+                  title="Numbered List"
+                >
+                  1. Number List
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAddLink}
+                  className="px-2 py-1 rounded bg-white hover:bg-slate-100 border border-slate-200 text-blue-600 font-semibold text-[11px] cursor-pointer"
+                  title="Insert Link"
+                >
+                  🔗 Link
+                </button>
+                <span className="text-slate-300 mx-1">|</span>
+                <button
+                  type="button"
+                  onClick={handleCleanCompetitors}
+                  className="px-2.5 py-1 rounded bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold text-[11px] cursor-pointer ml-auto"
+                  title="Replace competitor names (Testbook/Adda247) with Prayaas Karo"
+                >
+                  🧹 Clean Brand Mentions
+                </button>
+              </div>
+
+              {/* Editable Visual Canvas */}
+              <div className="relative">
+                <div
+                  ref={visualEditorRef}
+                  contentEditable
+                  suppressContentEditableWarning
+                  onInput={(e) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      content: e.currentTarget.innerHTML,
+                    }));
+                  }}
+                  onBlur={(e) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      content: e.currentTarget.innerHTML,
+                    }));
+                  }}
+                  className="article-prose min-h-[420px] max-h-[700px] overflow-y-auto p-5 bg-white rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600/30 text-xs sm:text-sm text-slate-800 leading-relaxed shadow-inner"
+                />
+                {!formData.content && (
+                  <div className="pointer-events-none absolute top-5 left-5 text-slate-400 text-xs italic">
+                    Type your article text here or paste rich content...
+                  </div>
+                )}
+              </div>
+              <p className="text-[11px] text-slate-400">
+                💡 Tip: Click anywhere to edit headings, paragraphs, or table cells directly. To edit raw tags, switch to HTML Code View.
+              </p>
+            </div>
+          )}
+
+          {/* CODE EDIT VIEW */}
+          {contentMode === "code" && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-[11px] text-slate-500">
+                <span className="font-semibold">HTML Source Editor</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    try {
+                      const formatted = formData.content
+                        .replace(/></g, ">\n<")
+                        .replace(/<\/p>/g, "</p>\n")
+                        .replace(/<\/tr>/g, "</tr>\n")
+                        .replace(/<\/h2>/g, "</h2>\n")
+                        .replace(/<\/h3>/g, "</h3>\n");
+                      setFormData((prev) => ({ ...prev, content: formatted }));
+                    } catch (e) {}
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer"
+                >
+                  Format HTML Spacing
+                </button>
+              </div>
+              <textarea
+                name="content"
+                rows={16}
+                value={formData.content}
+                onChange={(e) => {
+                  handleChange(e);
+                  if (visualEditorRef.current) {
+                    visualEditorRef.current.innerHTML = e.target.value;
+                  }
+                }}
+                placeholder="Write or edit raw HTML tags here..."
+                className="w-full p-4 text-xs font-mono rounded-xl border border-slate-800 bg-slate-900 text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed"
+              />
+            </div>
+          )}
         </div>
       )}
 
