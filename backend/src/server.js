@@ -21,6 +21,9 @@ const adminArticleRoutes = require("./routes/adminArticleRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const { seedDefaultDisposableDomains } = require("./services/securityBlocklistService");
+const { sanitizeInput } = require("./middleware/sanitizeInput");
+const { csrfProtection } = require("./middleware/csrfProtection");
+const { securityHeaders } = require("./middleware/securityHeaders");
 
 // Connect to MongoDB
 connectDB().then(() => {
@@ -32,10 +35,16 @@ connectDB().then(() => {
 
 const app = express();
 
+// Production HTTP Security Headers
+app.use(securityHeaders);
+
 // Body Parser & Cookie Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use(cookieParser());
+
+// Global NoSQL Operator Injection & Input Sanitization
+app.use(sanitizeInput);
 
 // CORS Configuration
 const staticAllowedOrigins = [
@@ -92,6 +101,9 @@ app.get("/api/health", (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// Enforce CSRF protection on all state-changing API requests
+app.use("/api", csrfProtection);
 
 // API Routes
 app.use("/api/auth", authRoutes);

@@ -7,8 +7,9 @@ const {
 } = require("../controllers/adminAuthController");
 const { protect } = require("../middleware/authMiddleware");
 const { adminOnly } = require("../middleware/adminOnlyMiddleware");
+const { loginRateLimiter } = require("../middleware/rateLimiter");
 
-router.post("/login", adminLogin);
+router.post("/login", loginRateLimiter, adminLogin);
 router.post("/change-password", protect, adminOnly, adminChangePassword);
 router.get("/me", protect, adminOnly, getAdminMe);
 

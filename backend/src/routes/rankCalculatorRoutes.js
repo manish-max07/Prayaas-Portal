@@ -11,12 +11,16 @@ const {
 } = require("../controllers/rankCalculatorController");
 const { protect } = require("../middleware/authMiddleware");
 const { adminOnly } = require("../middleware/adminOnlyMiddleware");
+const {
+  rankCalculationRateLimiter,
+  proxyImageRateLimiter
+} = require("../middleware/rateLimiter");
 
 // Public candidate endpoints
 router.get("/exams", getExams);
-router.post("/calculate", calculateScoreAndRank);
+router.post("/calculate", rankCalculationRateLimiter, calculateScoreAndRank);
 router.get("/submission/:id", getSubmission);
-router.get("/proxy-image", proxyImage);
+router.get("/proxy-image", proxyImageRateLimiter, proxyImage);
 
 // Admin-only endpoints for Rank Predictor Module
 router.get("/admin/exams-summary", protect, adminOnly, getAdminExamsSummary);

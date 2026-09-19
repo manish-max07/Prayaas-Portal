@@ -11,6 +11,7 @@ const {
   isDomainBlocked
 } = require("../services/securityBlocklistService");
 const { getClientIp } = require("../middleware/rateLimiter");
+const { logSecurityEvent } = require("../utils/securityLogger");
 
 // Pre-computed bcrypt dummy hash for constant-time comparison against nonexistent users
 const DUMMY_HASH = "$2a$10$wE9q.OqB6Jq2Z9NfM7bFbeJzU3lVzP4L0D0qVb8J5t1R.k8v7b6k2";
@@ -24,6 +25,10 @@ const registerUser = async (req, res, next) => {
 
     // 1. IP Blocklist Check
     if (clientIp && (await isIpBlocked(clientIp))) {
+      logSecurityEvent("SIGNUP_BLOCKED_IP", {
+        ip: clientIp,
+        severity: "WARN"
+      });
       return res.status(403).json({
         success: false,
         message: "Registration is not permitted from this network address."
@@ -45,6 +50,11 @@ const registerUser = async (req, res, next) => {
 
     // 3. Email-specific Blocklist Check
     if (await isEmailBlocked(cleanEmail)) {
+      logSecurityEvent("SIGNUP_BLOCKED_EMAIL", {
+        ip: clientIp,
+        identifier: cleanEmail,
+        severity: "WARN"
+      });
       return res.status(403).json({
         success: false,
         message: "This email address is not eligible for registration."
@@ -54,6 +64,11 @@ const registerUser = async (req, res, next) => {
     // 4. Disposable Domain Blocklist Check
     const blockDisposable = process.env.BLOCK_DISPOSABLE_EMAIL !== "false";
     if (blockDisposable && (await isDomainBlocked(cleanEmail))) {
+      logSecurityEvent("SIGNUP_BLOCKED_DISPOSABLE_DOMAIN", {
+        ip: clientIp,
+        identifier: cleanEmail,
+        severity: "WARN"
+      });
       return res.status(400).json({
         success: false,
         message:
@@ -64,6 +79,11 @@ const registerUser = async (req, res, next) => {
     // 5. Check if user already exists (Account Enumeration Defense)
     const userExists = await User.findOne({ email: cleanEmail });
     if (userExists) {
+      logSecurityEvent("SIGNUP_EXISTING_ACCOUNT_ATTEMPT", {
+        ip: clientIp,
+        identifier: cleanEmail,
+        severity: "INFO"
+      });
       return res.status(400).json({
         success: false,
         message:
@@ -81,6 +101,13 @@ const registerUser = async (req, res, next) => {
     });
 
     const token = generateToken(user._id, user.role);
+
+    logSecurityEvent("SIGNUP_SUCCESS", {
+      ip: clientIp,
+      identifier: user.email,
+      severity: "INFO",
+      details: { userId: user._id }
+    });
 
     res.status(201).json({
       success: true,
@@ -109,6 +136,10 @@ const loginUser = async (req, res, next) => {
 
     // 1. IP Blocklist Check
     if (clientIp && (await isIpBlocked(clientIp))) {
+      logSecurityEvent("LOGIN_BLOCKED_IP", {
+        ip: clientIp,
+        severity: "WARN"
+      });
       return res.status(403).json({
         success: false,
         message: "Access is restricted from this network address."
@@ -128,6 +159,11 @@ const loginUser = async (req, res, next) => {
 
     // 3. Email Blocklist Check
     if (await isEmailBlocked(cleanEmail)) {
+      logSecurityEvent("LOGIN_BLOCKED_EMAIL", {
+        ip: clientIp,
+        identifier: cleanEmail,
+        severity: "WARN"
+      });
       return res.status(403).json({
         success: false,
         message: "Access for this account is restricted."
@@ -140,6 +176,11 @@ const loginUser = async (req, res, next) => {
     // Timing-attack mitigation: if user does not exist, run dummy compare
     if (!user) {
       await bcrypt.compare(cleanPassword, DUMMY_HASH);
+      logSecurityEvent("LOGIN_FAILURE_UNKNOWN_USER", {
+        ip: clientIp,
+        identifier: cleanEmail,
+        severity: "WARN"
+      });
       return res.status(401).json({
         success: false,
         message: "Invalid email or password."
@@ -149,6 +190,12 @@ const loginUser = async (req, res, next) => {
     // 5. Check if account is temporarily locked
     if (user.isLocked()) {
       const remainingMinutes = Math.ceil((user.lockUntil.getTime() - Date.now()) / (60 * 1000));
+      logSecurityEvent("LOGIN_ACCOUNT_LOCKED", {
+        ip: clientIp,
+        identifier: cleanEmail,
+        severity: "SECURITY_ALERT",
+        details: { remainingMinutes }
+      });
       return res.status(423).json({
         success: false,
         message: `Account is temporarily locked due to multiple failed login attempts. Please try again in ${Math.max(1, remainingMinutes)} minute(s).`
@@ -161,6 +208,13 @@ const loginUser = async (req, res, next) => {
       // Increment failed attempts and trigger temporary lockout if >= 5
       await user.incrementLoginAttempts();
       const suspiciousActivity = (user.failedLoginAttempts || 0) >= 3;
+
+      logSecurityEvent("LOGIN_FAILURE_BAD_PASSWORD", {
+        ip: clientIp,
+        identifier: cleanEmail,
+        severity: suspiciousActivity ? "SECURITY_ALERT" : "WARN",
+        details: { failedAttempts: (user.failedLoginAttempts || 0) + 1 }
+      });
 
       return res.status(401).json({
         success: false,
@@ -175,6 +229,13 @@ const loginUser = async (req, res, next) => {
     }
 
     const token = generateToken(user._id, user.role);
+
+    logSecurityEvent("LOGIN_SUCCESS", {
+      ip: clientIp,
+      identifier: user.email,
+      severity: "INFO",
+      details: { userId: user._id }
+    });
 
     res.status(200).json({
       success: true,

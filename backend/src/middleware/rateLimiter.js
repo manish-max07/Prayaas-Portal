@@ -46,9 +46,11 @@ function getClientIp(req) {
   return cleanIp(req.socket?.remoteAddress || req.ip || "");
 }
 
+const { logSecurityEvent } = require("../utils/securityLogger");
+
 /**
  * Creates multi-dimensional rate limiter middleware
- * @param {Object} options - { windowMs, maxPerIp, maxPerEmail, maxTotalEndpoint, message }
+ * @param {Object} options - { windowMs, maxPerIp, maxPerEmail, maxTotalEndpoint, dailyQuotaPerIp, message }
  */
 function createMultiDimensionalLimiter(options) {
   const {
@@ -56,6 +58,7 @@ function createMultiDimensionalLimiter(options) {
     maxPerIp = 20,
     maxPerEmail = 5,
     maxTotalEndpoint = 200,
+    dailyQuotaPerIp = null,    // Optional 24-hour quota per IP
     message = "Too many requests. Please wait a few minutes before trying again."
   } = options;
 
@@ -66,6 +69,11 @@ function createMultiDimensionalLimiter(options) {
 
       // 1. Immediate IP blocklist check
       if (clientIp && (await isIpBlocked(clientIp))) {
+        logSecurityEvent("REQUEST_BLOCKED_IP", {
+          ip: clientIp,
+          severity: "WARN",
+          details: { path: req.path }
+        });
         return res.status(403).json({
           success: false,
           message: "Access from this network address is restricted."
@@ -74,6 +82,12 @@ function createMultiDimensionalLimiter(options) {
 
       // 2. Immediate Email blocklist check
       if (email && (await isEmailBlocked(email))) {
+        logSecurityEvent("REQUEST_BLOCKED_EMAIL", {
+          ip: clientIp,
+          identifier: email,
+          severity: "WARN",
+          details: { path: req.path }
+        });
         return res.status(403).json({
           success: false,
           message: "Access for this account is restricted."
@@ -84,29 +98,63 @@ function createMultiDimensionalLimiter(options) {
       const endpointKey = `ep:${req.baseUrl || ""}${req.path}`;
       const endpointHits = rateLimitStore.recordHit(endpointKey, windowMs);
       if (endpointHits > maxTotalEndpoint) {
+        logSecurityEvent("RATE_LIMIT_GLOBAL_ENDPOINT", {
+          ip: clientIp,
+          severity: "WARN",
+          details: { path: req.path, hits: endpointHits }
+        });
         return res.status(429).json({
           success: false,
           message
         });
       }
 
-      // 4. IP-based rate limit
+      // 4. IP-based short window rate limit
       if (clientIp) {
         const ipKey = `ip:${clientIp}:${req.path}`;
         const ipHits = rateLimitStore.recordHit(ipKey, windowMs);
         if (ipHits > maxPerIp) {
+          logSecurityEvent("RATE_LIMIT_TRIGGERED_IP", {
+            ip: clientIp,
+            identifier: email,
+            severity: "WARN",
+            details: { path: req.path, hits: ipHits }
+          });
           return res.status(429).json({
             success: false,
             message
           });
         }
+
+        // 5. Daily quota per IP (if configured)
+        if (dailyQuotaPerIp) {
+          const dailyKey = `quota:${clientIp}:${req.path}`;
+          const dailyHits = rateLimitStore.recordHit(dailyKey, 24 * 60 * 60 * 1000);
+          if (dailyHits > dailyQuotaPerIp) {
+            logSecurityEvent("DAILY_QUOTA_EXCEEDED", {
+              ip: clientIp,
+              severity: "SECURITY_ALERT",
+              details: { path: req.path, dailyHits }
+            });
+            return res.status(429).json({
+              success: false,
+              message: "Daily request quota exceeded for this network address. Please try again tomorrow."
+            });
+          }
+        }
       }
 
-      // 5. Email-based rate limit
+      // 6. Email-based rate limit
       if (email) {
         const emailKey = `email:${email}:${req.path}`;
         const emailHits = rateLimitStore.recordHit(emailKey, windowMs);
         if (emailHits > maxPerEmail) {
+          logSecurityEvent("RATE_LIMIT_TRIGGERED_EMAIL", {
+            ip: clientIp,
+            identifier: email,
+            severity: "WARN",
+            details: { path: req.path, hits: emailHits }
+          });
           return res.status(429).json({
             success: false,
             message
@@ -126,6 +174,7 @@ function createMultiDimensionalLimiter(options) {
 const signupRateLimiter = createMultiDimensionalLimiter({
   windowMs: 15 * 60 * 1000, // 15 mins
   maxPerIp: 10,              // Max 10 account signups per IP per 15 mins
+  dailyQuotaPerIp: 30,       // Max 30 account creations per IP per 24 hours (anti-abuse quota)
   maxPerEmail: 5,            // Max 5 signup attempts per email per 15 mins
   maxTotalEndpoint: 150,     // Total signup traffic ceiling
   message: "Too many registration attempts from this source. Please try again in a few minutes."
@@ -139,9 +188,26 @@ const loginRateLimiter = createMultiDimensionalLimiter({
   message: "Too many login attempts. Please wait a few minutes before trying again."
 });
 
+const rankCalculationRateLimiter = createMultiDimensionalLimiter({
+  windowMs: 5 * 60 * 1000, // 5 mins
+  maxPerIp: 15,            // Max 15 calculations per IP per 5 mins
+  maxTotalEndpoint: 200,
+  message: "Too many rank calculation requests. Please wait a few minutes before trying again."
+});
+
+const proxyImageRateLimiter = createMultiDimensionalLimiter({
+  windowMs: 1 * 60 * 1000, // 1 min
+  maxPerIp: 80,            // Max 80 proxy calls per IP per min
+  maxTotalEndpoint: 500,
+  message: "Image request rate limit reached. Please wait a moment."
+});
+
 module.exports = {
   createMultiDimensionalLimiter,
   signupRateLimiter,
   loginRateLimiter,
+  rankCalculationRateLimiter,
+  proxyImageRateLimiter,
   getClientIp
 };
+

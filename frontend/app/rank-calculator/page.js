@@ -245,11 +245,10 @@ export default function RankCalculatorPage() {
                   <button
                     type="button"
                     onClick={() => setInputMode("url")}
-                    className={`rounded-md px-3 py-1.5 transition-all cursor-pointer flex items-center gap-1.5 ${
-                      inputMode === "url"
+                    className={`rounded-md px-3 py-1.5 transition-all cursor-pointer flex items-center gap-1.5 ${inputMode === "url"
                         ? "bg-white text-blue-600 shadow-xs font-bold"
                         : "text-slate-600 hover:text-slate-900"
-                    }`}
+                      }`}
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
@@ -259,11 +258,10 @@ export default function RankCalculatorPage() {
                   <button
                     type="button"
                     onClick={() => setInputMode("html")}
-                    className={`rounded-md px-3 py-1.5 transition-all cursor-pointer flex items-center gap-1.5 ${
-                      inputMode === "html"
+                    className={`rounded-md px-3 py-1.5 transition-all cursor-pointer flex items-center gap-1.5 ${inputMode === "html"
                         ? "bg-white text-blue-600 shadow-xs font-bold"
                         : "text-slate-600 hover:text-slate-900"
-                    }`}
+                      }`}
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
@@ -397,11 +395,10 @@ export default function RankCalculatorPage() {
                         setMarksForCorrect(1.0);
                         setNegativeMarks(0.0);
                       }}
-                      className={`rounded-lg px-2.5 py-1 text-[11px] font-bold border transition-colors cursor-pointer ${
-                        marksForCorrect === 1.0 && negativeMarks === 0.0
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-bold border transition-colors cursor-pointer ${marksForCorrect === 1.0 && negativeMarks === 0.0
                           ? "bg-blue-600 text-white border-blue-600 shadow-xs"
                           : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-                      }`}
+                        }`}
                     >
                       +1 / 0 (Default)
                     </button>
@@ -411,11 +408,10 @@ export default function RankCalculatorPage() {
                         setMarksForCorrect(1.0);
                         setNegativeMarks(0.25);
                       }}
-                      className={`rounded-lg px-2.5 py-1 text-[11px] font-bold border transition-colors cursor-pointer ${
-                        marksForCorrect === 1.0 && negativeMarks === 0.25
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-bold border transition-colors cursor-pointer ${marksForCorrect === 1.0 && negativeMarks === 0.25
                           ? "bg-blue-600 text-white border-blue-600 shadow-xs"
                           : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-                      }`}
+                        }`}
                     >
                       +1 / -0.25
                     </button>
@@ -425,11 +421,10 @@ export default function RankCalculatorPage() {
                         setMarksForCorrect(2.0);
                         setNegativeMarks(0.5);
                       }}
-                      className={`rounded-lg px-2.5 py-1 text-[11px] font-bold border transition-colors cursor-pointer ${
-                        marksForCorrect === 2.0 && negativeMarks === 0.5
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-bold border transition-colors cursor-pointer ${marksForCorrect === 2.0 && negativeMarks === 0.5
                           ? "bg-blue-600 text-white border-blue-600 shadow-xs"
                           : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-                      }`}
+                        }`}
                     >
                       +2 / -0.5
                     </button>
@@ -504,11 +499,10 @@ export default function RankCalculatorPage() {
                       key={cat}
                       type="button"
                       onClick={() => setCategory(cat)}
-                      className={`rounded-xl py-2.5 text-center text-xs font-bold transition-all cursor-pointer border ${
-                        category === cat
+                      className={`rounded-xl py-2.5 text-center text-xs font-bold transition-all cursor-pointer border ${category === cat
                           ? "bg-blue-600 text-white border-blue-600 shadow-xs"
                           : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-                      }`}
+                        }`}
                     >
                       {cat}
                     </button>
@@ -529,11 +523,10 @@ export default function RankCalculatorPage() {
                         key={gen}
                         type="button"
                         onClick={() => setGender(gen)}
-                        className={`rounded-xl py-2 text-center text-xs font-bold transition-all cursor-pointer border ${
-                          gender === gen
+                        className={`rounded-xl py-2 text-center text-xs font-bold transition-all cursor-pointer border ${gender === gen
                             ? "bg-blue-600 text-white border-blue-600 shadow-xs"
                             : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-                        }`}
+                          }`}
                       >
                         {gen}
                       </button>
@@ -615,13 +608,12 @@ export default function RankCalculatorPage() {
 
             {/* TERMS & CONDITIONS & PRIVACY POLICY CONSENT */}
             <div
-              className={`rounded-xl border p-4 transition-all ${
-                !agreedToTerms && error && error.includes("Terms")
+              className={`rounded-xl border p-4 transition-all ${!agreedToTerms && error && error.includes("Terms")
                   ? "border-rose-400 bg-rose-50/90 ring-2 ring-rose-300"
                   : agreedToTerms
-                  ? "border-emerald-300 bg-emerald-50/60 shadow-xs"
-                  : "border-slate-200 bg-white hover:border-slate-300 shadow-xs"
-              }`}
+                    ? "border-emerald-300 bg-emerald-50/60 shadow-xs"
+                    : "border-slate-200 bg-white hover:border-slate-300 shadow-xs"
+                }`}
             >
               <label className="flex items-center gap-3 cursor-pointer select-none">
                 <input
@@ -638,7 +630,7 @@ export default function RankCalculatorPage() {
                 <div className="text-xs sm:text-sm text-slate-700 leading-normal font-medium">
                   <span>I agree with </span>
                   <Link
-                    href="/rank-calculator/terms-conditions"
+                    href="/terms-conditions"
                     target="_blank"
                     onClick={(e) => e.stopPropagation()}
                     className="font-semibold text-blue-600 hover:text-blue-800 underline transition-colors"
@@ -647,7 +639,7 @@ export default function RankCalculatorPage() {
                   </Link>
                   <span> and </span>
                   <Link
-                    href="/rank-calculator/terms-conditions"
+                    href="/terms-conditions"
                     target="_blank"
                     onClick={(e) => e.stopPropagation()}
                     className="font-semibold text-blue-600 hover:text-blue-800 underline transition-colors"
