@@ -4,12 +4,12 @@
  */
 
 export const NEWS_CATEGORIES = [
-  { id: "All", label: "All Updates", icon: "📢" },
-  { id: "Admit Card", label: "Admit Card", icon: "🎫" },
-  { id: "Exam Date", label: "Exam Dates", icon: "📅" },
-  { id: "Answer Key", label: "Answer Key", icon: "🔑" },
-  { id: "Result", label: "Results", icon: "🏆" },
-  { id: "Recruitment", label: "Govt Jobs", icon: "💼" },
+  { id: "All", label: "All Updates" },
+  { id: "Admit Card", label: "Admit Card" },
+  { id: "Exam Date", label: "Exam Dates" },
+  { id: "Answer Key", label: "Answer Key" },
+  { id: "Result", label: "Results" },
+  { id: "Recruitment", label: "Govt Jobs" },
 ];
 
 export const NEWS_ARTICLES = [

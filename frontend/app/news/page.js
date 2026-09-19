@@ -27,66 +27,61 @@ export default async function NewsPage() {
   const categories = getNewsCategories();
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100/60 pb-20">
-      {/* 1. Header & Hero Banner */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 text-white py-12 px-4 sm:px-6 lg:px-8 border-b border-slate-800 shadow-inner">
-        <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-blue-500/20 blur-3xl" />
-        <div className="pointer-events-none absolute top-10 right-10 h-80 w-80 rounded-full bg-indigo-500/20 blur-3xl" />
-
-        <div className="relative mx-auto max-w-6xl">
+    <main className="min-h-screen bg-gray-50 pb-20">
+      {/* Clean white header */}
+      <section className="bg-white border-b border-gray-200">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
           {/* Breadcrumb */}
-          <nav aria-label="Breadcrumb" className="mb-4 text-xs font-medium text-slate-400">
+          <nav aria-label="Breadcrumb" className="mb-4 text-xs text-gray-400">
             <ol className="flex items-center gap-2">
               <li>
-                <Link href="/" className="hover:text-blue-300 transition-colors">
+                <Link href="/" className="hover:text-blue-600 transition-colors font-medium">
                   Home
                 </Link>
               </li>
               <li>/</li>
-              <li className="text-white font-semibold">Exam News & Alerts</li>
+              <li className="text-gray-700 font-semibold">Exam Updates</li>
             </ol>
           </nav>
 
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-red-500/20 text-red-300 border border-red-500/30 mb-3 animate-pulse">
-                <span className="h-2 w-2 rounded-full bg-red-400" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-600 border border-red-200 mb-3">
+                <span className="flex h-1.5 w-1.5 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-600"></span>
+                </span>
                 Live Exam Updates 2026
               </div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
-                Exam News & Admit Cards Hub
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+                Exam News &amp; Alerts Hub
               </h1>
-              <p className="mt-3 text-slate-300 text-sm sm:text-base max-w-2xl leading-relaxed">
-                Stay updated with verified exam schedules, direct admit card download links, answer key releases, and real-time alerts for top government and competitive examinations.
+              <p className="mt-1.5 text-sm text-gray-500 max-w-xl leading-relaxed">
+                Verified exam schedules, admit card downloads, answer keys, and real-time recruitment alerts.
               </p>
             </div>
 
-            {/* Quick Links Card */}
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 max-w-xs text-xs space-y-2.5 shrink-0">
-              <span className="text-slate-200 font-bold uppercase tracking-wider block">
-                ⚡ Quick Actions
-              </span>
+            {/* Quick actions */}
+            <div className="flex items-center gap-2 shrink-0">
               <Link
                 href="/rank-calculator"
-                className="flex items-center justify-between p-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-white font-semibold"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors"
               >
-                <span>Calculate Exam Rank</span>
-                <span>→</span>
+                Rank Calculator
               </Link>
               <Link
                 href="/#exams"
-                className="flex items-center justify-between p-2 rounded-lg bg-blue-600/80 hover:bg-blue-600 transition text-white font-semibold"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-blue-600 text-xs font-bold text-white hover:bg-blue-700 transition-colors shadow-sm"
               >
-                <span>Practice CBT Mock Tests</span>
-                <span>→</span>
+                Practice Mock Tests
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. Client-Side Searchable List & Category Filter */}
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 -mt-6">
+      {/* Client component with all filters + article list */}
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-6">
         <NewsListClient articles={articles} categories={categories} />
       </div>
     </main>
