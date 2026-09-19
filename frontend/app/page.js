@@ -7,17 +7,178 @@ import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 
+// ─── SVG Icon Library ──────────────────────────────────────────────────────────
+const SearchIcon = () => (
+  <svg className="h-4.5 w-4.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: "18px", height: "18px" }}>
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  </svg>
+);
+
+const ClockIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
+
+const BoltIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+  </svg>
+);
+
+const MonitorIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+  </svg>
+);
+
+const ArchiveIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+  </svg>
+);
+
+const ChevronRightIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+  </svg>
+);
+
+const ArrowRightIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+  </svg>
+);
+
+const AlertIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+  </svg>
+);
+
+const CalculatorIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+  </svg>
+);
+
+const AcademicCapIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path d="M12 14l9-5-9-5-9 5 9 5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+    <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+  </svg>
+);
+
+const CloseIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
+
+const RefreshIcon = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+  </svg>
+);
+
+// ─── Category Icon Map ─────────────────────────────────────────────────────────
+const CategoryBadgeIcon = ({ category }) => {
+  const icons = {
+    SSC: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-4 w-4">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+      </svg>
+    ),
+    Banking: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-4 w-4">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l9-4 9 4v2H3V6zm0 0h18M6 10v8M10 10v8M14 10v8M18 10v8M3 18h18" />
+      </svg>
+    ),
+    Railway: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-4 w-4">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 3H15M8 9H16M12 3V21M8 21H16M5 6H3M21 6H19M5 18H3M21 18H19" />
+      </svg>
+    ),
+    default: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-4 w-4">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    ),
+  };
+  return icons[category] || icons.default;
+};
+
+// ─── Categories Config ─────────────────────────────────────────────────────────
 const CATEGORIES = [
-  { id: "All", label: "All Exams", icon: "📚" },
-  { id: "SSC", label: "SSC", icon: "🏛️" },
-  { id: "Banking", label: "Banking & Insurance", icon: "🏦" },
-  { id: "Railway", label: "Railways (RRB)", icon: "🚆" },
-  { id: "State PSC", label: "State PSC", icon: "🗺️" },
-  { id: "UPSC", label: "UPSC Civil Services", icon: "🇮🇳" },
-  { id: "Defence", label: "Defence (NDA/CDS)", icon: "🛡️" },
-  { id: "Other", label: "Other Exams", icon: "📝" },
+  { id: "All", label: "All Exams" },
+  { id: "SSC", label: "SSC" },
+  { id: "Banking", label: "Banking" },
+  { id: "Railway", label: "Railways (RRB)" },
+  { id: "State PSC", label: "State PSC" },
+  { id: "UPSC", label: "UPSC" },
+  { id: "Defence", label: "Defence" },
+  { id: "Other", label: "Other" },
 ];
 
+// ─── Exam Row Component ────────────────────────────────────────────────────────
+function ExamRow({ exam, onStartPractice }) {
+  return (
+    <div
+      className="group flex items-center justify-between gap-4 px-4 py-3.5 hover:bg-blue-50/60 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors"
+      onClick={() => onStartPractice(exam._id)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === "Enter" && onStartPractice(exam._id)}
+    >
+      {/* Left: Icon + Info */}
+      <div className="flex items-center gap-3 min-w-0">
+        {/* Exam Icon */}
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
+          <AcademicCapIcon className="h-4.5 w-4.5" style={{ width: "18px", height: "18px" }} />
+        </div>
+
+        {/* Exam Details */}
+        <div className="min-w-0">
+          <h3 className="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
+            {exam.title}
+          </h3>
+          <div className="flex items-center flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
+            <span className="flex items-center gap-1 text-xs text-gray-400">
+              <ClockIcon className="h-3 w-3" style={{ width: "12px", height: "12px" }} />
+              {exam.totalDurationMinutes} min
+            </span>
+            <span className="text-xs text-gray-400">
+              {exam.totalQuestions || 0} Qs
+            </span>
+            <span className="text-xs text-gray-400">
+              {exam.totalMarks || exam.totalQuestions || 100} Marks
+            </span>
+            {exam.negativeMarkingEnabled && (
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-red-50 text-red-600 border border-red-100">
+                -ve Marking
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Right: Category badge + Arrow */}
+      <div className="flex items-center gap-2 shrink-0">
+        <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold text-gray-500 bg-gray-100 px-2 py-1 rounded-md">
+          <CategoryBadgeIcon category={exam.examCategory} />
+          {exam.examCategory}
+        </span>
+        <ChevronRightIcon
+          className="h-4 w-4 text-gray-300 group-hover:text-blue-500 transition-colors"
+          style={{ width: "16px", height: "16px" }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,13 +203,12 @@ export default function HomePage() {
       }
     } catch (err) {
       console.error("Failed to load exams:", err);
-      setError("Unable to connect to the exam server. Please ensure the backend is running.");
+      setError("Unable to connect. Please check your connection and try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Filter exams by category and search text
   const filteredExams = useMemo(() => {
     return exams.filter((exam) => {
       const matchesCategory =
@@ -57,19 +217,15 @@ export default function HomePage() {
         !searchQuery ||
         exam.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (exam.description && exam.description.toLowerCase().includes(searchQuery.toLowerCase()));
-
       return matchesCategory && matchesSearch;
     });
   }, [exams, selectedCategory, searchQuery]);
 
-  // Group filtered exams by examCategory
   const groupedExams = useMemo(() => {
     const groups = {};
     filteredExams.forEach((exam) => {
       const cat = exam.examCategory || "Other";
-      if (!groups[cat]) {
-        groups[cat] = [];
-      }
+      if (!groups[cat]) groups[cat] = [];
       groups[cat].push(exam);
     });
     return groups;
@@ -83,451 +239,326 @@ export default function HomePage() {
     }
   };
 
-  // Quick stats
   const totalExamsCount = exams.length;
   const totalQuestionsSum = useMemo(() => {
     return exams.reduce((acc, curr) => acc + (curr.totalQuestions || 0), 0);
   }, [exams]);
 
   return (
-    <div className="min-h-screen bg-slate-50/60 pb-16">
-      {/* 1. HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-blue-950 text-white border-b border-slate-800">
-        {/* Subtle decorative background glow and grid */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.18),transparent_60%)]" />
-        <div className="pointer-events-none absolute -top-40 right-10 h-96 w-96 rounded-full bg-indigo-500/10 blur-3xl" />
-        <div className="pointer-events-none absolute top-20 -left-20 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl" />
+    <div className="min-h-screen bg-gray-50">
 
-        <div className="relative mx-auto max-w-7xl px-4 pt-12 pb-16 sm:px-6 sm:pt-16 sm:pb-20 lg:px-8">
-          <div className="mx-auto max-w-4xl text-center">
-            {/* Live Indicator Pill with Brand Logo */}
-            <div className="inline-flex items-center gap-2.5 rounded-full border border-blue-400/30 bg-blue-500/10 px-4 py-1.5 text-xs font-semibold text-blue-200 backdrop-blur-md shadow-xs mb-6">
-              <Image
-                src="/logo.png"
-                alt="Prayaas Portal Emblem"
-                width={22}
-                height={22}
-                className="h-5 w-5 object-contain rounded-full shadow-xs"
-                priority
-              />
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
-              </span>
-              <span>Official TCS iON Exam Engine & Shift-wise Papers</span>
+      {/* ── HERO ─────────────────────────────────────────────────────────── */}
+      <section className="bg-white border-b border-gray-100">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-10">
+
+            {/* Left: Headline */}
+            <div className="max-w-2xl">
+              {/* Live pill */}
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1.5 text-xs font-semibold text-blue-700 mb-5">
+                <span className="flex h-1.5 w-1.5 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-600"></span>
+                </span>
+                Official TCS iON Exam Papers · Updated After Every Exam
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight tracking-tight">
+                Practice Real Exam Papers{" "}
+                <span className="text-blue-600">Just After the Official Exam</span>
+              </h1>
+
+              <p className="mt-4 text-base sm:text-lg text-gray-500 leading-relaxed max-w-xl">
+                Authentic CBT experience with real question papers, shift-wise practice, negative marking, and instant All-India rank prediction.
+              </p>
+
+              {/* CTA Buttons */}
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-700 transition-colors shadow-sm"
+                >
+                  Start Practising Free
+                  <ArrowRightIcon className="h-4 w-4" style={{ width: "16px", height: "16px" }} />
+                </Link>
+                <Link
+                  href="/rank-calculator"
+                  className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <CalculatorIcon className="h-4 w-4" style={{ width: "16px", height: "16px" }} />
+                  Rank Calculator
+                </Link>
+              </div>
             </div>
 
-            {/* Main Headline */}
-            <h1 className="text-3xl font-black tracking-tight sm:text-5xl lg:text-6xl text-white leading-tight">
-              Ace Your Competitive Exams with{" "}
-              <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300 bg-clip-text text-transparent">
-                Real Exam Papers Just After the Official Exam
-              </span>
-            </h1>
-
-            {/* Subtitle & Value Proposition */}
-            <p className="mt-5 text-base sm:text-lg text-slate-300 leading-relaxed max-w-3xl mx-auto font-normal">
-              Practice tests modelled directly after official exam portals. After the official exam, practice latest question papers with real exam conditions and exhaustive previous years — featuring real-time timers, negative marking, and instant AI analytics.
-            </p>
-
-            {/* Search Input In Hero */}
-            <div className="mt-8 max-w-2xl mx-auto">
-              <div className="relative flex items-center shadow-lg rounded-xl overflow-hidden border border-slate-700/80 bg-slate-900/90 backdrop-blur-md focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
-                <div className="pl-4 text-slate-400 pointer-events-none">
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
+            {/* Right: Stats grid */}
+            <div className="grid grid-cols-2 gap-3 lg:w-80 shrink-0">
+              {[
+                { label: "Post-Exam Release", sub: "Papers live within hours", highlight: true },
+                { label: "100% CBT Simulation", sub: "Authentic TCS iON interface", highlight: false },
+                {
+                  label: `${totalExamsCount || "—"} Papers`,
+                  sub: "Live mock tests available",
+                  highlight: false,
+                },
+                { label: "Real-Time Rank", sub: "All India ranking engine", highlight: false },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className={`rounded-xl border p-4 ${
+                    stat.highlight
+                      ? "border-blue-200 bg-blue-50"
+                      : "border-gray-100 bg-gray-50"
+                  }`}
+                >
+                  <p className={`text-sm font-bold ${stat.highlight ? "text-blue-700" : "text-gray-900"}`}>
+                    {stat.label}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5 leading-snug">{stat.sub}</p>
                 </div>
-                <input
-                  type="text"
-                  placeholder="Search exam by name, shift, or agency (e.g. SSC CGL, RRB NTPC, IBPS)..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-transparent px-3.5 py-3.5 text-sm text-white placeholder-slate-400 focus:outline-none"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery("")}
-                    className="mr-3 text-xs font-semibold text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-800 cursor-pointer"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Trust Metrics Strip */}
-            <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 max-w-3xl mx-auto pt-6 border-t border-slate-800/80">
-              <div className="p-3 text-center">
-                <div className="text-xl sm:text-2xl font-black text-blue-400">Just After Exam</div>
-                <div className="text-xs text-slate-400 mt-0.5">Latest Shift Papers</div>
-              </div>
-              <div className="p-3 text-center">
-                <div className="text-xl sm:text-2xl font-black text-sky-400">100% CBT</div>
-                <div className="text-xs text-slate-400 mt-0.5">TCS iON Simulation</div>
-              </div>
-              <div className="p-3 text-center">
-                <div className="text-xl sm:text-2xl font-black text-indigo-400">{totalExamsCount || "Active"}</div>
-                <div className="text-xs text-slate-400 mt-0.5">Live Mock Papers</div>
-              </div>
-              <div className="p-3 text-center">
-                <div className="text-xl sm:text-2xl font-black text-emerald-400">Real-Time</div>
-                <div className="text-xs text-slate-400 mt-0.5">All-India Rankings</div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. FEATURE PILLARS BANNER */}
-      <section className="mx-auto max-w-7xl px-4 -mt-6 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 font-bold text-lg">
-                ⚡
+      {/* ── FEATURE PILLARS ──────────────────────────────────────────────── */}
+      <section className="bg-white border-b border-gray-100">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-7">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              {
+                icon: BoltIcon,
+                color: "blue",
+                title: "Post-Exam Rapid Release",
+                desc: "Real question papers published right after official shifts conclude.",
+              },
+              {
+                icon: MonitorIcon,
+                color: "indigo",
+                title: "Authentic TCS iON Interface",
+                desc: "Question palette, section switching, timer, and negative scoring — exactly as in the real exam.",
+              },
+              {
+                icon: ArchiveIcon,
+                color: "green",
+                title: "Previous Year Archive",
+                desc: "Full access to verified previous year papers and latest exam cycles.",
+              },
+            ].map(({ icon: Icon, color, title, desc }) => (
+              <div key={title} className="flex items-start gap-3">
+                <div
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+                    color === "blue"
+                      ? "bg-blue-50 text-blue-600"
+                      : color === "indigo"
+                      ? "bg-indigo-50 text-indigo-600"
+                      : "bg-green-50 text-green-600"
+                  }`}
+                >
+                  <Icon className="h-4.5 w-4.5" style={{ width: "18px", height: "18px" }} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900">{title}</h3>
+                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{desc}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-sm font-bold text-slate-900">Post-Exam Rapid Release</h3>
-                <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                  Solve real question papers right after official exam shifts conclude.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 font-bold text-lg">
-                🖥️
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-slate-900">Authentic TCS iON Environment</h3>
-                <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                  Exact question palette, section switching, timer clock & negative scoring.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 font-bold text-lg">
-                📈
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-slate-900">Previous Years & Shift Archive</h3>
-                <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                  Full access to verified previous year papers and latest exam cycles.
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* 2.5 LATEST EXAM ALERTS TICKER */}
-      <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
-        <div className="rounded-2xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 p-4 sm:p-5 text-white shadow-sm border border-blue-800/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* ── EXAM ALERT BANNER ─────────────────────────────────────────────── */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3.5">
           <div className="flex items-start sm:items-center gap-3">
-            <span className="flex h-3 w-3 relative shrink-0 mt-1 sm:mt-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-            </span>
+            <AlertIcon className="h-4.5 w-4.5 text-orange-500 mt-0.5 sm:mt-0 shrink-0" style={{ width: "18px", height: "18px" }} />
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-red-500/30 text-red-200 border border-red-500/40">
-                  Breaking Exam Alert
-                </span>
-                <span className="text-xs text-slate-300 font-medium hidden sm:inline">
-                  Released on 17 Sep 2026
-                </span>
-              </div>
-              <h3 className="text-sm sm:text-base font-bold text-white mt-1">
-                IOCL Admit Card 2026 Released: Direct Download Link Active for 470 Engineer & Officer Posts
-              </h3>
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full border border-orange-200">
+                Latest Alert · Sep 17, 2026
+              </span>
+              <p className="text-sm font-semibold text-gray-800 mt-0.5">
+                IOCL Admit Card 2026 Released — Direct Download Link Active for 470 Engineer &amp; Officer Posts
+              </p>
             </div>
           </div>
-
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 pl-7 sm:pl-0">
             <Link
               href="/news/iocl-engineer-officer-admit-card-2026"
-              className="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold transition shadow-xs"
+              className="text-xs font-bold text-white bg-orange-500 hover:bg-orange-600 px-3.5 py-2 rounded-lg transition-colors"
             >
-              Check Hall Ticket & Links →
+              View Details
             </Link>
-            <Link
-              href="/news"
-              className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition"
-            >
+            <Link href="/news" className="text-xs font-semibold text-orange-700 hover:text-orange-900 px-3 py-2 rounded-lg hover:bg-orange-100 transition-colors">
               All Updates
             </Link>
           </div>
         </div>
       </section>
 
-      {/* 3. MAIN WORKSPACE / EXAMS BROWSER */}
-      <main id="exams" className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
-        {/* Rank Calculator Promo Banner */}
-        <div className="rounded-2xl bg-gradient-to-r from-indigo-950 via-blue-950 to-slate-900 border border-indigo-700/40 p-6 sm:p-7 text-white shadow-lg mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-5 relative overflow-hidden">
-          <div className="pointer-events-none absolute -right-10 -bottom-10 h-48 w-48 rounded-full bg-indigo-500/20 blur-2xl" />
-          <div className="relative z-10 max-w-2xl">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/20 px-3 py-1 text-[11px] font-bold text-indigo-300 border border-indigo-400/30 mb-2">
-              <span>⚡ Live Feature</span>
-              <span>•</span>
-              <span>TCS iON Response Sheet Rank Predictor</span>
-            </div>
-            <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-              Have your Official Exam Response Sheet Link?
-            </h3>
-            <p className="mt-1.5 text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Paste your Digialm response sheet URL to calculate exact marks, negative deductions, and see your real-time <strong>All India Rank (AIR), Category Rank, and Shift Difficulty Analytics</strong>.
-            </p>
-          </div>
+      {/* ── MAIN EXAMS SECTION ────────────────────────────────────────────── */}
+      <main id="exams" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6 pb-16">
 
-          <div className="relative z-10 shrink-0">
-            <Link
-              href="/rank-calculator"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-xs font-bold text-blue-900 shadow-md hover:bg-blue-50 transition-all hover:scale-105 cursor-pointer"
-            >
-              <span>Calculate Marks & Rank</span>
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </Link>
+        {/* Rank Calc Promo */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-blue-200 bg-blue-50 px-5 py-4 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white">
+              <CalculatorIcon className="h-5 w-5" style={{ width: "20px", height: "20px" }} />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-gray-900">TCS iON Response Sheet Rank Predictor</p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Paste your Digialm response URL — get exact marks, negative deductions, and All India Rank instantly.
+              </p>
+            </div>
           </div>
+          <Link
+            href="/rank-calculator"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 transition-colors shrink-0"
+          >
+            Calculate Rank
+            <ArrowRightIcon className="h-3.5 w-3.5" style={{ width: "14px", height: "14px" }} />
+          </Link>
         </div>
 
-        {/* Category Filter Bar */}
-        <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs mb-8">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-slate-100">
-            <div>
-              <h2 className="text-base font-bold text-slate-900">Select Exam Category</h2>
-              <p className="text-xs text-slate-500">Filter official practice papers by agency and domain</p>
-            </div>
+        {/* Section Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900">Practice Papers</h2>
+            <p className="text-xs text-gray-500 mt-0.5">Select a category and start your real exam simulation</p>
+          </div>
 
-            {(selectedCategory !== "All" || searchQuery) && (
+          {/* Search */}
+          <div className="relative w-full sm:w-72">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <SearchIcon />
+            </div>
+            <input
+              type="text"
+              placeholder="Search exam name…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-9 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            />
+            {searchQuery && (
               <button
-                onClick={() => {
-                  setSelectedCategory("All");
-                  setSearchQuery("");
-                }}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors cursor-pointer self-start sm:self-auto"
+                onClick={() => setSearchQuery("")}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 cursor-pointer"
               >
-                <span>Reset All Filters</span>
-                <span aria-hidden="true">&times;</span>
+                <CloseIcon className="h-4 w-4" style={{ width: "16px", height: "16px" }} />
               </button>
             )}
           </div>
-
-          {/* Category Chips */}
-          <div className="flex flex-wrap gap-2 pt-3">
-            {CATEGORIES.map((cat) => {
-              const isSelected = selectedCategory === cat.id;
-              // Count available for this category
-              const count = cat.id === "All"
-                ? exams.length
-                : exams.filter((e) => e.examCategory === cat.id).length;
-
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
-                    isSelected
-                      ? "bg-blue-600 text-white shadow-sm ring-2 ring-blue-600/30"
-                      : "bg-slate-100/80 text-slate-700 hover:bg-slate-200/80"
-                  }`}
-                >
-                  <span>{cat.icon}</span>
-                  <span>{cat.label}</span>
-                  <span
-                    className={`ml-1 rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
-                      isSelected ? "bg-blue-800 text-blue-100" : "bg-slate-200 text-slate-600"
-                    }`}
-                  >
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
         </div>
 
-        {/* Dynamic Content: Loading / Error / Empty / Exam Grids */}
+        {/* Category Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 mb-4 scrollbar-hide" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+          {CATEGORIES.map((cat) => {
+            const isSelected = selectedCategory === cat.id;
+            const count = cat.id === "All"
+              ? exams.length
+              : exams.filter((e) => e.examCategory === cat.id).length;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer border ${
+                  isSelected
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:text-gray-900"
+                }`}
+              >
+                {cat.label}
+                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                  isSelected ? "bg-blue-500 text-blue-100" : "bg-gray-100 text-gray-500"
+                }`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+          {(selectedCategory !== "All" || searchQuery) && (
+            <button
+              onClick={() => { setSelectedCategory("All"); setSearchQuery(""); }}
+              className="inline-flex items-center gap-1 whitespace-nowrap text-xs font-semibold text-blue-600 hover:text-blue-800 px-2 py-1.5 cursor-pointer ml-1"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+
+        {/* ── Exam List Content ──────────────────────────────────────────── */}
         {loading ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3, 4, 5, 6].map((idx) => (
-              <div key={idx} className="rounded-xl border border-slate-200 bg-white p-6 shadow-xs animate-pulse space-y-4">
-                <div className="flex justify-between items-center">
-                  <div className="h-5 w-20 bg-slate-200 rounded"></div>
-                  <div className="h-4 w-16 bg-slate-200 rounded"></div>
+          /* Skeleton */
+          <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="flex items-center gap-3 px-4 py-3.5 border-b border-gray-100 animate-pulse">
+                <div className="h-9 w-9 rounded-lg bg-gray-200 shrink-0"></div>
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-4 w-3/5 rounded bg-gray-200"></div>
+                  <div className="h-3 w-2/5 rounded bg-gray-100"></div>
                 </div>
-                <div className="h-6 w-3/4 bg-slate-200 rounded"></div>
-                <div className="h-4 w-full bg-slate-200 rounded"></div>
-                <div className="h-4 w-2/3 bg-slate-200 rounded"></div>
-                <div className="h-10 w-full bg-slate-200 rounded mt-4"></div>
+                <div className="h-6 w-16 rounded-md bg-gray-100 hidden sm:block"></div>
+                <div className="h-4 w-4 rounded bg-gray-100"></div>
               </div>
             ))}
           </div>
         ) : error ? (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-8 text-center text-red-700 max-w-xl mx-auto shadow-xs">
-            <div className="text-3xl mb-2">⚠️</div>
-            <h3 className="font-bold text-base text-red-800">Connection Error</h3>
-            <p className="font-medium text-xs mt-1 text-red-600">{error}</p>
+          <div className="rounded-xl border border-red-200 bg-red-50 p-8 text-center max-w-md mx-auto">
+            <div className="flex justify-center mb-3">
+              <div className="h-12 w-12 flex items-center justify-center rounded-full bg-red-100 text-red-500">
+                <RefreshIcon className="h-5 w-5" style={{ width: "20px", height: "20px" }} />
+              </div>
+            </div>
+            <h3 className="text-sm font-bold text-red-800">Connection Error</h3>
+            <p className="text-xs text-red-600 mt-1">{error}</p>
             <button
               onClick={fetchExams}
-              className="mt-4 inline-block rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-red-700 transition-colors cursor-pointer"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700 transition-colors cursor-pointer"
             >
-              Retry Connection
+              <RefreshIcon className="h-3.5 w-3.5" style={{ width: "14px", height: "14px" }} />
+              Retry
             </button>
           </div>
         ) : filteredExams.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center max-w-2xl mx-auto">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-600 text-2xl mb-4">
-              🔍
+          <div className="rounded-xl border border-dashed border-gray-200 bg-white p-12 text-center max-w-md mx-auto">
+            <div className="flex justify-center mb-3">
+              <div className="h-12 w-12 flex items-center justify-center rounded-full bg-blue-50 text-blue-500">
+                <SearchIcon />
+              </div>
             </div>
-            <h3 className="text-base font-bold text-slate-900">
-              No matching examination papers found
-            </h3>
-            <p className="mt-1 text-xs text-slate-500 leading-relaxed">
+            <h3 className="text-sm font-bold text-gray-900">No papers found</h3>
+            <p className="text-xs text-gray-500 mt-1 leading-relaxed">
               {searchQuery || selectedCategory !== "All"
-                ? "No exam papers matched your current search keywords or selected category filter."
-                : "There are currently no active exam papers published by the examination board."}
+                ? "No exam papers matched your filter. Try clearing them."
+                : "No active exam papers are currently published."}
             </p>
             {(searchQuery || selectedCategory !== "All") && (
               <button
-                onClick={() => {
-                  setSelectedCategory("All");
-                  setSearchQuery("");
-                }}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition-colors cursor-pointer"
+                onClick={() => { setSelectedCategory("All"); setSearchQuery(""); }}
+                className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 cursor-pointer"
               >
-                Clear Search & Filters
+                Clear Filters
               </button>
             )}
           </div>
         ) : (
-          /* Grouped Exam Cards */
-          <div className="space-y-12">
+          /* Grouped Exam Lists */
+          <div className="space-y-6">
             {Object.entries(groupedExams).map(([category, items]) => (
-              <section key={category} className="space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                  <div className="flex items-center gap-3">
-                    <span className="h-6 w-1.5 rounded-full bg-blue-600"></span>
-                    <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900">
-                      {category} Official Practice Tests
-                    </h2>
-                    <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-700 border border-blue-100">
-                      {items.length} {items.length === 1 ? "Paper" : "Papers"} Available
-                    </span>
-                  </div>
+              <section key={category}>
+                {/* Category section header */}
+                <div className="flex items-center gap-2 mb-2">
+                  <h2 className="text-sm font-bold text-gray-800">{category} Practice Papers</h2>
+                  <span className="rounded-full bg-blue-50 border border-blue-100 px-2 py-0.5 text-[11px] font-bold text-blue-600">
+                    {items.length} {items.length === 1 ? "paper" : "papers"}
+                  </span>
                 </div>
 
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {/* Exam rows container */}
+                <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
                   {items.map((exam) => (
-                    <div
-                      key={exam._id}
-                      className="group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-xs hover:shadow-xl hover:border-blue-400/80 transition-all duration-300 hover:-translate-y-1"
-                    >
-                      <div>
-                        {/* Top row: Category badge & Duration */}
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700 border border-slate-200">
-                            <span>🏛️</span>
-                            <span>{exam.examCategory}</span>
-                          </span>
-
-                          <span className="flex items-center text-xs font-semibold text-slate-600 gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-200">
-                            <svg
-                              className="h-3.5 w-3.5 text-blue-600"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                            </svg>
-                            <span>{exam.totalDurationMinutes} mins</span>
-                          </span>
-                        </div>
-
-                        {/* Exam Title */}
-                        <h3 className="mt-3.5 text-base font-bold text-slate-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                          {exam.title}
-                        </h3>
-
-                        {/* Exam Description */}
-                        <p className="mt-2 text-xs text-slate-500 line-clamp-3 leading-relaxed">
-                          {exam.description ||
-                            "Simulated CBT practice paper with official timing, negative marking, and question pattern."}
-                        </p>
-
-                        {/* Specs Strip */}
-                        <div className="mt-4 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3 text-xs">
-                          <div className="flex items-center gap-1.5 text-slate-600">
-                            <span className="text-slate-400">Questions:</span>
-                            <span className="font-bold text-slate-800">
-                              {exam.totalQuestions || 0}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center gap-1.5 text-slate-600">
-                            <span className="text-slate-400">Sections:</span>
-                            <span className="font-bold text-slate-800">
-                              {exam.sectionsCount || 1}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center gap-1.5 text-slate-600">
-                            <span className="text-slate-400">Total Marks:</span>
-                            <span className="font-bold text-slate-800">
-                              {exam.totalMarks || exam.totalQuestions || 100}
-                            </span>
-                          </div>
-
-                          <div>
-                            {exam.negativeMarkingEnabled ? (
-                              <span className="inline-flex items-center gap-1 rounded bg-rose-50 px-1.5 py-0.5 text-[10px] font-bold text-rose-700 border border-rose-200">
-                                <span className="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
-                                -ve Marking
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
-                                No Negative
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Start Exam CTA Button */}
-                      <div className="mt-6 pt-4 border-t border-slate-100">
-                        <button
-                          onClick={() => handleStartPractice(exam._id)}
-                          className="w-full rounded-lg bg-blue-600 py-2.5 text-center text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition-all cursor-pointer flex items-center justify-center gap-2 group-hover:bg-blue-700"
-                        >
-                          <span>Start Real Exam Practice</span>
-                          <svg
-                            className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M14 5l7 7m0 0l-7 7m7-7H3"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
+                    <ExamRow key={exam._id} exam={exam} onStartPractice={handleStartPractice} />
                   ))}
                 </div>
               </section>
@@ -535,30 +566,6 @@ export default function HomePage() {
           </div>
         )}
       </main>
-
-      {/* Portal Footer */}
-      <footer className="mt-16 border-t border-slate-200 bg-white py-8 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div>
-            <p className="font-semibold text-slate-700">Prayaas Portal • Official Examination &amp; Prep Platform</p>
-            <p className="text-[11px] text-slate-400 mt-0.5">© 2026 Prayaas Portal. All Rights Reserved. Built for aspirants across India.</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/rank-calculator" className="hover:text-blue-600 font-medium">
-              Rank Predictor
-            </Link>
-            <span>•</span>
-            <Link href="/rank-calculator/terms-conditions" className="hover:text-blue-600 font-medium underline">
-              Terms &amp; Conditions
-            </Link>
-            <span>•</span>
-            <Link href="/rank-calculator/terms-conditions" className="hover:text-blue-600 font-medium">
-              User Data Policy
-            </Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
-
