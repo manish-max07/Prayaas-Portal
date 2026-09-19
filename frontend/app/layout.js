@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import LayoutWrapper from "@/components/LayoutWrapper";
+import PageViewTracker from "@/components/PageViewTracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,6 +50,7 @@ export default function RootLayout({ children }) {
         className="min-h-full flex flex-col bg-gray-50 text-gray-900 font-sans"
       >
         <AuthProvider>
+          <PageViewTracker />
           <LayoutWrapper>{children}</LayoutWrapper>
         </AuthProvider>
       </body>

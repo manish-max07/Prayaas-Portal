@@ -276,6 +276,15 @@ export default async function NewsArticlePage({ params }) {
                     </div>
                   </>
                 )}
+                {article.views > 0 && (
+                  <>
+                    <span className="hidden sm:inline text-slate-300">•</span>
+                    <div className="flex items-center gap-1 font-bold text-indigo-800 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
+                      <span>👁️</span>
+                      <span>{article.views.toLocaleString()} reads</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

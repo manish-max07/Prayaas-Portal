@@ -17,6 +17,7 @@ const userRoutes = require("./routes/userRoutes");
 const rankCalculatorRoutes = require("./routes/rankCalculatorRoutes");
 const articleRoutes = require("./routes/articleRoutes");
 const adminArticleRoutes = require("./routes/adminArticleRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
 // Connect to MongoDB
@@ -72,6 +73,7 @@ app.use("/api/exams", examRoutes);
 app.use("/api/attempts", attemptRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/rank-calculator", rankCalculatorRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 // Error Handling Middleware
 app.use(notFound);

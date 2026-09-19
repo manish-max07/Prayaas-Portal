@@ -13,7 +13,8 @@ export default function AdminDashboardPage() {
 
   // Rank examinations state
   const [rankExams, setRankExams] = useState([]);
-  const [activeTab, setActiveTab] = useState("cbt"); // "cbt" | "rank"
+  const [analytics, setAnalytics] = useState(null);
+  const [activeTab, setActiveTab] = useState("cbt"); // "cbt" | "rank" | "analytics"
 
   const { admin } = useAuth();
 
@@ -25,9 +26,10 @@ export default function AdminDashboardPage() {
     try {
       setLoading(true);
       setError(null);
-      const [cbtRes, rankRes] = await Promise.allSettled([
+      const [cbtRes, rankRes, analyticsRes] = await Promise.allSettled([
         api.get("/api/admin/exams"),
         api.get("/api/rank-calculator/admin/exams-summary"),
+        api.get("/api/analytics/admin/summary"),
       ]);
 
       if (cbtRes.status === "fulfilled" && cbtRes.value.data?.examPapers) {
@@ -40,6 +42,12 @@ export default function AdminDashboardPage() {
         setRankExams(rankRes.value.data.exams);
       } else if (rankRes.status === "rejected") {
         console.error("Rank exams fetch error:", rankRes.reason);
+      }
+
+      if (analyticsRes.status === "fulfilled" && analyticsRes.value.data) {
+        setAnalytics(analyticsRes.value.data);
+      } else if (analyticsRes.status === "rejected") {
+        console.error("Analytics fetch error:", analyticsRes.reason);
       }
     } catch (err) {
       console.error("Failed to load admin data:", err);
@@ -137,7 +145,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* 3. Summary Counters Strip */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs">
           <span className="text-xs font-medium text-gray-500">CBT Exam Papers</span>
           <div className="mt-1 text-2xl font-extrabold text-gray-900">{exams.length}</div>
@@ -149,19 +157,35 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-4 shadow-xs">
-          <span className="text-xs font-semibold text-indigo-700">Rank Examinations</span>
-          <div className="mt-1 text-2xl font-extrabold text-indigo-800">{rankExams.length}</div>
+          <span className="text-xs font-semibold text-indigo-700">Rank Submissions</span>
+          <div className="mt-1 text-2xl font-extrabold text-indigo-800">{totalRankSubmissions}</div>
         </div>
 
-        <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 shadow-xs">
-          <span className="text-xs font-semibold text-amber-700">Rank Submissions</span>
-          <div className="mt-1 text-2xl font-extrabold text-amber-800">{totalRankSubmissions}</div>
+        <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 shadow-xs">
+          <span className="text-xs font-semibold text-blue-700">🌐 Website Visits</span>
+          <div className="mt-1 text-2xl font-extrabold text-blue-900">
+            {analytics?.metrics?.totalSiteVisits ? analytics.metrics.totalSiteVisits.toLocaleString() : "0"}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 shadow-xs">
+          <span className="text-xs font-semibold text-emerald-700">📅 Visits Today (IST)</span>
+          <div className="mt-1 text-2xl font-extrabold text-emerald-900">
+            {analytics?.metrics?.todayVisits ? analytics.metrics.todayVisits.toLocaleString() : "0"}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-4 shadow-xs">
+          <span className="text-xs font-semibold text-purple-700">👁️ Article Reads</span>
+          <div className="mt-1 text-2xl font-extrabold text-purple-900">
+            {analytics?.metrics?.totalArticleViews ? analytics.metrics.totalArticleViews.toLocaleString() : "0"}
+          </div>
         </div>
       </div>
 
-      {/* 4. Tab Navigation Switcher between CBT Exams and Rank Examinations */}
+      {/* 4. Tab Navigation Switcher between CBT Exams, Rank Examinations, and Traffic Analytics */}
       <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-6 text-xs font-bold">
+        <nav className="-mb-px flex flex-wrap gap-4 sm:space-x-6 text-xs font-bold">
           <button
             onClick={() => setActiveTab("cbt")}
             className={`flex items-center gap-2 border-b-2 py-3 px-1 transition-colors cursor-pointer ${
@@ -187,6 +211,23 @@ export default function AdminDashboardPage() {
             {totalRankSubmissions > 0 && (
               <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
                 {totalRankSubmissions} applicants
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab("analytics")}
+            className={`flex items-center gap-2 border-b-2 py-3 px-1 transition-colors cursor-pointer ${
+              activeTab === "analytics"
+                ? "border-emerald-600 text-emerald-600"
+                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+            }`}
+          >
+            <span>📊</span>
+            <span>Website Traffic & Article Views</span>
+            {analytics?.metrics?.todayVisits > 0 && (
+              <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                +{analytics.metrics.todayVisits} today
               </span>
             )}
           </button>
@@ -431,6 +472,177 @@ export default function AdminDashboardPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 7. TAB 3: Website Traffic & Article Views Analytics */}
+      {activeTab === "analytics" && (
+        <div className="space-y-6">
+          {/* Key Traffic Metrics Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">All-Time Website Views</span>
+              <p className="text-3xl font-black text-slate-900 mt-2">
+                {analytics?.metrics?.totalSiteVisits ? analytics.metrics.totalSiteVisits.toLocaleString() : "0"}
+              </p>
+              <span className="text-[11px] text-slate-400 mt-1 block">Total browser page hits</span>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-emerald-200 bg-emerald-50/20 shadow-xs">
+              <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Today's Visits (IST)</span>
+              <p className="text-3xl font-black text-emerald-600 mt-2">
+                {analytics?.metrics?.todayVisits ? analytics.metrics.todayVisits.toLocaleString() : "0"}
+              </p>
+              <span className="text-[11px] text-emerald-700 mt-1 block">
+                {analytics?.metrics?.todayUnique || 0} unique device(s) today
+              </span>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-blue-200 bg-blue-50/20 shadow-xs">
+              <span className="text-xs font-bold text-blue-800 uppercase tracking-wider">Yesterday's Traffic</span>
+              <p className="text-3xl font-black text-blue-600 mt-2">
+                {analytics?.metrics?.yesterdayVisits ? analytics.metrics.yesterdayVisits.toLocaleString() : "0"}
+              </p>
+              <span className="text-[11px] text-blue-700 mt-1 block">Previous day total</span>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-purple-200 bg-purple-50/20 shadow-xs">
+              <span className="text-xs font-bold text-purple-800 uppercase tracking-wider">Total Article Reads</span>
+              <p className="text-3xl font-black text-purple-600 mt-2">
+                {analytics?.metrics?.totalArticleViews ? analytics.metrics.totalArticleViews.toLocaleString() : "0"}
+              </p>
+              <span className="text-[11px] text-purple-700 mt-1 block">Cumulative views across all articles</span>
+            </div>
+          </div>
+
+          {/* Top Read Articles Table */}
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
+            <div className="border-b border-slate-200 bg-slate-50/80 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                  <span>🏆</span>
+                  <span>Top Read News Articles & Exam Alerts</span>
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Articles ranked by total reader view count in database.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/admin/articles"
+                  className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition"
+                >
+                  Manage Articles CMS →
+                </Link>
+                <Link
+                  href="/news"
+                  target="_blank"
+                  className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition"
+                >
+                  Public News Hub ↗
+                </Link>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-slate-50/60 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+                    <th className="py-3 px-4 w-12 text-center">Rank</th>
+                    <th className="py-3 px-4">Article Title</th>
+                    <th className="py-3 px-4">Category</th>
+                    <th className="py-3 px-4">Sector</th>
+                    <th className="py-3 px-4 text-center">Views</th>
+                    <th className="py-3 px-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {analytics?.topArticles && analytics.topArticles.length > 0 ? (
+                    analytics.topArticles.map((art, idx) => (
+                      <tr key={art._id || idx} className="hover:bg-slate-50/60 transition">
+                        <td className="py-3 px-4 text-center font-bold">
+                          <span
+                            className={`inline-flex items-center justify-center h-6 w-6 rounded-full text-xs font-black ${
+                              idx === 0
+                                ? "bg-amber-100 text-amber-900 border border-amber-300"
+                                : idx === 1
+                                ? "bg-slate-200 text-slate-800"
+                                : idx === 2
+                                ? "bg-amber-50 text-amber-800"
+                                : "text-slate-400"
+                            }`}
+                          >
+                            #{idx + 1}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 font-bold text-slate-900 max-w-md">
+                          <Link
+                            href={`/news/${art.slug}`}
+                            target="_blank"
+                            className="hover:text-blue-600 transition line-clamp-1"
+                          >
+                            {art.title}
+                          </Link>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                            {art.category || "News"}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-slate-600 font-medium">
+                          {art.sector || "Central Govt"}
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span className="inline-flex items-center gap-1 font-black text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-lg text-xs">
+                            👁️ {(art.views || 0).toLocaleString()}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <Link
+                            href={`/news/${art.slug}`}
+                            target="_blank"
+                            className="px-2.5 py-1 rounded-md text-[11px] font-semibold text-blue-600 hover:bg-blue-50 border border-blue-200 transition"
+                          >
+                            Open ↗
+                          </Link>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="py-8 text-center text-slate-400">
+                        No articles viewed yet. Reader visits will appear here automatically.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Popular Sections / Routes Breakdown */}
+          {analytics?.popularRoutes && analytics.popularRoutes.length > 0 && (
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
+              <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <span>📍</span>
+                <span>Most Visited Website Sections</span>
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                {analytics.popularRoutes.map((route, i) => (
+                  <div
+                    key={i}
+                    className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between text-xs"
+                  >
+                    <span className="font-mono text-slate-700 font-semibold">{route.path}</span>
+                    <span className="font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
+                      {route.count.toLocaleString()} hits
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
